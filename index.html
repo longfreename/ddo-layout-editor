@@ -1,4 +1,6 @@
+
 <title>DDO Layout Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -330,6 +332,12 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   color:var(--ink-faint);font-size:.85rem;padding:.25rem .4rem;border-radius:4px;line-height:1}
 .starterX:hover{background:var(--panel2);color:var(--ink)}
 .starter.hidden{display:none}
+.importbar{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin:0 0 1rem;
+  background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:.7rem .9rem}
+.importbar .impHead{font-size:.88rem;color:var(--ink-soft);margin:0}
+.importbar .impHead b{color:var(--ink);font-weight:600}
+.importbar .chk{white-space:nowrap}
+.impCount{color:var(--ink-faint);font-size:.82rem}
 
 .optbar{display:flex;gap:.5rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap}
 .optbar .chk{display:inline-flex;gap:.35rem;align-items:center;cursor:pointer;font-size:.8rem;
@@ -439,6 +447,18 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .drop.over{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
 .status{font-size:.82rem;color:var(--ink-faint)}
 .hidden{display:none!important}
+
+/* ---- narrow screens ----
+   The editor is desktop-first and the screen canvas needs room, but the
+   reference panels and the starter card should still read on a phone.
+   Below the point where the 23rem sidebar stops fitting, stack instead. */
+@media (max-width:820px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .grid > *{min-width:0}
+  .starter code{white-space:normal;overflow-wrap:anywhere}
+  .importbar .impHead,
+  .importbar .chk{flex:1 0 100%}
+}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -456,9 +476,19 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
       <button class="btn primary" id="btnSave" disabled>Save .layout</button>
       <button class="btn" id="btnCopy" disabled>Copy .layout text</button>
       <button class="btn" id="btnBackup" disabled title="Save an untouched copy of the file you opened, before any of your changes">Back up original</button>
+      <button class="btn" id="btnImport" disabled title="Bring the chat shortcuts or the screen layout across from another .layout file">Import from…</button>
       <input type="file" id="file" accept=".layout,.txt,.xml" class="hidden">
+      <input type="file" id="fileImport" accept=".layout,.txt,.xml" class="hidden">
     </div>
   </header>
+
+  <div class="importbar hidden" id="importBar">
+    <p class="impHead">Bring in from <b id="impFrom"></b></p>
+    <label class="chk"><input type="checkbox" id="impAlias"> Chat shortcuts <span class="impCount" id="impAliasCount"></span></label>
+    <label class="chk"><input type="checkbox" id="impEl"> Screen layout <span class="impCount" id="impElCount"></span></label>
+    <button class="btn primary sm" id="btnImportGo">Import</button>
+    <button class="btn sm" id="btnImportCancel">Cancel</button>
+  </div>
 
   <div class="starter" id="starter">
     <button class="starterX" id="starterX" aria-label="Hide these instructions">✕</button>
@@ -841,15 +871,47 @@ const $ = s => document.querySelector(s);
 const el = (t,c) => { const n = document.createElement(t); if(c) n.className = c; return n; };
 
 /* ---------------- file in ---------------- */
-$('#btnOpen').onclick = () => $('#file').click();
-$('#file').onchange = e => { const f = e.target.files[0]; if (f) readFile(f); };
-$('#btnBlank').onclick = () => { buildBlank(); };
+/* Opening through the file picker hands back a handle, and a handle is what
+   lets Save later start in the folder the layout came from instead of in
+   whatever directory the browser last used. Browsers without the picker fall
+   back to the plain input, which gives a file but no handle. */
+let loadedHandle = null;
+$('#btnOpen').onclick = async () => {
+  if (window.showOpenFilePicker) {
+    try {
+      const [h] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout', '.xml'], 'text/plain': ['.txt'] } }]
+      });
+      loadedHandle = h;
+      readFile(await h.getFile());
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      /* picker unavailable or refused: fall through to the plain input */
+    }
+  }
+  $('#file').click();
+};
+$('#file').onchange = e => { const f = e.target.files[0]; if (f) { loadedHandle = null; readFile(f); } };
+$('#btnBlank').onclick = () => { loadedHandle = null; buildBlank(); };
 
 ['dragover','dragleave','drop'].forEach(ev =>
   document.addEventListener(ev, e => { e.preventDefault(); }, false));
-document.addEventListener('drop', e => {
-  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (f) readFile(f);
+document.addEventListener('drop', async e => {
+  /* Read everything off dataTransfer now: it is emptied as soon as this
+     handler yields, so anything fetched after an await comes back null. */
+  const dt = e.dataTransfer;
+  const dropped = dt && dt.files && dt.files[0];
+  const item = dt && dt.items && dt.items[0];
+  const handlePromise = (item && item.getAsFileSystemHandle) ? item.getAsFileSystemHandle() : null;
+  if (handlePromise) {
+    try {
+      const h = await handlePromise;
+      if (h && h.kind === 'file') { loadedHandle = h; readFile(await h.getFile()); return; }
+    } catch (err) { /* fall back to the plain file below */ }
+  }
+  if (dropped) { loadedHandle = null; readFile(dropped); }
 });
 
 function readFile(f){
@@ -878,7 +940,7 @@ function parseLayout(text, name){
   setStatus('Loaded ' + name + ' — ' + aliases.length + ' aliases, ' +
             elements.length + ' panels, ' + options.length + ' settings.');
   renderAll();
-  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+  markLoaded();
 }
 
 function buildBlank(){
@@ -887,7 +949,133 @@ function buildBlank(){
   doc = d; harvest();
   setStatus('Started fresh with chat shortcuts only. Nothing else about your interface will change.');
   renderAll();
-  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+  markLoaded();
+}
+
+/* ---------------- borrowing from another file ----------------
+   A second .layout often holds one thing worth having - a friend's hotbar
+   arrangement, or your own alias set from another character. Taking the whole
+   file would throw away everything else, so the two halves people actually
+   want are offered separately: the chat shortcuts, and where the panels sit
+   on screen. Settings are deliberately left out; they are a long tail of
+   unrelated toggles, and merging them quietly is how people lose their
+   graphics options. */
+let importDoc = null, importName = '';
+
+/* The artifact viewer strips the Save button out of the page, so every one of
+   these has to tolerate the control not being there at all. */
+function markLoaded(){
+  [['#btnSave'], ['#btnCopy'], ['#btnImport']].forEach(([sel]) => {
+    const b = $(sel); if (b) b.disabled = false;
+  });
+}
+
+function readImportFile(f){
+  const r = new FileReader();
+  r.onload = () => offerImport(r.result, f.name);
+  r.readAsText(f);
+}
+
+function offerImport(text, name){
+  if (!doc) { setStatus('Open a .layout file first, then bring parts of another one into it.', true); return; }
+  const d = new DOMParser().parseFromString(text, 'application/xml');
+  if (d.querySelector('parsererror') || !d.querySelector('UI')) {
+    setStatus('That file could not be read as a DDO layout.', true); return;
+  }
+  const nAlias = d.querySelectorAll('Aliases > Alias').length;
+  const nEl    = d.querySelectorAll('Element').length;
+  if (!nAlias && !nEl) { setStatus('There are no chat shortcuts or panels in ' + name + ' to bring across.', true); return; }
+  importDoc = d; importName = name || 'that file';
+  $('#impFrom').textContent = importName;
+  $('#impAliasCount').textContent = nAlias ? '(' + nAlias + ')' : '(none)';
+  $('#impElCount').textContent    = nEl    ? '(' + nEl + ' panels)' : '(none)';
+  $('#impAlias').disabled = !nAlias; $('#impAlias').checked = !!nAlias;
+  $('#impEl').disabled    = !nEl;    $('#impEl').checked    = false;
+  $('#importBar').classList.remove('hidden');
+  syncImportGo();
+  setStatus('Choose what to bring across from ' + importName + '. Nothing changes until you press Import.');
+}
+
+function syncImportGo(){
+  $('#btnImportGo').disabled = !($('#impAlias').checked || $('#impEl').checked);
+}
+
+function closeImport(){ importDoc = null; $('#importBar').classList.add('hidden'); }
+
+/* Shortcuts merge by name: yours stay, theirs are added, and where both files
+   define the same name theirs wins - that is the point of importing. */
+function mergeAliases(d){
+  const incoming = [...d.querySelectorAll('Aliases > Alias')]
+    .map(n => ({ name: (n.getAttribute('String') || '').trim(), value: n.getAttribute('Value') || '' }))
+    .filter(a => a.name);
+  const byName = new Map();
+  aliases.forEach(a => { const k = a.name.trim(); if (k && !byName.has(k)) byName.set(k, a); });
+  let added = 0, changed = 0;
+  incoming.forEach(inc => {
+    const hit = byName.get(inc.name);
+    if (hit) { if (hit.value !== inc.value) { hit.value = inc.value; changed++; } }
+    else { const rec = { name: inc.name, value: inc.value }; aliases.push(rec); byName.set(inc.name, rec); added++; }
+  });
+  return { added, changed };
+}
+
+/* Panels merge on which layout they belong to plus their ID, so a hotbar goes
+   where the other file puts it and anything that file never mentions is left
+   exactly where it was. */
+function mergeElements(d){
+  const key = e => (e.layoutId || '') + ' ' + e.id;
+  const incoming = [...d.querySelectorAll('Element')].map(n => {
+    const L = n.closest ? n.closest('Layout') : n.parentNode;
+    return {
+      id: n.getAttribute('ID') || '(unnamed)',
+      layoutId: (L && L.getAttribute) ? (L.getAttribute('ID') || '') : '',
+      x: parseFloat(n.getAttribute('X')) || 0,
+      y: parseFloat(n.getAttribute('Y')) || 0,
+      w: parseFloat(n.getAttribute('Width')) || 0,
+      h: parseFloat(n.getAttribute('Height')) || 0
+    };
+  });
+  const mine = new Map();
+  elements.forEach(e => { if (!mine.has(key(e))) mine.set(key(e), e); });
+  let moved = 0, added = 0;
+  incoming.forEach(inc => {
+    const hit = mine.get(key(inc));
+    if (hit) {
+      if (hit.x !== inc.x || hit.y !== inc.y || hit.w !== inc.w || hit.h !== inc.h) moved++;
+      hit.x = inc.x; hit.y = inc.y; hit.w = inc.w; hit.h = inc.h;
+    } else {
+      /* new to this file, so its own position is the one to revert to */
+      inc.orig = { id: inc.id, x: inc.x, y: inc.y, w: inc.w, h: inc.h };
+      elements.push(inc); mine.set(key(inc), inc); added++;
+    }
+  });
+  learnBarSizes(); enforceBarSizes();
+  return { moved, added };
+}
+
+function runImport(){
+  if (!importDoc) return;
+  const wantA = $('#impAlias').checked && !$('#impAlias').disabled;
+  const wantE = $('#impEl').checked    && !$('#impEl').disabled;
+  if (!wantA && !wantE) return;
+  pushUndo();
+  const said = [];
+  if (wantA) {
+    const r = mergeAliases(importDoc);
+    said.push(r.added + ' shortcut' + (r.added === 1 ? '' : 's') + ' added' +
+              (r.changed ? ', ' + r.changed + ' updated' : ''));
+    selAlias = -1;
+  }
+  if (wantE) {
+    const r = mergeElements(importDoc);
+    said.push(r.moved + ' panel' + (r.moved === 1 ? '' : 's') + ' moved' +
+              (r.added ? ', ' + r.added + ' added' : ''));
+    selSet.clear(); selEl = -1;
+  }
+  const from = importName;
+  closeImport();
+  renderAll();
+  setStatus('Brought in from ' + from + ': ' + said.join('; ') + '. Undo puts it back.');
 }
 
 function harvest(){
@@ -1651,11 +1839,17 @@ const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
 /* ---- undo stack over element geometry ---- */
 let undoStack = [], redoStack = [];
-const snapshot = () => elements.map(e => ({id:e.id, x:e.x, y:e.y, w:e.w, h:e.h}));
+/* Snapshots carry the whole panel list, not just geometry: adding or removing
+   a hotbar, or importing a screen layout, changes the list's length, and an
+   index-by-index restore silently leaves those changes in place. */
+const snapshot = () => elements.map(e => ({id:e.id, layoutId:e.layoutId, x:e.x, y:e.y, w:e.w, h:e.h, orig:e.orig}));
 function pushUndo(){ undoStack.push(snapshot()); if (undoStack.length > 60) undoStack.shift();
                      redoStack = []; syncUndo(); }
-function restore(list){ list.forEach((s,i) => { const e = elements[i]; if (!e) return;
-  e.id = s.id; e.x = s.x; e.y = s.y; e.w = s.w; e.h = s.h; }); }
+function restore(list){
+  if (list.length !== elements.length) { selSet.clear(); selEl = -1; }
+  elements.length = 0;
+  list.forEach(s => elements.push({id:s.id, layoutId:s.layoutId, x:s.x, y:s.y, w:s.w, h:s.h, orig:s.orig}));
+}
 function syncUndo(){ $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
 $('#btnUndo').onclick = () => { if (!undoStack.length) return;
   redoStack.push(snapshot()); restore(undoStack.pop()); syncUndo(); renderScreen(); };
@@ -2500,10 +2694,12 @@ if (inViewer) {
     }
     if (window.showSaveFilePicker) {
       try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: 'ddo.layout',
+        const opts = {
+          suggestedName: suggestedSaveName(),
           types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
-        });
+        };
+        if (loadedHandle) opts.startIn = loadedHandle;   /* same folder it came from */
+        const handle = await window.showSaveFilePicker(opts);
         const w = await handle.createWritable();
         await w.write(xml);
         await w.close();
@@ -2519,14 +2715,49 @@ if (inViewer) {
       const blob = new Blob([xml], {type:'application/xml'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'ddo.layout';
+      a.href = url; a.download = suggestedSaveName();
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
-      setStatus('Saved ddo.layout to your downloads. Move it into your UI\\layouts folder, then in game type /alias clear followed by /ui layout load ddo.');
+      setStatus('Saved ' + suggestedSaveName() + ' to your downloads. Move it into your UI\\layouts folder, then in game type /alias clear followed by /ui layout load ddo.');
     } catch (err2) {
       setStatus('This browser blocked the download. Use Copy .layout text instead.', true);
     }
   };
+}
+
+/* ---------------- import controls ---------------- */
+$('#btnImport').onclick = () => $('#fileImport').click();
+$('#fileImport').onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = '';          /* so the same file can be picked twice */
+  if (f) readImportFile(f);
+};
+$('#impAlias').onchange = syncImportGo;
+$('#impEl').onchange = syncImportGo;
+$('#btnImportGo').onclick = runImport;
+$('#btnImportCancel').onclick = () => { closeImport(); setStatus('Import cancelled. Nothing was changed.'); };
+
+/* ---------------- what a save should be called ----------------
+   Layout files are usually named after the character, and often carry the
+   screen size they were built for. Once a layout has been moved to a
+   different screen, a name still claiming the old size is worse than a name
+   with no size in it, so the numbers follow the move. The substitution only
+   happens when the numbers in the name match the size the layout was moved
+   FROM, which keeps it away from dates and version numbers that happen to
+   look like a resolution. */
+let lastResFrom = null, lastResTo = null;
+const RES_IN_NAME = /(\d{3,5})(\s*[x×_-]\s*)(\d{3,5})/;
+
+function suggestedSaveName(){
+  let base = (loadedName || 'ddo.layout').replace(/\.layout$/i, '').trim();
+  if (!base) base = 'ddo';
+  if (lastResFrom && lastResTo) {
+    base = base.replace(RES_IN_NAME, (m, w, sep, h) =>
+      (+w === lastResFrom[0] && +h === lastResFrom[1])
+        ? lastResTo[0] + sep + lastResTo[1]
+        : m);
+  }
+  return base + '.layout';
 }
 
 /* ---- keep a pristine copy of whatever was opened ----
@@ -2540,10 +2771,12 @@ $('#btnBackup').onclick = async () => {
   const name = base + '-backup-' + stamp + '.layout';
   if (window.showSaveFilePicker) {
     try {
-      const h = await window.showSaveFilePicker({
+      const bopts = {
         suggestedName: name,
         types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
-      });
+      };
+      if (loadedHandle) bopts.startIn = loadedHandle;
+      const h = await window.showSaveFilePicker(bopts);
       const w = await h.createWritable();
       await w.write(loadedText);
       await w.close();
@@ -2614,6 +2847,7 @@ $('#btnRes').onclick = () => {
     e.w = nw; e.h = nh;
   });
   learnBarSizes(); enforceBarSizes();
+  lastResFrom = from; lastResTo = to;
   renderScreen();
   $('#resNote').textContent = 'Save this under a name that says which screen it is for, such as ' +
     'mylayout_' + to[0] + '_' + to[1] + '.layout';
@@ -2675,7 +2909,7 @@ function loadSample(){
   renderAll();
   setStatus('Sample layout loaded — ' + elements.length + ' panels, ' + options.length +
             ' settings, plus the built-in general alias set. Open a .layout file to work on your own.');
-  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+  markLoaded();
   return true;
 }
 $('#btnSample').onclick = loadSample;
