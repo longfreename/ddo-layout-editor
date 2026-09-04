@@ -1,0 +1,2704 @@
+<title>DDO Layout Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+:root{
+  --ground:#EDF0F4; --panel:#FFFFFF; --panel2:#E3E8EE;
+  --ink:#131820; --ink-soft:#4A5464; --ink-faint:#77828F;
+  --rule:#D7DDE5; --rule-strong:#BEC6D1;
+  --accent:#8A5200; --accent-bg:#F4E7D2; --accent-line:#C08A2E;
+  --ok:#1C6E3E; --ok-bg:#DDEFE3;
+  --warn:#8A3A12; --warn-bg:#F7E4DA;
+  --bad:#A01A1A; --bad-bg:#F8DCDC;
+  --chat-bg:#0C1015; --chat-ink:#C9D2DE; --chat-rule:#222B35; --chat-dim:#6C7787;
+  --shadow:0 1px 2px rgba(16,22,30,.05), 0 8px 22px -14px rgba(16,22,30,.28);
+  --lift:0 2px 5px rgba(16,22,30,.08), 0 20px 44px -22px rgba(16,22,30,.4);
+  --r:9px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1218; --panel:#161C24; --panel2:#1E2630;
+  --ink:#E8ECF2; --ink-soft:#B0BAC8; --ink-faint:#7B8693;
+  --rule:#232B35; --rule-strong:#323C49;
+  --accent:#FFB43D; --accent-bg:#2A2214; --accent-line:#7A5A22;
+  --ok:#6FD79B; --ok-bg:#122619;
+  --warn:#FF9E6B; --warn-bg:#2B1B13;
+  --bad:#FF8A8A; --bad-bg:#2B1414;
+  --chat-bg:#070A0E; --chat-rule:#1B222B;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -16px rgba(0,0,0,.85);
+  --lift:0 2px 6px rgba(0,0,0,.55), 0 24px 50px -24px rgba(0,0,0,.95);
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1218; --panel:#161C24; --panel2:#1E2630;
+  --ink:#E8ECF2; --ink-soft:#B0BAC8; --ink-faint:#7B8693;
+  --rule:#232B35; --rule-strong:#323C49;
+  --accent:#FFB43D; --accent-bg:#2A2214; --accent-line:#7A5A22;
+  --ok:#6FD79B; --ok-bg:#122619;
+  --warn:#FF9E6B; --warn-bg:#2B1B13;
+  --bad:#FF8A8A; --bad-bg:#2B1414;
+  --chat-bg:#070A0E; --chat-rule:#1B222B;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -16px rgba(0,0,0,.85);
+  --lift:0 2px 6px rgba(0,0,0,.55), 0 24px 50px -24px rgba(0,0,0,.95);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;
+  font-family:"Source Sans 3",system-ui,sans-serif;font-size:15px;line-height:1.55}
+h1,h2,h3{font-family:"Bricolage Grotesque","Source Sans 3",sans-serif;margin:0;line-height:1.15;text-wrap:balance}
+code,pre,input,select,textarea,.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.shell{max-width:1240px;margin:0 auto;padding:0 1.25rem 5rem}
+header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
+  display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;justify-content:space-between}
+.brand h1{font-size:2.15rem;font-weight:800;letter-spacing:-.028em}
+.brand p{margin:.35rem 0 0;color:var(--ink-soft);font-size:.95rem;max-width:54ch}
+.eyebrow{font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);
+  margin:0 0 .55rem;display:flex;align-items:center;gap:.5rem}
+.eyebrow::before{content:"";width:1.6rem;height:2px;background:var(--accent);border-radius:2px}
+
+.bar{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+.btn{background:var(--panel);color:var(--ink);border:1px solid var(--rule-strong);border-radius:6px;
+  padding:.42rem .78rem;cursor:pointer;font-size:.86rem;display:inline-flex;gap:.4rem;align-items:center;
+  box-shadow:var(--shadow);transition:border-color .13s, color .13s, transform .13s, box-shadow .13s}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);box-shadow:var(--lift)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--ground);font-weight:600}
+.btn.primary:hover{color:var(--ground);filter:brightness(1.07)}
+.btn.sm{padding:.24rem .55rem;font-size:.77rem;box-shadow:none}
+.btn.sm:hover{transform:none;box-shadow:none}
+.btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
+.btn[disabled]:hover{border-color:var(--rule-strong);color:var(--ink);transform:none}
+
+.tabs{display:flex;gap:.15rem;border-bottom:1px solid var(--rule);margin:.4rem 0 1.6rem;flex-wrap:wrap}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:.65rem 1rem;cursor:pointer;
+  color:var(--ink-faint);font-size:.9rem;font-weight:600;letter-spacing:-.005em;
+  transition:color .13s, border-color .13s}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 23rem;gap:1.4rem;align-items:start}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:1.05rem 1.1rem;
+  box-shadow:var(--shadow)}
+.card h3{font-size:.78rem;margin-bottom:.75rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;font-family:"Source Sans 3",sans-serif;
+  display:flex;align-items:center;gap:.45rem}
+.card h3::after{content:"";flex:1;height:1px;background:var(--rule)}
+.hint{font-size:.8rem;color:var(--ink-faint);margin:.45rem 0 0;line-height:1.5}
+
+/* ---- alias table ---- */
+.atable{width:100%;border-collapse:collapse;font-size:.86rem}
+.atable th{text-align:left;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:400;padding:.4rem .45rem;border-bottom:1px solid var(--rule-strong)}
+.atable td{padding:.3rem .45rem;border-bottom:1px solid var(--rule);vertical-align:middle}
+.atable tr.sel td{background:var(--accent-bg)}
+.atable input{width:100%;background:transparent;border:1px solid transparent;border-radius:3px;
+  color:var(--ink);padding:.25rem .35rem;font-size:.82rem}
+.atable input:hover{border-color:var(--rule)}
+.atable input:focus{border-color:var(--accent);background:var(--ground)}
+.aname{width:7.5rem}
+.rowbtn{color:var(--ink-faint);background:none;border:0;cursor:pointer;padding:.15rem .3rem;border-radius:3px}
+.rowbtn:hover{color:var(--bad);background:var(--bad-bg)}
+.tablewrap{max-height:52vh;overflow:auto;border:1px solid var(--rule);border-radius:6px}
+
+/* ---- chat preview ---- */
+.chat{background:var(--chat-bg);border:1px solid var(--chat-rule);border-radius:6px;padding:.8rem .9rem;
+  color:var(--chat-ink);font-size:.82rem;line-height:1.7;min-height:5rem;overflow-x:auto;
+  font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+.chat .meta{color:var(--chat-dim)}
+
+.pal{display:flex;flex-wrap:wrap;gap:.3rem;margin:.4rem 0 0}
+.pal button{display:inline-flex;align-items:center;gap:.32rem;padding:.22rem .5rem .22rem .3rem;
+  border-radius:4px;border:1px solid var(--rule-strong);cursor:pointer;background:var(--panel);
+  color:var(--ink);font-size:.76rem}
+.pal button:hover{border-color:var(--accent)}
+.pal .dot{width:.8rem;height:.8rem;border-radius:2px;border:1px solid rgba(0,0,0,.25);flex:none}
+
+.flabel{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);
+  display:block;margin-bottom:.25rem}
+.sel{width:100%;background:var(--ground);border:1px solid var(--rule-strong);border-radius:5px;
+  color:var(--ink);padding:.4rem .5rem;font-size:.86rem;font-family:inherit}
+.chat.editable{min-height:4.5rem;cursor:text;outline:none}
+.chat.editable:focus{border-color:var(--accent)}
+.chat.editable:empty::before{content:"Type your message here";color:var(--chat-dim)}
+.raw{width:100%;margin-top:.5rem;background:var(--chat-bg);color:var(--chat-ink);
+  border:1px solid var(--chat-rule);border-radius:5px;padding:.6rem;font-size:.76rem;
+  min-height:4.5rem;resize:vertical}
+
+/* rendered value shown in the table instead of raw tags */
+.vcell{cursor:pointer;padding:.3rem .4rem;border-radius:3px;border:1px solid transparent;
+  background:var(--chat-bg);color:var(--chat-ink);font-family:"JetBrains Mono",monospace;
+  font-size:.76rem;line-height:1.45;white-space:pre-wrap;word-break:break-word;
+  max-height:3.4rem;overflow:hidden}
+.vcell:hover{border-color:var(--accent)}
+.vcell .ch{color:var(--chat-dim)}
+.vcell.empty{color:var(--chat-dim);font-style:italic}
+
+.counter{display:flex;align-items:baseline;gap:.4rem;font-size:.85rem}
+.counter b{font-size:1.5rem;font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+.meter{height:5px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:.45rem}
+.meter i{display:block;height:100%;background:var(--ok);transition:width .2s}
+.meter.warn i{background:var(--warn)} .meter.bad i{background:var(--bad)}
+
+.issue{font-size:.82rem;padding:.45rem .6rem;border-radius:4px;margin-bottom:.35rem;border-left:3px solid}
+.issue.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.issue.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.issue.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+
+/* ---- interface arranger ---- */
+.screen{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;touch-action:none;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #141B24 0%, #0A0E13 55%, #06090C 100%);
+  border:1px solid var(--chat-rule);border-radius:0 0 var(--r) 0;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.6)}
+.empty-screen{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  color:#5A6779;font-size:.9rem;padding:2rem;font-family:"Source Sans 3",sans-serif;z-index:6}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ground);font-weight:600}
+.el .lbl{opacity:.9;pointer-events:none;display:block}
+
+/* rulers wrap the stage */
+.stage{display:grid;grid-template-columns:1.65rem 1fr;grid-template-rows:1.15rem 1fr;gap:0;
+  border-radius:var(--r);box-shadow:var(--lift);overflow:hidden}
+.rcorner{background:var(--panel2);border:1px solid var(--rule);border-right:0;border-bottom:0}
+.ruler{position:relative;background:var(--panel2);border:1px solid var(--rule);overflow:hidden;
+  font-family:"JetBrains Mono",monospace;font-size:.52rem;color:var(--ink-faint)}
+.ruler.rh{border-bottom:0}
+.ruler.rv{border-right:0}
+.ruler .tk{position:absolute;background:var(--rule-strong)}
+.ruler.rh .tk{top:60%;bottom:0;width:1px}
+.ruler.rh .tk.maj{top:25%}
+.ruler.rv .tk{left:60%;right:0;height:1px}
+.ruler.rv .tk.maj{left:25%}
+.ruler .lb{position:absolute;line-height:1}
+.ruler.rh .lb{top:1px;transform:translateX(2px)}
+.ruler.rv .lb{left:1px;transform:translateY(1px);font-size:.48rem}
+
+.gridlay{position:absolute;inset:0;pointer-events:none;z-index:0}
+.guides{position:absolute;inset:0;pointer-events:none;z-index:5}
+.guides .g{position:absolute;background:#FF5FA2}
+.guides .g.v{top:0;bottom:0;width:1px}
+.guides .g.h{left:0;right:0;height:1px}
+
+/* resize handles */
+.hd{position:absolute;width:9px;height:9px;background:#FFB43D;border:1px solid #12161C;
+  border-radius:2px;z-index:4}
+.hd.nw{left:-5px;top:-5px;cursor:nwse-resize}   .hd.ne{right:-5px;top:-5px;cursor:nesw-resize}
+.hd.sw{left:-5px;bottom:-5px;cursor:nesw-resize}.hd.se{right:-5px;bottom:-5px;cursor:nwse-resize}
+.hd.n{left:50%;top:-5px;margin-left:-4px;cursor:ns-resize}
+.hd.s{left:50%;bottom:-5px;margin-left:-4px;cursor:ns-resize}
+.hd.w{top:50%;left:-5px;margin-top:-4px;cursor:ew-resize}
+.hd.e{top:50%;right:-5px;margin-top:-4px;cursor:ew-resize}
+
+.toolrow{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin:.7rem 0 0;
+  font-size:.79rem;color:var(--ink-soft);background:var(--panel);border:1px solid var(--rule);
+  border-radius:var(--r);padding:.55rem .7rem;box-shadow:var(--shadow)}
+.toolrow .chk{display:inline-flex;gap:.34rem;align-items:center;cursor:pointer;
+  padding:.1rem .3rem;border-radius:4px;transition:background .12s}
+.toolrow .chk:hover{background:var(--panel2)}
+.toolrow input[type=checkbox]{accent-color:var(--accent);margin:0}
+.minisel{background:var(--ground);border:1px solid var(--rule-strong);border-radius:5px;
+  color:var(--ink);padding:.2rem .35rem;font-size:.76rem;font-family:inherit}
+.sep{width:1px;height:1.1rem;background:var(--rule-strong)}
+.alignbar{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin-top:.5rem}
+.resrow{display:flex;align-items:center;gap:.5rem;justify-content:space-between}
+.resrow .flabel{margin:0;white-space:nowrap}
+.resrow .minisel{flex:1 1 auto;max-width:11rem}
+.barsgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:.22rem}
+.barsgrid button{padding:.28rem 0;font-size:.7rem;border-radius:3px;cursor:pointer;
+  border:1px solid var(--rule-strong);background:var(--panel);color:var(--ink-faint);
+  font-family:"JetBrains Mono",monospace}
+.barsgrid button.on{background:var(--accent);border-color:var(--accent);color:var(--ground);font-weight:700}
+.barsgrid button.on.vert{background:var(--accent-bg);color:var(--accent)}
+.barsgrid button:hover{border-color:var(--accent)}
+.el{position:absolute;border:1px solid rgba(255,180,61,.42);
+  background:linear-gradient(180deg, rgba(255,180,61,.16), rgba(255,180,61,.07));
+  border-radius:4px;cursor:grab;overflow:hidden;font-size:.6rem;color:#EAD6B0;
+  font-family:"JetBrains Mono",monospace;padding:3px 4px;line-height:1.2;z-index:1;
+  transition:background .12s, border-color .12s, box-shadow .12s;
+  text-shadow:0 1px 2px rgba(0,0,0,.85)}
+.el:hover{background:linear-gradient(180deg, rgba(255,180,61,.3), rgba(255,180,61,.14));
+  border-color:rgba(255,180,61,.75)}
+.el.sel{border-color:#FFC46A;color:#fff;z-index:3;
+  background:linear-gradient(180deg, rgba(255,180,61,.42), rgba(255,180,61,.2));
+  box-shadow:0 0 0 1px rgba(255,196,106,.9), 0 6px 22px -6px rgba(255,180,61,.5)}
+.el.drag{cursor:grabbing}
+
+/* ---------- panels drawn as the widgets they actually are ---------- */
+.el .lbl{position:absolute;left:4px;top:3px;right:4px;font-size:.56rem;letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;opacity:.92}
+.el .art{position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:3px;overflow:hidden}
+.el.k-plain .art{display:none}
+
+/* hotbars: rows or columns of slots */
+.el.k-hbar{background:linear-gradient(180deg,rgba(20,26,34,.92),rgba(12,16,22,.92));
+  border-color:rgba(255,180,61,.32)}
+.el.k-hbar .art{background:
+  repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0 1px, transparent 1px 8.34%),
+  linear-gradient(180deg, rgba(120,150,190,.16), rgba(60,80,110,.08));
+  margin:2px}
+.el.k-vbar{background:linear-gradient(90deg,rgba(20,26,34,.92),rgba(12,16,22,.92));
+  border-color:rgba(255,180,61,.32)}
+.el.k-vbar .art{background:
+  repeating-linear-gradient(180deg, rgba(255,255,255,.11) 0 1px, transparent 1px 8.34%),
+  linear-gradient(90deg, rgba(120,150,190,.16), rgba(60,80,110,.08));
+  margin:2px}
+
+/* vitals: hp over sp */
+.el.k-vitals{background:rgba(10,14,20,.9);border-color:rgba(255,180,61,.3)}
+.el.k-vitals .art{background:
+  linear-gradient(180deg, transparent 0 34%, #B02A2A 34% 56%, transparent 56% 60%,
+                          #2B6FC4 60% 82%, transparent 82%);
+  margin:3px;box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
+
+/* target orb / portrait */
+.el.k-orb{background:none;border-color:rgba(255,180,61,.3)}
+.el.k-orb .art{border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #5B7EA8 0%, #2C3E56 55%, #16202C 100%);
+  box-shadow:inset 0 0 0 2px rgba(255,180,61,.35), inset 0 -6px 14px rgba(0,0,0,.7)}
+
+/* minimap */
+.el.k-radar{background:rgba(8,12,17,.92);border-color:rgba(255,180,61,.3)}
+.el.k-radar .art{border-radius:50%;margin:3px;
+  background:
+    conic-gradient(from 210deg, rgba(90,190,140,.35), transparent 28%),
+    radial-gradient(circle, #16241C 0%, #0C1512 70%, #070C0A 100%);
+  box-shadow:inset 0 0 0 1px rgba(140,200,170,.35)}
+
+/* chat: fake lines */
+.el.k-chat{background:rgba(6,9,13,.88);border-color:rgba(255,180,61,.28)}
+.el.k-chat .art{margin:3px;background:
+  linear-gradient(90deg,#7FB4E8 0 62%,transparent 62%) 0 12%/100% 7% no-repeat,
+  linear-gradient(90deg,#9FD4A8 0 46%,transparent 46%) 0 27%/100% 7% no-repeat,
+  linear-gradient(90deg,#C9D2DE 0 78%,transparent 78%) 0 42%/100% 7% no-repeat,
+  linear-gradient(90deg,#E8C87F 0 54%,transparent 54%) 0 57%/100% 7% no-repeat,
+  linear-gradient(90deg,#C9D2DE 0 68%,transparent 68%) 0 72%/100% 7% no-repeat,
+  linear-gradient(90deg,#9AA8BC 0 38%,transparent 38%) 0 87%/100% 7% no-repeat;
+  opacity:.55}
+
+/* party list */
+.el.k-party{background:rgba(10,14,20,.9);border-color:rgba(255,180,61,.3)}
+.el.k-party .art{margin:3px;background:
+  linear-gradient(90deg,#B02A2A 0 70%,transparent 70%) 0 10%/100% 5% no-repeat,
+  linear-gradient(90deg,#B02A2A 0 52%,transparent 52%) 0 30%/100% 5% no-repeat,
+  linear-gradient(90deg,#B02A2A 0 88%,transparent 88%) 0 50%/100% 5% no-repeat,
+  linear-gradient(90deg,#B02A2A 0 64%,transparent 64%) 0 70%/100% 5% no-repeat,
+  linear-gradient(90deg,#B02A2A 0 44%,transparent 44%) 0 90%/100% 5% no-repeat;
+  opacity:.6}
+
+/* quest tracker / text panels */
+.el.k-text{background:rgba(9,13,19,.85);border-color:rgba(255,180,61,.28)}
+.el.k-text .art{margin:3px;background:
+  linear-gradient(90deg,#E8C87F 0 58%,transparent 58%) 0 14%/100% 6% no-repeat,
+  linear-gradient(90deg,#9AA8BC 0 84%,transparent 84%) 0 34%/100% 5% no-repeat,
+  linear-gradient(90deg,#9AA8BC 0 72%,transparent 72%) 0 50%/100% 5% no-repeat,
+  linear-gradient(90deg,#9AA8BC 0 90%,transparent 90%) 0 66%/100% 5% no-repeat;
+  opacity:.55}
+
+/* on-demand windows: title strip + body */
+.el.k-window{background:rgba(12,17,24,.82);border-color:rgba(150,170,200,.3);color:#B9C6D6}
+.el.k-window .art{background:
+  linear-gradient(180deg, rgba(255,180,61,.22) 0 14%, transparent 14%),
+  repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0 1px, transparent 1px 14%)}
+.el.k-window .lbl{color:#D8E2EF}
+.ellist{max-height:22rem;overflow:auto;border:1px solid var(--rule);border-radius:6px}
+.ellist button{display:block;width:100%;text-align:left;background:none;border:0;
+  border-bottom:1px solid var(--rule);padding:.35rem .55rem;cursor:pointer;color:var(--ink);font-size:.8rem}
+.ellist button:hover{background:var(--panel2)}
+.ellist button[aria-current="true"]{background:var(--accent-bg);color:var(--accent);font-weight:600}
+
+.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-top:.7rem}
+.fields label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:.15rem}
+.fields input{width:100%;background:var(--ground);border:1px solid var(--rule-strong);border-radius:4px;
+  color:var(--ink);padding:.3rem .4rem;font-size:.82rem}
+
+/* ---- options ---- */
+/* first-run guide */
+.starter{position:relative;background:var(--panel);border:1px solid var(--rule);
+  border-left:3px solid var(--accent);border-radius:var(--r);padding:1.05rem 2.4rem 1.05rem 1.15rem;
+  margin:0 0 1rem;box-shadow:var(--shadow)}
+.starter h2{font-size:1rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.01em}
+.starter ol{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.45rem}
+.starter li{font-size:.88rem;color:var(--ink-soft);line-height:1.55}
+.starter li b{color:var(--ink);font-weight:600}
+.starter code{background:var(--accent-bg);color:var(--ink);padding:.08em .35em;border-radius:3px;
+  font-size:.82em;white-space:nowrap}
+.starterNote{font-size:.83rem;color:var(--ink-faint);margin:.75rem 0 0;
+  padding-top:.65rem;border-top:1px solid var(--rule)}
+.starterX{position:absolute;top:.55rem;right:.6rem;background:none;border:0;cursor:pointer;
+  color:var(--ink-faint);font-size:.85rem;padding:.25rem .4rem;border-radius:4px;line-height:1}
+.starterX:hover{background:var(--panel2);color:var(--ink)}
+.starter.hidden{display:none}
+
+.optbar{display:flex;gap:.5rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap}
+.optbar .chk{display:inline-flex;gap:.35rem;align-items:center;cursor:pointer;font-size:.8rem;
+  color:var(--ink-soft);white-space:nowrap}
+.optbar input[type=checkbox]{accent-color:var(--accent)}
+.optlist{max-height:66vh;overflow:auto;border:1px solid var(--rule);border-radius:var(--r);
+  background:var(--panel);box-shadow:var(--shadow)}
+.optgrp{position:sticky;top:0;z-index:2;background:var(--panel2);
+  padding:.38rem .75rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;border-bottom:1px solid var(--rule);
+  border-top:1px solid var(--rule)}
+.optgrp:first-child{border-top:0}
+.optrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.75rem;
+  padding:.42rem .75rem;border-bottom:1px solid var(--rule);font-size:.86rem}
+.optrow:last-child{border-bottom:0}
+.optrow:hover{background:var(--panel2)}
+.optrow .k{line-height:1.3}
+.optrow .k b{font-weight:600;display:block}
+.optrow .k i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.66rem;
+  color:var(--ink-faint);opacity:.75}
+.optrow.dirty{box-shadow:inset 3px 0 0 var(--accent)}
+.optrow.dirty .k b::after{content:"changed";margin-left:.45rem;font-size:.6rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-bg);padding:.05rem .3rem;border-radius:3px;vertical-align:.08em}
+.optrow .ctl{display:flex;align-items:center;gap:.4rem}
+.optrow input[type=text]{width:6.5rem;background:var(--ground);border:1px solid var(--rule-strong);
+  border-radius:4px;color:var(--ink);padding:.2rem .35rem;font-size:.78rem}
+.optrow input[type=color]{width:2.1rem;height:1.5rem;padding:0;border:1px solid var(--rule-strong);
+  border-radius:4px;background:none;cursor:pointer}
+.optrow select{background:var(--ground);border:1px solid var(--rule-strong);border-radius:4px;
+  color:var(--ink);padding:.2rem .3rem;font-size:.78rem;font-family:inherit}
+.optrow .hex{font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--ink-faint);width:4.4rem}
+.revert{background:none;border:0;color:var(--ink-faint);cursor:pointer;font-size:.9rem;
+  padding:0 .2rem;border-radius:3px;line-height:1}
+.revert:hover{color:var(--accent);background:var(--accent-bg)}
+
+/* toggle switch */
+.sw{position:relative;width:2.1rem;height:1.15rem;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.sw span{position:absolute;inset:0;background:var(--rule-strong);border-radius:99px;
+  transition:background .15s}
+.sw span::after{content:"";position:absolute;left:2px;top:2px;width:.85rem;height:.85rem;
+  background:var(--panel);border-radius:50%;transition:transform .15s;
+  box-shadow:0 1px 2px rgba(0,0,0,.35)}
+.sw input:checked + span{background:var(--accent)}
+.sw input:checked + span::after{transform:translateX(.95rem)}
+.sw input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+
+.selcount{margin-left:auto;font-size:.66rem;letter-spacing:.06em;text-transform:none;
+  color:var(--ink-faint);font-weight:400;white-space:nowrap}
+.selcount.live{color:var(--accent);font-weight:600}
+.card h3 .selcount + ::after{content:none}
+.need{font-size:.6rem;color:var(--ink-faint);letter-spacing:.06em;margin-left:.35rem}
+.gapfield{display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;color:var(--ink-faint)}
+.gapfield input{width:3.2rem;background:var(--ground);border:1px solid var(--rule-strong);
+  border-radius:4px;color:var(--ink);padding:.2rem .3rem;font-size:.76rem;
+  font-family:"JetBrains Mono",monospace}
+.btn.ar[disabled],.btn.ar3[disabled]{opacity:.32}
+.alignbar .btn{font-size:.95rem;line-height:1;padding:.3rem 0}
+.marquee{position:absolute;border:1px solid #FFC46A;background:rgba(255,180,61,.14);
+  z-index:7;pointer-events:none;border-radius:2px}
+
+/* right-click menu */
+.ctx{position:fixed;z-index:999;min-width:14rem;background:var(--panel);
+  border:1px solid var(--rule-strong);border-radius:var(--r);box-shadow:var(--lift);
+  padding:.3rem;font-size:.84rem}
+.ctx button{display:flex;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  color:var(--ink);padding:.36rem .55rem;border-radius:5px;gap:.6rem;align-items:center;
+  font-family:inherit;font-size:.84rem}
+.ctx button:hover{background:var(--accent-bg);color:var(--accent)}
+.ctx button[disabled]{opacity:.35;cursor:default}
+.ctx button[disabled]:hover{background:none;color:var(--ink)}
+.ctx button kbd{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:.66rem;
+  color:var(--ink-faint);background:var(--panel2);padding:.05rem .3rem;border-radius:3px}
+.ctx .ctxhead{padding:.35rem .55rem .3rem;font-size:.64rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:16rem}
+.ctx hr{border:0;border-top:1px solid var(--rule);margin:.25rem .3rem}
+.el.multi{box-shadow:0 0 0 1px rgba(255,196,106,.75)}
+
+/* overlapping panels: red hatching, deliberately unlike the amber selection */
+.el.ovl{
+  border-color:#FF7A7A !important;
+  background:repeating-linear-gradient(45deg,
+    rgba(255,70,70,.42) 0 7px, rgba(255,70,70,.16) 7px 14px) !important;
+  box-shadow:0 0 0 2px #FF5C5C, 0 0 20px -2px rgba(255,60,60,.65) !important;
+  color:#FFF !important; z-index:4}
+.el.ovl .art{opacity:.25}
+.el.ovl .lbl{text-shadow:0 1px 3px #000, 0 0 6px #000}
+.ovlbadge{position:absolute;right:3px;bottom:2px;font-size:.52rem;letter-spacing:.06em;
+  text-transform:uppercase;color:#FFD9D9;background:rgba(150,20,20,.85);
+  padding:0 .25rem;border-radius:2px;z-index:3;pointer-events:none}
+.el.anchor{box-shadow:0 0 0 2px #FFC46A, 0 6px 22px -6px rgba(255,180,61,.55)}
+
+.catlist{display:flex;flex-direction:column;gap:.15rem}
+.catlist button{text-align:left;background:none;border:0;padding:.32rem .5rem;border-radius:5px;
+  cursor:pointer;color:var(--ink-soft);font-size:.82rem;display:flex;justify-content:space-between;
+  gap:.5rem;font-family:inherit}
+.catlist button:hover{background:var(--panel2);color:var(--ink)}
+.catlist button[aria-current="true"]{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.catlist button em{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.7rem;opacity:.7}
+.search{width:100%;flex:1 1 12rem;background:var(--ground);border:1px solid var(--rule-strong);
+  border-radius:6px;color:var(--ink);padding:.45rem .65rem;font-size:.86rem}
+
+.drop{border:2px dashed var(--rule-strong);border-radius:8px;padding:2rem 1rem;text-align:center;
+  color:var(--ink-faint);font-size:.9rem}
+.drop.over{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.status{font-size:.82rem;color:var(--ink-faint)}
+.hidden{display:none!important}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <p class="eyebrow">Move your bars, set up chat shortcuts, tidy your settings</p>
+      <h1>DDO Layout Editor</h1>
+      <p>Move your health bars, hotbars and chat windows wherever you want them, set up chat shortcuts, and tidy your game settings. Everything stays on your own computer.</p>
+    </div>
+    <div class="bar">
+      <button class="btn" id="btnOpen">Open .layout</button>
+      <button class="btn" id="btnSample">Load example</button>
+      <button class="btn" id="btnBlank">Start fresh</button>
+      <button class="btn primary" id="btnSave" disabled>Save .layout</button>
+      <button class="btn" id="btnCopy" disabled>Copy .layout text</button>
+      <button class="btn" id="btnBackup" disabled title="Save an untouched copy of the file you opened, before any of your changes">Back up original</button>
+      <input type="file" id="file" accept=".layout,.txt,.xml" class="hidden">
+    </div>
+  </header>
+
+  <div class="starter" id="starter">
+    <button class="starterX" id="starterX" aria-label="Hide these instructions">✕</button>
+    <h2>New here? Three steps.</h2>
+    <ol>
+      <li><b>Get your settings out of the game.</b> In DDO&rsquo;s chat box type
+        <code>/ui layout save myui.layout</code> and press Enter. The game tells you where it saved it &mdash;
+        normally <code>Documents \ Dungeons and Dragons Online \ UI \ layouts</code>.</li>
+      <li><b>Open it here.</b> Use <b>Open .layout</b> above, or drag your <code>.layout</code> file anywhere onto this page.
+        Nothing is uploaded &mdash; everything stays on your own computer.</li>
+      <li><b>Change what you like, then save it back</b> into that same folder. In game, type
+        <code>/alias clear</code> and then <code>/ui layout load myui.layout</code>.</li>
+    </ol>
+    <p class="starterNote">Not ready to use your own file? An example is already loaded, so you can click
+      around freely &mdash; nothing here can affect your game until you save a file and load it yourself.</p>
+  </div>
+
+  <p class="hint hidden" id="webNote" style="margin:0 0 .6rem"><b>Heads up:</b> this web page is not allowed to write a file ending in <code>.layout</code>. <b>Save</b> gives you <code>ddo.layout.txt</code> &mdash; just delete the <code>.txt</code>. Or use <b>Copy .layout text</b> and paste it into a text editor. Saving a copy of this page to your computer and opening it there writes <code>ddo.layout</code> directly, with no renaming.</p>
+  <p class="status" id="status">No file loaded yet.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="aliases">Chat shortcuts</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="interface">Screen layout</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="options">Game settings</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="help">Help</button>
+  </div>
+
+  <!-- ============ ALIASES ============ -->
+  <div id="pane-aliases">
+    <div class="grid">
+      <div>
+        <div class="bar" style="margin-bottom:.7rem">
+          <button class="btn sm" id="addAlias">+ Add shortcut</button>
+          <button class="btn sm" id="loadGeneral">Use starter set</button>
+          <button class="btn sm" id="loadYarrow">Use raid speech set</button>
+          <button class="btn sm" id="clearAliases">Clear all</button>
+        </div>
+        <div class="tablewrap">
+          <table class="atable">
+            <thead><tr><th class="aname">Type this</th><th>What it says</th><th style="width:2rem"></th></tr></thead>
+            <tbody id="aliasBody"></tbody>
+          </table>
+        </div>
+        <p class="hint">Click any row to edit it below. A shortcut always starts with a semicolon, like <code>;trap</code>.</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="card">
+          <h3>Slots used</h3>
+          <div class="counter"><b id="cnt">0</b><span>of 50 maximum</span></div>
+          <div class="meter" id="meter"><i style="width:0%"></i></div>
+          <p class="hint" id="cntNote">The game only allows fifty.</p>
+        </div>
+
+        <div class="card">
+          <h3>Compose</h3>
+          <label class="flabel" for="chanSel">Where it goes</label>
+          <select id="chanSel" class="sel"></select>
+
+          <label class="flabel" style="margin-top:.7rem">Message</label>
+          <div class="chat editable" id="compose" contenteditable="true" spellcheck="false"></div>
+
+          <label class="flabel" style="margin-top:.7rem">Colour the selected words</label>
+          <div class="pal" id="palette"></div>
+
+          <div class="bar" style="margin-top:.5rem">
+            <button class="btn sm" id="btnPlain">Remove colour</button>
+            <button class="btn sm" id="btnBreak">New line</button>
+            <button class="btn sm" id="btnRaw">Show the code</button>
+          </div>
+          <textarea id="rawBox" class="raw hidden" spellcheck="false"></textarea>
+          <p class="hint" id="composeHint">Highlight some words, then click a colour.</p>
+        </div>
+
+        <div class="card">
+          <h3>Checks</h3>
+          <div id="issues"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ INTERFACE ============ -->
+  <div id="pane-interface" class="hidden">
+    <div class="grid">
+      <div>
+        <div class="bar" style="margin-bottom:.7rem">
+          <button class="btn sm" id="grpHud" aria-pressed="true">On-screen HUD</button>
+          <button class="btn sm" id="grpWin" aria-pressed="false">Windows &amp; panels</button>
+          <span class="hint" id="grpNote" style="margin:0"></span>
+        </div>
+        <div class="stage">
+          <div class="rcorner"></div>
+          <div class="ruler rh" id="rulerH"></div>
+          <div class="ruler rv" id="rulerV"></div>
+          <div class="screen" id="screen">
+            <div class="gridlay" id="gridLay"></div>
+            <div class="guides" id="guides"></div>
+            <div class="empty-screen" id="emptyScreen">Open a .layout file to start arranging</div>
+          </div>
+        </div>
+
+        <div class="toolrow">
+          <label class="chk"><input type="checkbox" id="optGrid" checked> Grid</label>
+          <select id="gridSize" class="minisel" aria-label="Grid size">
+            <option value="0.05">20 divisions</option>
+            <option value="0.025" selected>40 divisions</option>
+            <option value="0.0125">80 divisions</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="snapGrid"> Snap to grid</label>
+          <label class="chk"><input type="checkbox" id="snapEdge" checked> Snap to edges</label>
+          <label class="chk"><input type="checkbox" id="snapEl" checked> Snap to panels</label>
+          <span class="sep"></span>
+          <button class="btn sm" id="btnTidy" title="Nudge every panel onto the nearest grid line">Line up to grid</button>
+          <button class="btn sm" id="btnOverlap" title="Select the panels sitting on top of each other">Find overlaps</button>
+          <span class="sep"></span>
+          <button class="btn sm" id="btnShot" title="Put one of your own DDO screenshots behind the canvas">Use my screenshot</button>
+          <input type="file" id="shotFile" accept="image/*" class="hidden">
+          <label class="chk hidden" id="shotFade"><input type="range" id="shotOpacity" min="10" max="100" value="70" style="width:5rem"> dim</label>
+          <button class="btn sm hidden" id="btnShotOff">Remove</button>
+          <span class="sep"></span>
+          <select id="aspect" class="minisel" aria-label="Screen shape">
+            <option value="1.7778" selected>16:9</option>
+            <option value="1.6">16:10</option>
+            <option value="2.3333">21:9</option>
+            <option value="1.3333">4:3</option>
+          </select>
+          <span class="sep"></span>
+          <button class="btn sm" id="btnUndo" disabled>Undo</button>
+          <button class="btn sm" id="btnRedo" disabled>Redo</button>
+        </div>
+
+        <p class="hint">Drag anything to move it, pull a corner to resize, or use the arrow keys for small nudges. Everything is stored as a proportion of your screen, so it looks the same at any resolution. The <strong>Windows &amp; panels</strong> view shows things that open when you need them, which is why they sit on top of each other.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="card hidden" id="winCard">
+          <h3>Window tools</h3>
+          <p class="hint" style="margin:0 0 .6rem">These open only when you need them &mdash; bags, banks, the auction house. They are never all on screen at once, so overlap here is normal.</p>
+          <div class="bar">
+            <button class="btn sm" id="btnCascade">Cascade</button>
+            <button class="btn sm" id="btnTile">Tile</button>
+            <button class="btn sm" id="btnCentreAll">Centre all</button>
+          </div>
+          <label class="flabel" style="margin-top:.7rem">Give them a sensible size</label>
+          <div class="bar">
+            <button class="btn sm" data-wsize="s">Small</button>
+            <button class="btn sm" data-wsize="m">Medium</button>
+            <button class="btn sm" data-wsize="l">Large</button>
+          </div>
+          <p class="hint">Applies to what you have selected, or to all of them if nothing is.</p>
+        </div>
+
+        <div class="card">
+          <h3>Change resolution</h3>
+          <p class="hint" style="margin:0 0 .6rem">Panels are a fixed number of pixels, so a layout built for one screen comes out the wrong size on another. This rescales everything and keeps each panel the same physical size and the same distance from its nearest edge.</p>
+          <div class="resrow">
+            <label class="flabel" for="resFrom">Built for</label>
+            <select id="resFrom" class="minisel"></select>
+          </div>
+          <div class="resrow" style="margin-top:.4rem">
+            <label class="flabel" for="resTo">Moving to</label>
+            <select id="resTo" class="minisel"></select>
+          </div>
+          <button class="btn sm" id="btnRes" style="margin-top:.55rem">Rescale the layout</button>
+          <p class="hint" id="resNote"></p>
+        </div>
+
+        <div class="card" id="presetCard">
+          <h3>Auto-arrange</h3>
+          <select id="presetSel" class="sel">
+            <option value="">Choose a starting layout…</option>
+            <option value="classic">Classic — bars centre, chat left</option>
+            <option value="raid">Raid — party left, centre kept clear</option>
+            <option value="caster">Caster — vertical bars both sides</option>
+            <option value="minimal">Minimal — one bar, edges only</option>
+            <option value="wide">Ultrawide — everything pushed outward</option>
+          </select>
+          <button class="btn sm primary" id="btnApplyPreset" style="margin-top:.5rem">Apply this layout</button>
+          <p class="hint">Rearranges everything on screen. Changed your mind? Press Undo.</p>
+        </div>
+
+        <div class="card" id="barsCard">
+          <h3>Hotbars</h3>
+          <div class="bar" style="margin-bottom:.5rem">
+            <span class="hint" id="barCount" style="margin:0"></span>
+          </div>
+          <div class="barsgrid" id="barsGrid"></div>
+          <div class="bar" style="margin-top:.5rem">
+            <button class="btn sm" id="btnSelBars">Select them all</button>
+            <button class="btn sm" id="btnBarsEven">Even out spacing</button>
+          </div>
+
+          <label class="flabel" style="margin-top:.75rem">Arrange every bar</label>
+          <select id="barShape" class="sel">
+            <option value="bc">Rows stacked up from the bottom, centred</option>
+            <option value="bl">Rows stacked up from the bottom left</option>
+            <option value="br">Rows stacked up from the bottom right</option>
+            <option value="cl">Upright bars along the left edge</option>
+            <option value="cr">Upright bars along the right edge</option>
+            <option value="split">Half in rows at the bottom, half upright on the right</option>
+          </select>
+          <div class="bar" style="margin-top:.45rem">
+            <label class="gapfield">gap <input type="number" id="barGap" value="0.4" min="0" max="6" step="0.1"> %</label>
+            <select id="barOrder" class="minisel">
+              <option value="num">Bar 1 nearest the edge</option>
+              <option value="pos">Keep the order they are in</option>
+            </select>
+            <button class="btn sm primary" id="btnBarsArrange">Arrange</button>
+          </div>
+          <p class="hint">You get 20 hotbars in game. Click a number to add it here, click again to take it away. <b>This records where a bar sits, it cannot create one</b> &mdash; make the bar itself in game with the arrow at the end of your hotbar.</p>
+        </div>
+
+        <div class="card">
+          <h3 id="elListTitle">Panels</h3>
+          <div class="ellist" id="elList"></div>
+        </div>
+        <div class="card" id="arrangeCard">
+          <h3>Arrange <span id="selCount" class="selcount">nothing selected</span></h3>
+          <p class="hint" style="margin:0 0 .6rem">Ctrl-click to add panels to the selection, or drag a box across empty space. Two or more unlocks these.</p>
+
+          <label class="flabel">Line up their edges</label>
+          <div class="alignbar">
+            <button class="btn sm ar" data-al="l"  title="Left edges">⇤</button>
+            <button class="btn sm ar" data-al="hc" title="Centres, side to side">⇔</button>
+            <button class="btn sm ar" data-al="r"  title="Right edges">⇥</button>
+            <button class="btn sm ar" data-al="t"  title="Top edges">⤒</button>
+            <button class="btn sm ar" data-al="vc" title="Centres, top to bottom">⇕</button>
+            <button class="btn sm ar" data-al="b"  title="Bottom edges">⤓</button>
+          </div>
+
+          <label class="flabel" style="margin-top:.7rem">Stack in a neat row <span class="need">needs 2</span></label>
+          <div class="bar">
+            <button class="btn sm ar" data-stack="v">Stack down</button>
+            <button class="btn sm ar" data-stack="h">Stack across</button>
+            <label class="gapfield">gap
+              <input type="number" id="stackGap" value="0.4" min="0" max="10" step="0.1"> %
+            </label>
+          </div>
+          <p class="hint">Keeps their order, lines them up on the same edge, and puts the same gap between each. Ideal for a column of hotbars.</p>
+
+          <label class="flabel" style="margin-top:.7rem">Even spacing <span class="need">needs 3</span></label>
+          <div class="bar">
+            <button class="btn sm ar3" data-dist="h">Across</button>
+            <button class="btn sm ar3" data-dist="v">Down</button>
+            <button class="btn sm ar3" data-dist="hg">Equal gaps across</button>
+            <button class="btn sm ar3" data-dist="vg">Equal gaps down</button>
+          </div>
+
+          <label class="flabel" style="margin-top:.7rem">Make the same size</label>
+          <div class="bar">
+            <button class="btn sm ar" data-size="w">Same width</button>
+            <button class="btn sm ar" data-size="h">Same height</button>
+            <button class="btn sm ar" data-size="wh">Both</button>
+          </div>
+          <p class="hint">Matched to the last panel you clicked.</p>
+        </div>
+
+        <div class="card">
+          <h3>Selected panel</h3>
+          <p class="mono" id="elName" style="font-size:.82rem;color:var(--accent);word-break:break-all">none</p>
+          <div class="fields">
+            <div><label for="fx">X</label><input id="fx" type="number" step="0.001" min="-1" max="2"></div>
+            <div><label for="fy">Y</label><input id="fy" type="number" step="0.001" min="-1" max="2"></div>
+            <div><label for="fw">Width</label><input id="fw" type="number" step="0.001" min="0" max="2"></div>
+            <div><label for="fh">Height</label><input id="fh" type="number" step="0.001" min="0" max="2"></div>
+          </div>
+          <label class="flabel" style="margin-top:.8rem">Align to screen</label>
+          <div class="alignbar">
+            <button class="btn sm" data-snap="tl" title="Top left">↖</button>
+            <button class="btn sm" data-snap="t"  title="Top edge">↑</button>
+            <button class="btn sm" data-snap="tr" title="Top right">↗</button>
+            <button class="btn sm" data-snap="l"  title="Left edge">←</button>
+            <button class="btn sm" data-snap="c"  title="Dead centre">◆</button>
+            <button class="btn sm" data-snap="r"  title="Right edge">→</button>
+            <button class="btn sm" data-snap="bl" title="Bottom left">↙</button>
+            <button class="btn sm" data-snap="b"  title="Bottom edge">↓</button>
+            <button class="btn sm" data-snap="br" title="Bottom right">↘</button>
+          </div>
+          <div class="bar" style="margin-top:.4rem">
+            <button class="btn sm" data-snap="hc">Centre across</button>
+            <button class="btn sm" data-snap="vc">Centre down</button>
+          </div>
+          <p class="hint hidden" id="fixedNote">A hotbar is ten slots and the game sizes it, so width and height are fixed here. You can still move it and turn it.</p>
+          <div class="bar hidden" id="rotWrap" style="margin-top:.55rem">
+            <button class="btn sm" id="btnRotate">Turn sideways</button>
+            <span class="hint" id="rotNote" style="margin:0"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ OPTIONS ============ -->
+  <div id="pane-options" class="hidden">
+    <div class="grid">
+      <div>
+        <div class="optbar">
+          <input class="search" id="optSearch" placeholder="Search settings…">
+          <label class="chk"><input type="checkbox" id="optChangedOnly"> Changed only</label>
+          <button class="btn sm" id="btnOptReset" disabled>Revert all</button>
+        </div>
+        <div class="optlist" id="optList"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="card">
+          <h3>Categories</h3>
+          <div class="catlist" id="catList"></div>
+        </div>
+        <div class="card">
+          <h3>Colour preview</h3>
+          <div class="chat" id="colourDemo"></div>
+          <p class="hint">How these colours will look in game.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HELP ============ -->
+  <div id="pane-help" class="hidden">
+    <div class="card" style="max-width:70ch">
+      <h3>What this does</h3>
+      <p>DDO keeps three things in one settings file: where your bars and windows sit on screen, your chat shortcuts, and your game options. This editor opens that file, lets you change all three, and saves it back in the form the game expects.</p>
+      <h3 style="margin-top:1.2rem">Getting your file</h3>
+      <p>In game, type <code>/ui layout save myui.layout</code> into the chat box. The game tells you where it saved it &mdash; normally <code>Documents\Dungeons and Dragons Online\UI\layouts</code>.</p>
+      <h3 style="margin-top:1.2rem">Putting it back</h3>
+      <p>Save from here into that same folder, then in game type:</p>
+      <div class="chat" style="margin-top:.5rem">/alias clear
+/ui layout load myui.layout
+/alias list</div>
+      <p style="margin-top:.6rem">Clear first, or you may hit the fifty-shortcut limit halfway through loading.</p>
+      <h3 style="margin-top:1.2rem">Writing a chat shortcut</h3>
+      <p>A shortcut is swapped for a longer message <em>before</em> the game reads what you typed. That is why the message can carry a channel, colours, and even other shortcuts inside it.</p>
+      <p>Pick where it goes with the <b>Where it goes</b> box, and colour words by highlighting them and clicking a colour. You never need to type the codes yourself.</p>
+      <h3 style="margin-top:1.2rem">Handy file names</h3>
+      <p>DDO understands two shorthands when you save: <code>%c</code> becomes your character name and <code>%r</code> becomes your resolution. So <code>/ui layout save %c_%r</code> keeps one layout per character per screen size, which matters because a layout built for one resolution rarely looks right on another.</p>
+      <p>With no name at all, the game uses <code>Default_&lt;resolution&gt;.layout</code>.</p>
+
+      <h3 style="margin-top:1.2rem">What the game will and will not accept</h3>
+      <p><b>Moving things works.</b> Anything the game saved a position for can be put where you like.</p>
+      <p><b>Resizing is hit and miss.</b> Some panels resize happily, others enforce a minimum size, and a few ignore the change entirely and snap back when you load the file. Hotbars in particular take their size from how many slots they have, not from this file. If something springs back to its old shape in game, that is the client overruling you, not a mistake here.</p>
+      <p><b>Some windows are never saved at all</b> &mdash; the main menu, the store, the expanded map and dialogue windows keep no position in the file, so they will not appear in this editor.</p>
+      <p><b>Always keep a backup</b> of a layout you are happy with before experimenting. Saving under a second name costs nothing.</p>
+
+      <h3 style="margin-top:1.2rem">Two mistakes this catches for you</h3>
+      <p><strong>One shortcut swallowing another.</strong> If you have both <code>;ro</code> and <code>;roar</code>, the shorter one can win and the longer never fires. The Checks panel warns you about every pair like that.</p>
+      <p><strong>A stray space before coloured words.</strong> It is easy to end up colouring a blank space instead of the first letter. Colouring words by highlighting them here avoids it entirely.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = {"general":[[";red","<rgb=#FF0000>"],[";grn","<rgb=#00FF00>"],[";blu","<rgb=#00D8FF>"],[";yel","<rgb=#FFFF00>"],[";ora","<rgb=#FF9900>"],[";pur","<rgb=#FF00FF>"],[";wht","<rgb=#FFFFFF>"],[";gry","<rgb=#999999>"],[";e","</rgb>"],[";nl","<p>"],[";ch","/p"],[";t",";ch <rgb=#FF0000>TRAP</rgb> ahead - hold up."],[";td",";ch <rgb=#00FF00>Traps are down.</rgb>"],[";pull",";ch <rgb=#FFFF00>Pulling</rgb> - get ready."],[";hold",";ch <rgb=#FF0000>HOLD</rgb> - do not move up yet."],[";rez",";ch <rgb=#FF0000>Need a rez</rgb> please."],[";shr",";ch <rgb=#00D8FF>Shrine</rgb> here."],[";rr",";ch <rgb=#FFFF00>Rest and repair</rgb> - 30 seconds please."],[";bio",";ch <rgb=#FFFF00>AFK</rgb> - quick bio break, back shortly."],[";bk",";ch <rgb=#00FF00>Back at keyboard.</rgb>"],[";ding",";ch <rgb=#FF00FF>*** DING ***</rgb> <rgb=#FFFF00>LEVEL!</rgb>"],[";gg",";ch <rgb=#00FF00>Good run - thanks all!</rgb>"],[";thx",";ch <rgb=#00FF00>Thank you!</rgb>"],[";diff",";ch Difficulty? <rgb=#00D8FF>Casual</rgb> / <rgb=#00FF00>Normal</rgb> / <rgb=#FFFF00>Hard</rgb> / <rgb=#FF0000>Elite</rgb> / <rgb=#FF00FF>Reaper</rgb>"],[";toraid",";ch Please convert the party to a <rgb=#FF0000>RAID</rgb> group."],[";inc",";ch <rgb=#FF0000>INCOMING</rgb> - adds heading our way."],[";rdy",";ch <rgb=#FFFF00>Ready check</rgb> - say ready when you are set."],[";rf",";ch <rgb=#FFFF00>Roll d100 for:</rgb> "],[";qn","/raid completions"],[";loot",";ch <rgb=#FFFF00>Loot rules:</rgb> <rgb=#00FF00>/roll 1d100</rgb> for anything named, highest takes it. Say PASS if you are not rolling."],[";grats",";ch <rgb=#FF0000>G</rgb><rgb=#FF9900>R</rgb><rgb=#FFFF00>A</rgb><rgb=#00FF00>T</rgb><rgb=#00D8FF>S</rgb><rgb=#FF00FF>!</rgb>"],[";roar",";ch <rgb=#FF0000>ROAR INCOMING</rgb> - get on a rune platform NOW to block the sonic!"],[";claw",";ch <rgb=#FF0000>CLAW OF VECNA</rgb> - BLOCK when the debuff timer hits 3 seconds."],[";shld",";ch <rgb=#FFFF00>Sorcerous Shield</rgb> - hit it in MELEE, spells and ranged are heavily reduced."],[";lava",";ch <rgb=#FF0000>Out of the lava</rgb> - it stacks -13% fire absorption each time."],[";neg",";ch <rgb=#FF0000>Pale Masters:</rgb> no Death Aura in sight of the Ghost Flame."],[";b1",";ch <rgb=#FFFF00>PART 1</rgb> - 6 big runes, each unlocked by 4 small runes hidden nearby. Walk close, watch for the spot message, then Search. 10 minute timer. Deaths Teeth CANNOT be hurt here - dodge him and his void pools. Do not aggro the 2 Sentry Wards or they spawn blade traps."],[";b2",";ch <rgb=#FFFF00>PART 2 Mountain Keeper</rgb> - he spawns illusion copies, so mark the real one early. Tank brings FORCE absorb, everyone else brings ELECTRIC absorb for Storm Caller. His main target gets 50% spell failure and -25% healing received."],[";b3",";ch <rgb=#FFFF00>PART 3 the volcano</rgb> - stay out of the lava, -13% fire absorb per stack. The rune platforms block the sonic roar but give you -900 healing amp and arcane spell failure. Skeletons need MELEE to break Sorcerous Shield. Dark Secrets get killed SLOWLY by one person."],[";b4",";ch <rgb=#FFFF00>SOUL ORDER</rgb> - P1 to 85%: NE Kelas, SW Osfield, SE Alaric, NW Gorth. P2 to 70%: SW, NE, SE, NW. P3 to 50%: SE Alaric, NW Gorth, SW Osfield, NE Kelas and Kelas dies. P4 kill order: SW, SE, NW."],[";b5",";ch <rgb=#FF00FF>SECRET ENDING</rgb> - do NOT kill the Ghost Flame. After each soul dies someone dies and jumps the skulls to that ghost. All 4 ghosts onto the platform, then I read the lines. Deaths Teeth must die ON his platform. Then Wrath of Vecna - evil absorb, spread out."]],"yarrow":[[";v1","/say Vecna"],[";v2","/say The Whispered One"],[";v3","/say Lord of the Rotted Tower"],[";v4","/say The Undying King"],[";v5","/say Master of the Spider Throne"],[";o1","/say Osfield joined first. Looking for a happy ending. A bard chasing my story."],[";o2","/say The 1st verse. The Academy called me prodigy, and reckless. They were right."],[";o3","/say The 2nd verse. The Common folk called me the Flame of Hope. Perhaps I was."],[";o4","/say The 3rd verse. The Kingdom called me champion but feared me for I spoke my mind."],[";o5","/say The 4th verse. Prince Lindal of the Elves called me Yarrow, as did my friends."],[";o6","/say Yet only when the prince spoke my name did I feel the flame in my heart."],[";a1","/say Faithful Alaric came second, hoping to heal my broken heart."],[";a2","/say It broke on his altar but it was not his doing."],[";a3","/say Lindal's people would not accept me. Duty came before love."],[";a4","/say Yet a broken heart is fertile ground for ambition."],[";a5","/say My frail humanity, a chance thing of birth, would be no match for my will."],[";a6","/say I would match elven blood with something greater. Power."],[";k1","/say My apprentice Kelas came third. He would never question an order."],[";k2","/say Order keeps things in their place, and mages like order."],[";k3","/say So I overthrew the headmasters and claimed the Academy."],[";k4","/say Those mages who would not join became traitors."],[";k5","/say Those who were wiser became servants and seekers."],[";k6","/say With them I wrung every secret from my world until I found him."],[";k7","/say The master of secrets would be a secret himself after all."],[";g1","/say The pirate Gorth was the fourth. Always the gambler. He cheated. I cheated better."],[";g2","/say We sailed every ocean seeking the island of my visions."],[";g3","/say We found it and the darkness waiting beyond it's jungles and beasts."],[";g4","/say From the shadows it told me the words. It showed me the symbols."],[";g5","/say Five friends. Five Souls. Five fingers on a hand. The darkness beckoned."],[";g6","/say I brought my friends to the volcano and sealed all of our fates in this secret pact."],[";l1","/say I king Lindal came to this island. I came for my people. I came for guilt. I came to hide."],[";l2","/say Heavy is the crown. My kingdom besieged. Enemies on all sides."],[";l3","/say She offered aid and blew on the embers of forgotten desire."],[";l4","/say But first one last quest with old friends. I dared to dream again."],[";l5","/say Yet the dream turned to ash. She had bargained with darkness."],[";l6","/say I broke free. I left her. I left them. All doomed. My shame burns. The Beast consumes."]]};
+/* A neutral default layout: the standard DDO panel set in a tidy
+   arrangement, so every tab has something to show before you open
+   a file. No personal positions or settings. */
+const SAMPLE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\r\n<UI>\r\n\r\n  <Version Value=\"1.0\"/>\r\n\r\n  <Aliases/>\r\n\r\n  <Layouts>\r\n    <Layout ID=\"0x220006ED\">\r\n      <Element Height=\"0.150000\" ID=\"HotStoryQuestJournal_QuestEntry\" Width=\"0.200000\" X=\"0.790000\" Y=\"0.450000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000019\">\r\n      <Element Height=\"0.600000\" ID=\"CharacterSheetField\" Width=\"0.300000\" X=\"0.150000\" Y=\"0.130000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000076\">\r\n      <Element Height=\"0.650000\" ID=\"SocialField\" Width=\"0.430000\" X=\"0.172000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000876\">\r\n      <Element Height=\"0.520000\" ID=\"ImageRewardGallery_Menu\" Width=\"0.340000\" X=\"0.194000\" Y=\"0.170000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200008F\">\r\n      <Element Height=\"0.520000\" ID=\"Guild_Bank_Field\" Width=\"0.340000\" X=\"0.216000\" Y=\"0.190000\"/>\r\n      <Element Height=\"0.520000\" ID=\"Bank_Field\" Width=\"0.340000\" X=\"0.238000\" Y=\"0.210000\"/>\r\n      <Element Height=\"0.520000\" ID=\"Account_Bank_Field\" Width=\"0.340000\" X=\"0.260000\" Y=\"0.230000\"/>\r\n      <Element Height=\"0.520000\" ID=\"Character_Bank_Field\" Width=\"0.340000\" X=\"0.150000\" Y=\"0.130000\"/>\r\n      <Element Height=\"0.520000\" ID=\"Reincarnation_Bank_Field\" Width=\"0.340000\" X=\"0.172000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200004A\">\r\n      <Element Height=\"0.150000\" ID=\"HotQuestJournal_QuestEntry\" Width=\"0.200000\" X=\"0.790000\" Y=\"0.290000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x220005DC\">\r\n      <Element Height=\"0.620000\" ID=\"AdventureCompendium_Field\" Width=\"0.420000\" X=\"0.194000\" Y=\"0.170000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000862\">\r\n      <Element Height=\"0.520000\" ID=\"DailiesRewardField\" Width=\"0.340000\" X=\"0.216000\" Y=\"0.190000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x220005DE\">\r\n      <Element Height=\"0.680000\" ID=\"Auction_MainFieldBlackMarket\" Width=\"0.440000\" X=\"0.238000\" Y=\"0.210000\"/>\r\n      <Element Height=\"0.680000\" ID=\"Auction_MainField\" Width=\"0.440000\" X=\"0.260000\" Y=\"0.230000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000739\">\r\n      <Element Height=\"0.520000\" ID=\"PetCharacterSheet_MainField\" Width=\"0.340000\" X=\"0.150000\" Y=\"0.130000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200084D\">\r\n      <Element Height=\"0.030000\" ID=\"GlobalObjectives\" Width=\"0.200000\" X=\"0.012000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200087B\">\r\n      <Element Height=\"0.520000\" ID=\"AirshipShowroom_Menu\" Width=\"0.340000\" X=\"0.172000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200087D\">\r\n      <Element Height=\"0.520000\" ID=\"HenchmanCustomizeAI_Menu\" Width=\"0.340000\" X=\"0.194000\" Y=\"0.170000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x220005CB\">\r\n      <Element Height=\"0.560000\" ID=\"Mail_MainField\" Width=\"0.380000\" X=\"0.216000\" Y=\"0.190000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200000B\">\r\n      <Element Height=\"0.260000\" ID=\"FellowshipDisplay\" Width=\"0.160000\" X=\"0.012000\" Y=\"0.200000\"/>\r\n      <Element Height=\"0.055000\" ID=\"FocusField\" Width=\"0.130000\" X=\"0.180000\" Y=\"0.020000\"/>\r\n      <Element Height=\"0.050000\" ID=\"PendingChallengeButton\" Width=\"0.060000\" X=\"0.470000\" Y=\"0.250000\"/>\r\n      <Element Height=\"0.078000\" ID=\"FocusOrb\" Width=\"0.075000\" X=\"0.330000\" Y=\"0.018000\"/>\r\n      <Element Height=\"0.035000\" ID=\"TumbleDisplay\" Width=\"0.060000\" X=\"0.930000\" Y=\"0.930000\"/>\r\n      <Element Height=\"0.030556\" ID=\"HenchmanBar\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.895000\"/>\r\n      <Element Height=\"0.060000\" ID=\"Vitals\" Width=\"0.150000\" X=\"0.012000\" Y=\"0.020000\"/>\r\n      <Element Height=\"0.090000\" ID=\"AlchemistReactionDisplay\" Width=\"0.060000\" X=\"0.012000\" Y=\"0.480000\"/>\r\n      <Element Height=\"0.078000\" ID=\"FocusOrb_Classic\" Width=\"0.075000\" X=\"0.330000\" Y=\"0.018000\"/>\r\n      <Element Height=\"0.045000\" ID=\"Vitals_minimal\" Width=\"0.110000\" X=\"0.012000\" Y=\"0.020000\"/>\r\n      <Element Height=\"0.026000\" ID=\"Hud_NetStatus_Vessel\" Width=\"0.016000\" X=\"0.492000\" Y=\"0.006000\"/>\r\n      <Element Height=\"0.030556\" ID=\"ShortcutsBar\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.935000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x220005E3\">\r\n      <Element Height=\"0.520000\" ID=\"ArenaScoring_SummaryPanel\" Width=\"0.340000\" X=\"0.238000\" Y=\"0.210000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000069\">\r\n      <Element Height=\"0.276389\" ID=\"UndockedShortcut8_Vertical_MarkerList\" Width=\"0.016406\" X=\"0.672000\" Y=\"0.600000\"/>\r\n      <Element Height=\"0.276389\" ID=\"UndockedShortcut11_Vertical_MarkerList\" Width=\"0.016406\" X=\"0.713000\" Y=\"0.600000\"/>\r\n      <Element Height=\"0.276389\" ID=\"UndockedShortcut9_Vertical_MarkerList\" Width=\"0.016406\" X=\"0.692500\" Y=\"0.600000\"/>\r\n      <Element Height=\"0.276389\" ID=\"UndockedShortcut12_Vertical_MarkerList\" Width=\"0.016406\" X=\"0.733500\" Y=\"0.600000\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut0_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.855000\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut1_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.820500\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut2_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.786000\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut3_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.751500\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut4_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.717000\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut6_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.682500\"/>\r\n      <Element Height=\"0.030556\" ID=\"UndockedShortcut7_Horizontal_MarkerList\" Width=\"0.157031\" X=\"0.345000\" Y=\"0.648000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000880\">\r\n      <Element Height=\"0.520000\" ID=\"Augment_MainField\" Width=\"0.340000\" X=\"0.260000\" Y=\"0.230000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000099\">\r\n      <Element Height=\"0.520000\" ID=\"BaseOptionsField\" Width=\"0.340000\" X=\"0.150000\" Y=\"0.130000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000600\">\r\n      <Element Height=\"0.520000\" ID=\"ArenaQueue_AdminSummaryPanel\" Width=\"0.340000\" X=\"0.172000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000040\">\r\n      <Element Height=\"0.330000\" ID=\"Quest_Field\" Width=\"0.200000\" X=\"0.790000\" Y=\"0.290000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000885\">\r\n      <Element Height=\"0.520000\" ID=\"SentientSlot_MainField\" Width=\"0.340000\" X=\"0.194000\" Y=\"0.170000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200009E\">\r\n      <Element Height=\"0.240000\" ID=\"RadarField\" Width=\"0.140000\" X=\"0.845000\" Y=\"0.025000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000858\">\r\n      <Element Height=\"0.640000\" ID=\"EpicDesitiny_Menu\" Width=\"0.430000\" X=\"0.216000\" Y=\"0.190000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000870\">\r\n      <Element Height=\"0.520000\" ID=\"reincarnation_mainField\" Width=\"0.340000\" X=\"0.238000\" Y=\"0.210000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000015\">\r\n      <Element Height=\"0.560000\" ID=\"Inventory_Field\" Width=\"0.300000\" X=\"0.260000\" Y=\"0.230000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000859\">\r\n      <Element Height=\"0.600000\" ID=\"MonsterManual_Menu\" Width=\"0.400000\" X=\"0.150000\" Y=\"0.130000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x220000A1\">\r\n      <Element Height=\"0.055000\" ID=\"Dice_Field\" Width=\"0.140000\" X=\"0.430000\" Y=\"0.180000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x22000872\">\r\n      <Element Height=\"0.520000\" ID=\"AmenityInventory_Menu\" Width=\"0.340000\" X=\"0.172000\" Y=\"0.150000\"/>\r\n    </Layout>\r\n    <Layout ID=\"0x2200008B\">\r\n      <Element Height=\"0.290000\" ID=\"ChatDisplay1\" Width=\"0.320000\" X=\"0.010000\" Y=\"0.690000\"/>\r\n      <Element Height=\"0.270000\" ID=\"ChatDisplay2\" Width=\"0.320000\" X=\"0.010000\" Y=\"0.395000\"/>\r\n    </Layout>\r\n  </Layouts>\r\n\r\n  <Options>\r\n    <Option Name=\"AcceptChallengeRequest\" Value=\"True\"/>\r\n    <Option Name=\"AcceptGuildRequest\" Value=\"True\"/>\r\n    <Option Name=\"AcceptPartyRequest\" Value=\"True\"/>\r\n    <Option Name=\"AcceptTradeRequest\" Value=\"True\"/>\r\n    <Option Name=\"AllowTemporaryMouselookSuspension\" Value=\"True\"/>\r\n    <Option Name=\"Attack_ClickAndHold\" Value=\"True\"/>\r\n    <Option Name=\"AutoHide_TargetUI\" Value=\"True\"/>\r\n    <Option Name=\"AutoTargetBreakables\" Value=\"True\"/>\r\n    <Option Name=\"AutoTargetMonsters\" Value=\"True\"/>\r\n    <Option Name=\"AutoTargetNonMonsters\" Value=\"True\"/>\r\n    <Option Name=\"AutoattackOnDoubleclick\" Value=\"True\"/>\r\n    <Option Name=\"ChatReset\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_AllMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_CasterLevelMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_DefensiveRollFeedbackOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_DiceOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_EffectsOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_EvasionFeedbackOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_HealingMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_HenchmanMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_MissMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_RemovalNoticeOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_TargetingYouOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_YourActionsOff\" Value=\"True\"/>\r\n    <Option Name=\"CombatFeedbackText_ZeroDamageMessagesOff\" Value=\"True\"/>\r\n    <Option Name=\"DisableAdviceChatInPrivate\" Value=\"True\"/>\r\n    <Option Name=\"DisableChatFiltering\" Value=\"True\"/>\r\n    <Option Name=\"DisableGeneralChatInPrivate\" Value=\"True\"/>\r\n    <Option Name=\"DisableTradeChatInPrivate\" Value=\"True\"/>\r\n    <Option Name=\"DungeonExitConfirmation\" Value=\"True\"/>\r\n    <Option Name=\"Examination_LongDescriptions\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_AmplifiedDamageColor\" Value=\"0.624 0.224 0.624 1.000\"/>\r\n    <Option Name=\"FloatyText_BossColor\" Value=\"0.973 0.031 0.031 1.000\"/>\r\n    <Option Name=\"FloatyText_CosmeticPetColor\" Value=\"0.773 1.000 0.773 1.000\"/>\r\n    <Option Name=\"FloatyText_DamageColor\" Value=\"0.976 0.431 0.004 1.000\"/>\r\n    <Option Name=\"FloatyText_EffectColor\" Value=\"0.482 0.482 0.482 1.000\"/>\r\n    <Option Name=\"FloatyText_EffectHarmfulColor\" Value=\"1.000 1.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_HealColor\" Value=\"0.000 1.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_HealReducedColor\" Value=\"0.000 0.482 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_KillColor\" Value=\"0.976 0.431 0.004 1.000\"/>\r\n    <Option Name=\"FloatyText_MiniBossColor\" Value=\"0.973 0.333 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_MissColor\" Value=\"0.537 0.522 0.435 1.000\"/>\r\n    <Option Name=\"FloatyText_MonsterColor\" Value=\"0.973 0.733 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_NPCColor\" Value=\"0.220 0.710 0.702 1.000\"/>\r\n    <Option Name=\"FloatyText_PartyColor\" Value=\"0.173 0.620 0.263 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerAmplifiedDamageColor\" Value=\"1.000 0.482 0.482 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerColor\" Value=\"0.851 0.882 0.102 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerDamageColor\" Value=\"1.000 0.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerEffectColor\" Value=\"0.078 0.631 0.827 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerEffectHarmfulColor\" Value=\"0.929 0.180 0.180 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerHealColor\" Value=\"0.000 1.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerHealReducedColor\" Value=\"0.000 0.482 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerMissColor\" Value=\"0.482 0.482 0.482 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerReducedDamageColor\" Value=\"0.482 0.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerSpellPointColor\" Value=\"0.000 0.000 0.600 1.000\"/>\r\n    <Option Name=\"FloatyText_PlayerSpellPointHealColor\" Value=\"0.082 0.082 1.000 1.000\"/>\r\n    <Option Name=\"FloatyText_RaidBossColor\" Value=\"0.773 0.322 1.000 1.000\"/>\r\n    <Option Name=\"FloatyText_ReducedDamageColor\" Value=\"1.000 1.000 0.000 1.000\"/>\r\n    <Option Name=\"FloatyText_ShowDamageTypeIcons\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowEssenceRetainedMessage\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowGuildNames\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowOldDamageFormat\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowPlayerDamage\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowPlayerEffects\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowProfessionNames\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_ShowTitles\" Value=\"True\"/>\r\n    <Option Name=\"FloatyText_SpellPointColor\" Value=\"0.000 0.000 0.600 1.000\"/>\r\n    <Option Name=\"FloatyText_SpellPointHealColor\" Value=\"0.082 0.082 1.000 1.000\"/>\r\n    <Option Name=\"FloatyText_UsableColor\" Value=\"1.000 1.000 0.431 1.000\"/>\r\n    <Option Name=\"GlobalObjectivesOff\" Value=\"True\"/>\r\n    <Option Name=\"HintsOff\" Value=\"True\"/>\r\n    <Option Name=\"HintsReset\" Value=\"True\"/>\r\n    <Option Name=\"HirelingStandGroundBanners\" Value=\"True\"/>\r\n    <Option Name=\"HotQuestPanelState\" Value=\"Opaque\"/>\r\n    <Option Name=\"LFX_Enable\" Value=\"True\"/>\r\n    <Option Name=\"LockShortcutBars\" Value=\"True\"/>\r\n    <Option Name=\"Map_Level\" Value=\"Game\"/>\r\n    <Option Name=\"Map_LockToPlayer\" Value=\"True\"/>\r\n    <Option Name=\"Map_Region\" Value=\"ForgottenRealms\"/>\r\n    <Option Name=\"MouseOverFriendlyInDungeon\" Value=\"True\"/>\r\n    <Option Name=\"MouseTargetingOn\" Value=\"True\"/>\r\n    <Option Name=\"PlayLocalizedDMTextSound\" Value=\"True\"/>\r\n    <Option Name=\"QuestEndRewardsBasedOnClass\" Value=\"True\"/>\r\n    <Option Name=\"Show3D_Portrait\" Value=\"True\"/>\r\n    <Option Name=\"ShowBigVitals\" Value=\"True\"/>\r\n    <Option Name=\"ShowComparisonTooltips\" Value=\"True\"/>\r\n    <Option Name=\"ShowDragonmarkOff\" Value=\"True\"/>\r\n    <Option Name=\"ShowDroppedQuestItemsAlert\" Value=\"True\"/>\r\n    <Option Name=\"ShowGuildMemberStatusMessage\" Value=\"True\"/>\r\n    <Option Name=\"ShowMonsterOverheadAwarenessIcons\" Value=\"True\"/>\r\n    <Option Name=\"ShowMonsterOverheadHealthBars\" Value=\"True\"/>\r\n    <Option Name=\"ShowOverheadCosmeticPetNames\" Value=\"True\"/>\r\n    <Option Name=\"ShowOverheadHealthBar\" Value=\"True\"/>\r\n    <Option Name=\"ShowOverheadNames\" Value=\"True\"/>\r\n    <Option Name=\"ShowPartyVitals\" Value=\"True\"/>\r\n    <Option Name=\"ShowPetBarsInParty\" Value=\"True\"/>\r\n    <Option Name=\"ShowPlayerOverheadHealthBar\" Value=\"True\"/>\r\n    <Option Name=\"ShowShortcutNumbers\" Value=\"True\"/>\r\n    <Option Name=\"ShowShortcutTimeouts\" Value=\"True\"/>\r\n    <Option Name=\"ShowTargetedBreakableNames\" Value=\"True\"/>\r\n    <Option Name=\"ShowTargetedMonsterNames\" Value=\"True\"/>\r\n    <Option Name=\"ShowTargetedUsableNames\" Value=\"True\"/>\r\n    <Option Name=\"ShowVitalsNumbers\" Value=\"True\"/>\r\n    <Option Name=\"ShowVitalsNumbersInParty\" Value=\"True\"/>\r\n    <Option Name=\"ShowVitalsPercentages\" Value=\"True\"/>\r\n    <Option Name=\"ShowVitalsPercentagesInParty\" Value=\"True\"/>\r\n    <Option Name=\"StickySelection\" Value=\"True\"/>\r\n    <Option Name=\"SurpressWorldEventsOnBillboard\" Value=\"True\"/>\r\n    <Option Name=\"TextColor_Advice\" Value=\"1.000 0.965 0.373 1.000\"/>\r\n    <Option Name=\"TextColor_Auction\" Value=\"1.000 0.675 0.122 1.000\"/>\r\n    <Option Name=\"TextColor_Broadcast\" Value=\"0.769 0.000 0.071 1.000\"/>\r\n    <Option Name=\"TextColor_Effect\" Value=\"0.404 0.522 0.482 1.000\"/>\r\n    <Option Name=\"TextColor_Glossary\" Value=\"0.851 0.275 0.722 1.000\"/>\r\n    <Option Name=\"TextColor_Group\" Value=\"0.020 0.710 0.200 1.000\"/>\r\n    <Option Name=\"TextColor_Guild\" Value=\"0.000 0.831 1.000 1.000\"/>\r\n    <Option Name=\"TextColor_Hardcore\" Value=\"0.965 0.059 0.024 1.000\"/>\r\n    <Option Name=\"TextColor_NPC\" Value=\"0.624 0.875 0.024 1.000\"/>\r\n    <Option Name=\"TextColor_Say\" Value=\"0.067 0.722 0.902 1.000\"/>\r\n    <Option Name=\"TextColor_Tell\" Value=\"1.000 0.718 0.000 1.000\"/>\r\n    <Option Name=\"TextColor_UserChat1\" Value=\"0.933 0.424 0.051 1.000\"/>\r\n    <Option Name=\"TextColor_UserChat2\" Value=\"0.871 0.969 0.024 1.000\"/>\r\n    <Option Name=\"TextColor_UserChat3\" Value=\"0.075 0.663 0.365 1.000\"/>\r\n    <Option Name=\"TextColor_UserChat4\" Value=\"0.475 0.173 0.522 1.000\"/>\r\n    <Option Name=\"TextColor_WorldEvent\" Value=\"0.071 0.651 0.322 1.000\"/>\r\n    <Option Name=\"UndockNewHenchmenBars\" Value=\"True\"/>\r\n    <Option Name=\"VoiceEnabled\" Value=\"True\"/>\r\n  </Options>\r\n\r\n</UI>\r\n";
+
+const XMLNS_DECL = '<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n';
+const PALETTE = [
+  ['#FF0000','Red'],['#FF9900','Orange'],['#FFFF00','Yellow'],['#00FF00','Green'],
+  ['#00D8FF','Blue'],['#FF00FF','Magenta'],['#FFFFFF','White'],['#999999','Grey']
+];
+/* channel prefixes, friendliest first */
+const CHANNELS = [
+  [';ch',  'Party — via the ;ch redirect'],
+  ['/p',   'Party'],
+  ['/g',   'Guild'],
+  ['/say', 'Say — nearby players'],
+  ['/em',  'Emote'],
+  ['',     'Wherever my chat tab is pointed']
+];
+
+let doc = null;          // parsed XMLDocument
+let aliases = [];        // {name, value}
+let elements = [];       // {id, x, y, w, h, node}
+let options = [];        // {name, value, node}
+let selAlias = -1, selEl = -1;
+
+const $ = s => document.querySelector(s);
+const el = (t,c) => { const n = document.createElement(t); if(c) n.className = c; return n; };
+
+/* ---------------- file in ---------------- */
+$('#btnOpen').onclick = () => $('#file').click();
+$('#file').onchange = e => { const f = e.target.files[0]; if (f) readFile(f); };
+$('#btnBlank').onclick = () => { buildBlank(); };
+
+['dragover','dragleave','drop'].forEach(ev =>
+  document.addEventListener(ev, e => { e.preventDefault(); }, false));
+document.addEventListener('drop', e => {
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+
+function readFile(f){
+  const r = new FileReader();
+  r.onload = () => { parseLayout(r.result, f.name); };
+  r.readAsText(f);
+}
+
+let loadedText = '', loadedName = '', backedUp = false;
+function parseLayout(text, name){
+  const p = new DOMParser();
+  const d = p.parseFromString(text, 'application/xml');
+  if (d.querySelector('parsererror')) {
+    setStatus('That file could not be read. It may be damaged — try saving a fresh one from the game.', true);
+    return;
+  }
+  if (!d.querySelector('UI')) {
+    setStatus('That does not look like a DDO layout. Open a file ending in .layout.', true);
+    return;
+  }
+  doc = d;
+  loadedText = text; loadedName = name || 'ddo.layout'; backedUp = false;
+  const bb = document.getElementById('btnBackup');
+  if (bb) { bb.disabled = false; bb.textContent = 'Back up original'; }
+  harvest();
+  setStatus('Loaded ' + name + ' — ' + aliases.length + ' aliases, ' +
+            elements.length + ' panels, ' + options.length + ' settings.');
+  renderAll();
+  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+}
+
+function buildBlank(){
+  const d = new DOMParser().parseFromString(
+    XMLNS_DECL + '<UI>\n  <Version Value="1.0"/>\n  <Aliases/>\n</UI>', 'application/xml');
+  doc = d; harvest();
+  setStatus('Started fresh with chat shortcuts only. Nothing else about your interface will change.');
+  renderAll();
+  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+}
+
+function harvest(){
+  aliases = [...doc.querySelectorAll('Aliases > Alias')].map(n => ({
+    name: n.getAttribute('String') || '', value: n.getAttribute('Value') || ''
+  }));
+  elements = [...doc.querySelectorAll('Element')].map(n => {
+    const L = n.closest ? n.closest('Layout') : n.parentNode;
+    return {
+      id: n.getAttribute('ID') || '(unnamed)',
+      layoutId: (L && L.getAttribute) ? (L.getAttribute('ID') || '') : '',
+      x: parseFloat(n.getAttribute('X')) || 0,
+      y: parseFloat(n.getAttribute('Y')) || 0,
+      w: parseFloat(n.getAttribute('Width')) || 0,
+      h: parseFloat(n.getAttribute('Height')) || 0
+    };
+  });
+  /* remember how the file had each panel, so a single one can be put back */
+  learnBarSizes(); enforceBarSizes();
+  elements.forEach(e => { e.orig = {id:e.id, x:e.x, y:e.y, w:e.w, h:e.h}; });
+  const optRoot = doc.querySelector('Options');
+  options = optRoot ? [...optRoot.children].map(n => {
+    const v = n.getAttribute('Value') || '';
+    return { name: n.getAttribute('Name') || n.nodeName, value: v, orig: v };
+  }) : [];
+  optCat = 'all';
+  selAlias = -1; selEl = -1; if (typeof selSet !== 'undefined') selSet.clear();
+}
+
+function setStatus(msg, bad){
+  const s = $('#status'); s.textContent = msg;
+  s.style.color = bad ? 'var(--bad)' : 'var(--ink-faint)';
+}
+
+/* ---------------- aliases ---------------- */
+function renderAliases(){
+  const b = $('#aliasBody'); b.textContent = '';
+  aliases.forEach((a, i) => {
+    const tr = el('tr'); if (i === selAlias) tr.className = 'sel';
+    tr.onclick = () => { selAlias = i; renderAliases(); renderPreview(); };
+
+    const td1 = el('td');
+    const n = el('input'); n.className = 'aname mono'; n.value = a.name; n.spellcheck = false;
+    n.oninput = () => { a.name = n.value; selAlias = i; renderPreview(); renderChecks(); };
+    td1.appendChild(n);
+
+    const td2 = el('td');
+    const v = el('div','vcell');
+    paintValue(v, a.value);
+    v.title = 'Click to edit in the Compose panel';
+    td2.appendChild(v);
+
+    const td3 = el('td');
+    const x = el('button','rowbtn'); x.textContent = '✕'; x.title = 'Delete';
+    x.onclick = ev => { ev.stopPropagation(); aliases.splice(i,1); if(selAlias>=aliases.length) selAlias=-1;
+                        renderAliases(); renderPreview(); renderCount(); renderChecks(); };
+    td3.appendChild(x);
+
+    tr.append(td1, td2, td3); b.appendChild(tr);
+  });
+  renderCount();
+}
+
+function renderCount(){
+  const n = aliases.length;
+  $('#cnt').textContent = n;
+  const m = $('#meter'); const bar = m.querySelector('i');
+  bar.style.width = Math.min(100, n/50*100) + '%';
+  m.className = 'meter' + (n > 50 ? ' bad' : n >= 45 ? ' warn' : '');
+  $('#cntNote').textContent = n > 50
+    ? 'Too many — the game will quietly ignore the extras. Move some into a second file.'
+    : n >= 45 ? 'Getting close. ' + (50-n) + ' left.'
+    : 'The game only allows fifty.';
+}
+
+/* expand nested aliases, then render rgb tags as real colour */
+function expand(str, depth){
+  depth = depth || 0;
+  if (depth > 8) return str;
+  return str.replace(/;[A-Za-z0-9]+/g, m => {
+    const hit = aliases.find(a => a.name.toLowerCase() === m.toLowerCase());
+    return hit ? expand(hit.value, depth+1) : m;
+  });
+}
+
+/* ---- split a stored value into {channel, body} ---- */
+function splitChannel(v){
+  const m = v.match(/^(;ch|\/say|\/p|\/g|\/em|\/gu|\/shout|\/advice)\s*/i);
+  return m ? { chan: m[1].toLowerCase(), body: v.slice(m[0].length) }
+           : { chan: '', body: v };
+}
+
+/* ---- render a stored value into a node, colours applied for real ---- */
+function paintValue(node, value){
+  node.textContent = '';
+  const { chan, body } = splitChannel(value);
+  const shown = expand(body);
+  if (!value.trim()) { node.classList.add('empty'); node.textContent = 'empty'; return; }
+  node.classList.remove('empty');
+  if (chan) { const c = el('span','ch'); c.textContent = chanLabel(chan) + '  '; node.appendChild(c); }
+  const re = /<rgb=#([0-9A-Fa-f]{6})>|<\/rgb>|<p>/g;
+  let last = 0, colour = null, mm;
+  const push = t => { if (!t) return; const s = el('span'); s.textContent = t;
+    if (colour) s.style.color = '#' + colour; node.appendChild(s); };
+  while ((mm = re.exec(shown)) !== null) {
+    push(shown.slice(last, mm.index));
+    if (mm[0] === '<p>') node.appendChild(document.createElement('br'));
+    else if (mm[0] === '</rgb>') colour = null;
+    else colour = mm[1];
+    last = re.lastIndex;
+  }
+  push(shown.slice(last));
+}
+function chanLabel(c){
+  return { ';ch':'[Party]', '/p':'[Party]', '/g':'[Guild]', '/say':'[Say]',
+           '/em':'[Emote]', '/gu':'[Guild]', '/shout':'[Shout]', '/advice':'[Advice]' }[c] || '';
+}
+
+/* ---- compose panel: rich text in, tags out ---- */
+function buildPalette(){
+  const pal = $('#palette'); pal.textContent = '';
+  PALETTE.forEach(([hex, label]) => {
+    const b = el('button');
+    const d = el('span','dot'); d.style.background = hex;
+    b.append(d, document.createTextNode(label));
+    b.title = 'Colour the selected words ' + label.toLowerCase();
+    /* keep the highlight alive: a plain click would blur the editor first */
+    b.onmousedown = ev => ev.preventDefault();
+    b.onclick = () => applyColour(hex);
+    pal.appendChild(b);
+  });
+  const sel = $('#chanSel'); sel.textContent = '';
+  CHANNELS.forEach(([v, label]) => { const o = el('option'); o.value = v; o.textContent = label; sel.appendChild(o); });
+  sel.onchange = commitCompose;
+}
+
+function renderPreview(){          // fills the Compose panel for the selected row
+  const box = $('#compose'), raw = $('#rawBox'), sel = $('#chanSel');
+  const a = aliases[selAlias];
+  if (!a) { box.innerHTML = ''; raw.value = ''; box.contentEditable = 'false';
+            $('#composeHint').textContent = 'Pick a row above to edit it.'; return; }
+  box.contentEditable = 'true';
+  $('#composeHint').textContent = 'Highlight some words, then click a colour.';
+  const { chan, body } = splitChannel(a.value);
+  sel.value = CHANNELS.some(c => c[0] === chan) ? chan : '';
+  box.innerHTML = tagsToHtml(body);
+  raw.value = a.value;
+}
+
+function tagsToHtml(s){
+  let out = '', open = false;
+  const re = /<rgb=#([0-9A-Fa-f]{6})>|<\/rgb>|<p>/g;
+  let last = 0, m;
+  const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  while ((m = re.exec(s)) !== null) {
+    out += esc(s.slice(last, m.index));
+    if (m[0] === '<p>') out += '<br>';
+    else if (m[0] === '</rgb>') { if (open) { out += '</span>'; open = false; } }
+    else { if (open) out += '</span>'; out += '<span style="color:#' + m[1] + '">'; open = true; }
+    last = re.lastIndex;
+  }
+  out += esc(s.slice(last));
+  if (open) out += '</span>';
+  return out;
+}
+
+/* walk the editor DOM and emit DDO tags */
+function htmlToTags(root){
+  let out = '';
+  /* The editor may express a colour as an inline style OR as a <font color>
+     attribute, depending on how the browser executed the colour command, and
+     in hex, named or rgb() form. Read whichever is present and normalise it
+     through a probe element so every case ends up as #RRGGBB. */
+  const colourOf = node => {
+    let v = (node.style && node.style.color) || '';
+    if (!v && node.nodeName === 'FONT') v = node.getAttribute('color') || '';
+    if (!v) return null;
+    /* the probe sits in the document so getComputedStyle resolves names like
+       "red" as well as hex and rgb() into one comparable form */
+    let p = document.getElementById('_colourProbe');
+    if (!p) {
+      p = document.createElement('span');
+      p.id = '_colourProbe';
+      p.style.cssText = 'position:absolute;left:-9999px;top:0;width:0;height:0';
+      document.body.appendChild(p);
+    }
+    p.style.color = '';
+    p.style.color = v;
+    const resolved = getComputedStyle(p).color || p.style.color || '';
+    const m = resolved.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return null;
+    const h = x => (+x).toString(16).padStart(2,'0').toUpperCase();
+    return '#' + h(m[1]) + h(m[2]) + h(m[3]);
+  };
+  const walk = (node, colour) => {
+    node.childNodes.forEach(n => {
+      if (n.nodeType === 3) {
+        const t = n.nodeValue.replace(/\u00A0/g,' ');
+        if (!t) return;
+        out += colour ? '<rgb=' + colour + '>' + t + '</rgb>' : t;
+      } else if (n.nodeName === 'BR') {
+        out += '<p>';
+      } else {
+        const c = colourOf(n) || colour;
+        if (n.nodeName === 'DIV' && out && !out.endsWith('<p>')) out += '<p>';
+        walk(n, c);
+      }
+    });
+  };
+  walk(root, null);
+  /* Join neighbouring runs only when they are the SAME colour. The previous
+     version merged any two adjacent runs, which silently swallowed the second
+     colour in anything multi-coloured. */
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/<rgb=(#[0-9A-F]{6})>([^<]*)<\/rgb><rgb=\1>/g, '<rgb=$1>$2');
+  } while (out !== prev);
+  return out;
+}
+
+function commitCompose(){
+  const a = aliases[selAlias]; if (!a) return;
+  const chan = $('#chanSel').value;
+  const body = htmlToTags($('#compose'));
+  a.value = (chan ? chan + ' ' : '') + body;
+  $('#rawBox').value = a.value;
+  const row = document.querySelectorAll('#aliasBody tr')[selAlias];
+  if (row) paintValue(row.querySelector('.vcell'), a.value);
+  renderChecks();
+}
+
+function applyColour(hex){
+  const box = $('#compose');
+  if (selAlias < 0) { setStatus('Pick a row first.', true); return; }
+  const s = window.getSelection();
+  if (!s || s.isCollapsed || !box.contains(s.anchorNode)) {
+    setStatus('Select the words you want coloured first, then click a colour.', true); return;
+  }
+  box.focus();
+  try { document.execCommand('styleWithCSS', false, true); } catch {}
+  document.execCommand('foreColor', false, hex);
+  commitCompose();
+}
+
+$('#btnPlain').onmousedown = ev => ev.preventDefault();
+$('#btnPlain').onclick = () => {
+  const box = $('#compose'); box.focus();
+  try { document.execCommand('styleWithCSS', false, true); } catch {}
+  document.execCommand('foreColor', false, '#C9D2DE');
+  // strip the marker colour entirely
+  box.querySelectorAll('span').forEach(sp => {
+    const c = (sp.style.color||'').replace(/\s/g,'');
+    if (c === 'rgb(201,210,222)') sp.style.color = '';
+  });
+  commitCompose();
+};
+$('#btnBreak').onmousedown = ev => ev.preventDefault();
+$('#btnBreak').onclick = () => {
+  $('#compose').focus();
+  document.execCommand('insertLineBreak');
+  commitCompose();
+};
+$('#btnRaw').onclick = () => {
+  const r = $('#rawBox'); const on = r.classList.toggle('hidden');
+  $('#btnRaw').textContent = on ? 'Show tags' : 'Hide tags';
+};
+$('#rawBox').oninput = () => {
+  const a = aliases[selAlias]; if (!a) return;
+  a.value = $('#rawBox').value;
+  renderPreview(); renderChecks();
+  const row = document.querySelectorAll('#aliasBody tr')[selAlias];
+  if (row) paintValue(row.querySelector('.vcell'), a.value);
+};
+document.addEventListener('DOMContentLoaded', () => {});
+$('#compose').addEventListener('input', commitCompose);
+$('#compose').addEventListener('blur', commitCompose);
+
+/* ---------------- checks ---------------- */
+function renderChecks(){
+  const box = $('#issues'); box.textContent = '';
+  const add = (cls, txt) => { const d = el('div','issue ' + cls); d.textContent = txt; box.appendChild(d); };
+  const names = aliases.map(a => a.name).filter(Boolean);
+  let clean = true;
+
+  const bad = aliases.filter(a => a.name && !a.name.startsWith(';'));
+  if (bad.length) { clean = false; add('bad', bad.length + ' name(s) missing the leading semicolon: ' + bad.map(b=>b.name).join(', ')); }
+
+  const seen = {}, dup = [];
+  names.forEach(n => { const k = n.toLowerCase(); if (seen[k]) dup.push(n); seen[k] = 1; });
+  if (dup.length) { clean = false; add('bad', 'Duplicate name(s): ' + [...new Set(dup)].join(', ') + '. Names are case-insensitive.'); }
+
+  const shadow = [];
+  names.forEach(a => names.forEach(b => {
+    if (a !== b && b.toLowerCase().startsWith(a.toLowerCase())) shadow.push(a + ' → ' + b);
+  }));
+  if (shadow.length) { clean = false; add('warn', 'Possible shadowing, shorter name may swallow the longer: ' + shadow.slice(0,6).join(', ') + (shadow.length>6 ? ' and ' + (shadow.length-6) + ' more' : '')); }
+
+  const unb = aliases.filter(a => {
+    const v = a.value.trim();
+    /* a bare colour opener or closer is a building block, not a mistake */
+    if (/^<rgb=#[0-9A-Fa-f]{6}>$/.test(v) || v === '</rgb>' || v === '<p>') return false;
+    const o = (a.value.match(/<rgb=#[0-9A-Fa-f]{6}>/g)||[]).length;
+    const c = (a.value.match(/<\/rgb>/g)||[]).length;
+    return o !== c;
+  });
+  if (unb.length) { clean = false; add('warn', 'Unclosed colour tag in: ' + unb.map(u=>u.name).join(', ') + '. Text after it stays coloured.'); }
+
+  const spaced = aliases.filter(a => /;[A-Za-z]+\s/.test(a.value) &&
+    aliases.some(x => /^<rgb=/.test(x.value) && a.value.includes(x.name + ' ')));
+  if (spaced.length) { add('warn', 'Colour alias followed by a space in: ' + spaced.map(s=>s.name).join(', ') + '. The colour will open on a blank space — write the tag out in full.'); clean = false; }
+
+  if (aliases.length > 50) { clean = false; add('bad', 'Over the fifty-alias ceiling.'); }
+  if (clean) add('ok', aliases.length ? 'No problems found.' : 'No aliases yet.');
+}
+
+/* ---------------- interface ---------------- */
+/* Plain-English names for the panels DDO stores. Anything not listed
+   keeps its raw ID, tidied up. */
+const EL_NAMES = {
+  Vitals:'Health & spell points', Vitals_minimal:'Health bar (minimal)',
+  RadarField:'Minimap', ChatDisplay1:'Chat window 1', ChatDisplay2:'Chat window 2',
+  ShortcutsBar:'Main hotbar', Quest_Field:'Quest tracker', GlobalObjectives:'Objectives',
+  FocusField:'Target panel', FocusOrb:'Target portrait', FocusOrb_Classic:'Target portrait (classic)',
+  FellowshipDisplay:'Party list', HenchmanBar:'Hireling bar', TumbleDisplay:'Tumble meter',
+  Hud_NetStatus_Vessel:'Connection indicator', PendingChallengeButton:'Challenge button',
+  AlchemistReactionDisplay:'Alchemist reaction', Dice_Field:'Dice roller',
+  HotQuestJournal_QuestEntry:'Quest journal entry', HotStoryQuestJournal_QuestEntry:'Story quest entry',
+  Inventory_Field:'Inventory', CharacterSheetField:'Character sheet', SocialField:'Social panel',
+  Bank_Field:'Bank', Character_Bank_Field:'Character bank', Account_Bank_Field:'Shared bank',
+  Guild_Bank_Field:'Guild bank', Reincarnation_Bank_Field:'Reincarnation cache',
+  Auction_MainField:'Auction house', Auction_MainFieldBlackMarket:'Black market auction',
+  Mail_MainField:'Mail', MonsterManual_Menu:'Monster manual',
+  AdventureCompendium_Field:'Adventure compendium', EpicDesitiny_Menu:'Epic destinies',
+  Augment_MainField:'Augments', SentientSlot_MainField:'Sentient jewel',
+  PetCharacterSheet_MainField:'Pet sheet', AirshipShowroom_Menu:'Airship showroom',
+  AmenityInventory_Menu:'Airship amenities', ImageRewardGallery_Menu:'Reward gallery',
+  DailiesRewardField:'Daily rewards', ArenaQueue_AdminSummaryPanel:'Arena queue',
+  ArenaScoring_SummaryPanel:'Arena scoring', HenchmanCustomizeAI_Menu:'Hireling AI',
+  BaseOptionsField:'Options panel', reincarnation_mainField:'Reincarnation'
+};
+function friendly(id){
+  if (EL_NAMES[id]) return EL_NAMES[id];
+  const m = id.match(/^UndockedShortcut(\d+)_(Horizontal|Vertical)/);
+  if (m) return 'Hotbar ' + (+m[1] + 1) + ' (' + m[2].toLowerCase() + ')';
+  return id.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2');
+}
+/* Draw each panel as the widget it really is, so the canvas reads as a
+   game screen rather than a pile of rectangles. */
+function elKind(id){
+  const m = id.match(/^UndockedShortcut\d+_(Horizontal|Vertical)/);
+  if (m) return m[1] === 'Vertical' ? 'vbar' : 'hbar';
+  if (id === 'ShortcutsBar' || id === 'HenchmanBar') return 'hbar';
+  if (id === 'Vitals' || id === 'Vitals_minimal') return 'vitals';
+  if (id === 'FocusOrb' || id === 'FocusOrb_Classic') return 'orb';
+  if (id === 'RadarField') return 'radar';
+  if (/^ChatDisplay/.test(id)) return 'chat';
+  if (id === 'FellowshipDisplay') return 'party';
+  if (id === 'Quest_Field' || id === 'GlobalObjectives' || /QuestEntry$/.test(id)
+      || id === 'FocusField') return 'text';
+  if (!isHud(id)) return 'window';
+  return 'plain';
+}
+
+/* HUD = on screen while you play. Everything else opens on demand. */
+const HUD_IDS = new Set(['Vitals','Vitals_minimal','RadarField','ChatDisplay1','ChatDisplay2',
+  'ShortcutsBar','Quest_Field','GlobalObjectives','FocusField','FocusOrb','FocusOrb_Classic',
+  'FellowshipDisplay','HenchmanBar','TumbleDisplay','Hud_NetStatus_Vessel','PendingChallengeButton',
+  'AlchemistReactionDisplay','Dice_Field','HotQuestJournal_QuestEntry','HotStoryQuestJournal_QuestEntry']);
+const isHud = id => HUD_IDS.has(id) || /^UndockedShortcut/.test(id);
+let showHud = true;
+const visibleIdx = () => elements.map((e,i)=>i).filter(i => isHud(elements[i].id) === showHud);
+
+function renderScreen(){
+  const s = $('#screen');
+  [...s.querySelectorAll('.el')].forEach(n => n.remove());
+  const idx = visibleIdx();
+  const empty = $('#emptyScreen');
+  if (empty) {
+    empty.style.display = elements.length ? 'none' : 'grid';
+    if (!elements.length) empty.textContent = doc && doc.querySelector('Element')
+      ? 'This file has nothing saved for these.'
+      : 'Open one of your .layout files to start arranging.';
+  }
+  idx.forEach(i => {
+    const e = elements[i];
+    if (e.w <= 0 || e.h <= 0) return;
+    const chosen = selSet.has(i);
+    const flagged = overlapSet.has(i);
+    const d = el('div','el' + (chosen ? ' sel' : '') +
+      (chosen && selSet.size > 1 ? (i === selEl ? ' anchor' : ' multi') : '') +
+      (flagged ? ' ovl' : ''));
+    d.style.left = (e.x*100) + '%'; d.style.top = (e.y*100) + '%';
+    d.style.width = (e.w*100) + '%'; d.style.height = (e.h*100) + '%';
+    d.classList.add('k-' + elKind(e.id));
+    const art = el('div','art'); d.appendChild(art);
+    const t = el('span','lbl'); t.textContent = friendly(e.id); d.appendChild(t);
+    if (flagged) { const bd = el('span','ovlbadge'); bd.textContent = 'overlap'; d.appendChild(bd); }
+    d.title = friendly(e.id) + '  (' + e.id + ')';
+    d.dataset.i = i;
+    d.onpointerdown = ev => startDrag(ev, i, d);
+    if (i === selEl && selSet.size === 1 && !HOTBAR_RE.test(e.id)) ['nw','n','ne','e','se','s','sw','w'].forEach(dir => {
+      const hnd = el('div','hd ' + dir);
+      hnd.onpointerdown = ev => startResize(ev, i, dir);
+      d.appendChild(hnd);
+    });
+    s.appendChild(d);
+  });
+  const n = idx.length;
+  $('#grpNote').textContent = elements.length
+    ? n + (showHud ? ' HUD element' : ' window') + (n===1?'':'s') + ' in this file'
+    : '';
+  $('#elListTitle').textContent = showHud ? 'On-screen HUD' : 'Windows & panels';
+  $('#winCard').classList.toggle('hidden', showHud);
+  $('#presetCard').classList.toggle('hidden', !showHud);
+  $('#barsCard').classList.toggle('hidden', !showHud);
+  renderElList(); renderFields(); renderBars(); syncArrange();
+}
+
+function renderElList(){
+  const l = $('#elList'); l.textContent = '';
+  const idx = visibleIdx();
+  if (!idx.length) { const p = el('div'); p.className='hint'; p.style.padding='.6rem';
+    p.textContent = elements.length ? 'Nothing of this kind saved in this file.'
+                                    : 'No file loaded yet.'; l.appendChild(p); return; }
+  idx.forEach(i => {
+    const b = el('button'); b.textContent = friendly(elements[i].id);
+    b.title = elements[i].id;
+    if (i === selEl) b.setAttribute('aria-current','true');
+    b.onclick = () => { selectOnly(i); renderScreen(); };
+    l.appendChild(b);
+  });
+}
+
+/* ================= hotbars: the game gives you 20 =================
+   A hotbar is ten slots and the game sizes it itself, so every bar in a
+   saved layout comes out identical. We learn those two sizes from the
+   file and hold every bar to them: resizing one here would only be
+   undone by the client. */
+const MAX_BARS = 20;
+let BAR_H = {w:0.157031, h:0.030556};   // ten slots across
+let BAR_V = {w:0.016406, h:0.276389};   // ten slots down
+
+function learnBarSizes(){
+  const med = (arr, k) => {
+    if (!arr.length) return null;
+    const s = arr.map(e => e[k]).sort((a,b) => a-b);
+    return s[Math.floor(s.length/2)];
+  };
+  const hs = elements.filter(e => /_Horizontal_MarkerList$/.test(e.id) && e.w > 0 && e.h > 0);
+  const vs = elements.filter(e => /_Vertical_MarkerList$/.test(e.id)   && e.w > 0 && e.h > 0);
+  const A = parseFloat($('#aspect').value) || 16/9;
+  if (hs.length) BAR_H = {w: med(hs,'w'), h: med(hs,'h')};
+  if (vs.length) BAR_V = {w: med(vs,'w'), h: med(vs,'h')};
+  /* only one orientation saved? turn it through the screen shape, because
+     a slot is square in pixels, not in screen fractions */
+  if (hs.length && !vs.length) BAR_V = {w: BAR_H.h / A, h: BAR_H.w * A};
+  if (vs.length && !hs.length) BAR_H = {w: BAR_V.h / A, h: BAR_V.w * A};
+}
+const barSizeFor = vert => vert ? BAR_V : BAR_H;
+function enforceBarSizes(){
+  elements.forEach(e => {
+    const m = e.id.match(HOTBAR_RE); if (!m) return;
+    const s = barSizeFor(m[2] === 'Vertical');
+    e.w = s.w; e.h = s.h;
+  });
+}
+const barId = (n, vert) => 'UndockedShortcut' + n + '_' + (vert ? 'Vertical' : 'Horizontal') + '_MarkerList';
+function barIndexOf(n){
+  return elements.findIndex(e => {
+    const m = e.id.match(HOTBAR_RE);
+    return m && m[1] === 'UndockedShortcut' + n;
+  });
+}
+function hotbarLayoutId(){
+  const existing = elements.find(e => HOTBAR_RE.test(e.id));
+  if (existing) return existing.layoutId;
+  const any = elements.find(e => e.layoutId);
+  return any ? any.layoutId : '0x22000069';
+}
+function toggleBar(n){
+  pushUndo();
+  const i = barIndexOf(n);
+  if (i >= 0) { elements.splice(i,1); selSet.clear(); selEl = -1; }
+  else {
+    const act = activeBars();
+    elements.push({ id: barId(n,false), layoutId: hotbarLayoutId(),
+      x: 0.345, y: clamp(0.840 - act.length*(BAR_H.h + 0.004), 0.05, 0.94),
+      w: BAR_H.w, h: BAR_H.h });
+    selEl = elements.length - 1;
+  }
+  renderScreen();
+}
+function activeBars(){
+  return elements.map((e,i)=>({e,i,m:e.id.match(HOTBAR_RE)})).filter(o=>o.m)
+    .map(o=>({idx:o.i, n:+o.m[1].replace('UndockedShortcut',''), vert:o.m[2]==='Vertical'}))
+    .sort((a,b)=>a.n-b.n);
+}
+function renderBars(){
+  const g = $('#barsGrid'); g.textContent = '';
+  const act = activeBars();
+  const byN = new Map(act.map(a=>[a.n,a]));
+  for (let n = 0; n < MAX_BARS; n++) {
+    const b = el('button'); b.textContent = n + 1;
+    const a = byN.get(n);
+    if (a) { b.className = 'on' + (a.vert ? ' vert' : ''); b.title = 'Hotbar ' + (n+1) + ' — ' + (a.vert?'vertical':'horizontal') + '. Click to remove it.'; }
+    else b.title = 'Hotbar ' + (n+1) + ' — not in this layout. Click to add it.';
+    b.onclick = () => toggleBar(n);
+    g.appendChild(b);
+  }
+  $('#barCount').textContent = act.length + ' of ' + MAX_BARS + ' in this layout';
+}
+
+/* ---- arranging hotbars ----
+   A bar is a fixed size, so laying them out is only ever a question of
+   which edge they hug, which way they run, and how big the gap is. One
+   pass covers every shape people actually use, and because the size is
+   known the result can never overlap. */
+$('#btnSelBars').onclick = () => {
+  const act = activeBars();
+  if (!act.length) { setStatus('There are no hotbars in this layout yet.', true); return; }
+  showHud = true; syncGroupBtns();
+  selSet = new Set(act.map(a => a.idx));
+  selEl = act[0].idx;
+  renderScreen();
+  setStatus('Selected all ' + act.length + ' hotbars. The Arrange panel now works on the whole set.');
+};
+
+$('#btnBarsEven').onclick = () => {
+  const act = activeBars();
+  if (act.length < 3) { setStatus('Need at least three bars to even out.', true); return; }
+  pushUndo();
+  const horiz = act.filter(a => !a.vert).map(a => elements[a.idx]);
+  const vert  = act.filter(a =>  a.vert).map(a => elements[a.idx]);
+  const spread = (list, k) => {
+    if (list.length < 3) return;
+    const s = [...list].sort((p,q) => p[k] - q[k]);
+    const first = s[0][k], last = s[s.length-1][k];
+    const step = (last - first) / (s.length - 1);
+    s.forEach((e,n) => { e[k] = first + step*n; });
+  };
+  spread(horiz, 'y'); spread(vert, 'x');
+  renderScreen();
+  setStatus('Evened out the spacing across ' + act.length + ' bars.');
+};
+
+$('#btnBarsArrange').onclick = () => {
+  const act = activeBars();
+  if (!act.length) { setStatus('There are no hotbars in this layout yet.', true); return; }
+  pushUndo();
+
+  const shape = $('#barShape').value;
+  const gap   = Math.max(0, (parseFloat($('#barGap').value) || 0) / 100);
+  const byNum = $('#barOrder').value === 'num';
+
+  /* order: either by the number the player sees, or as they sit now */
+  let list = act.slice();
+  if (!byNum) {
+    list.sort((a,b) => {
+      const A = elements[a.idx], B = elements[b.idx];
+      return (A.y - B.y) || (A.x - B.x);
+    });
+  }
+
+  const vertical = (shape === 'cl' || shape === 'cr');
+  const half = Math.ceil(list.length / 2);
+  let rowN = 0, colN = 0;
+
+  list.forEach((a, k) => {
+    const e = elements[a.idx];
+    /* split sends the first half to the floor and the rest up the right edge */
+    const upright = (shape === 'split') ? (k >= half) : vertical;
+
+    /* turn the bar if it is not already the right way round, then take the
+       size the game gives that orientation */
+    const m = e.id.match(HOTBAR_RE);
+    if (m && (m[2] === 'Vertical') !== upright) e.id = barId(a.n, upright);
+    const size = barSizeFor(upright);
+    e.w = size.w; e.h = size.h;
+
+    if (!upright) {
+      /* rows climbing off the floor, first bar lowest */
+      e.y = Math.max(0, 1 - e.h - rowN * (e.h + gap));
+      if (shape === 'bl')      e.x = 0;
+      else if (shape === 'br') e.x = 1 - e.w;
+      else                     e.x = (1 - e.w) / 2;
+      rowN++;
+    } else {
+      /* upright bars stand side by side, marching in from their edge */
+      const fromLeft = (shape === 'cl');
+      const step = e.w + gap;
+      e.x = fromLeft ? colN * step : 1 - e.w - colN * step;
+      e.x = Math.max(0, Math.min(1 - e.w, e.x));
+      e.y = (1 - e.h) / 2;
+      colN++;
+    }
+  });
+
+  showHud = true; syncGroupBtns();
+  renderScreen();
+  const shapeName = $('#barShape').selectedOptions[0].textContent.toLowerCase();
+  setStatus('Arranged ' + list.length + ' hotbars: ' + shapeName + ', ' +
+            (gap * 100).toFixed(1) + '% gap' + (byNum ? ', bar 1 nearest the edge.' : ', in their current order.'));
+};
+
+/* ================= auto-arrange presets ================= */
+const PRESET_LAYOUTS = {
+  classic: { note:'Bars centred under the action, chat bottom-left, map top-right.',
+    hud:{Vitals:[0.012,0.020,0.150,0.060],Vitals_minimal:[0.012,0.020,0.110,0.045],
+      FocusField:[0.180,0.020,0.130,0.055],FocusOrb:[0.330,0.018,0.075,0.078],
+      FocusOrb_Classic:[0.330,0.018,0.075,0.078],Hud_NetStatus_Vessel:[0.492,0.006,0.016,0.026],
+      RadarField:[0.845,0.025,0.140,0.240],GlobalObjectives:[0.012,0.150,0.200,0.030],
+      Quest_Field:[0.790,0.290,0.200,0.330],HotQuestJournal_QuestEntry:[0.790,0.290,0.200,0.150],
+      HotStoryQuestJournal_QuestEntry:[0.790,0.450,0.200,0.150],
+      FellowshipDisplay:[0.012,0.200,0.160,0.260],AlchemistReactionDisplay:[0.012,0.480,0.060,0.090],
+      Dice_Field:[0.430,0.180,0.140,0.055],PendingChallengeButton:[0.470,0.250,0.060,0.050],
+      ChatDisplay1:[0.010,0.690,0.320,0.290],ChatDisplay2:[0.010,0.395,0.320,0.270],
+      ShortcutsBar:[0.345,0.935,0.310,0.045],HenchmanBar:[0.345,0.888,0.310,0.040],
+      TumbleDisplay:[0.930,0.930,0.060,0.035]},
+    bars:{mode:'h', x:0.345, w:0.310, h:0.042, startY:0.840, step:0.046} },
+
+  raid: { note:'Party list large on the left, centre screen kept clear.',
+    hud:{Vitals:[0.012,0.018,0.170,0.065],Vitals_minimal:[0.012,0.018,0.120,0.048],
+      FocusField:[0.200,0.018,0.140,0.058],FocusOrb:[0.360,0.014,0.080,0.082],
+      FocusOrb_Classic:[0.360,0.014,0.080,0.082],Hud_NetStatus_Vessel:[0.492,0.004,0.016,0.026],
+      RadarField:[0.858,0.020,0.132,0.228],GlobalObjectives:[0.300,0.090,0.400,0.032],
+      Quest_Field:[0.800,0.270,0.192,0.300],HotQuestJournal_QuestEntry:[0.800,0.270,0.192,0.145],
+      HotStoryQuestJournal_QuestEntry:[0.800,0.420,0.192,0.145],
+      FellowshipDisplay:[0.008,0.110,0.190,0.560],AlchemistReactionDisplay:[0.205,0.140,0.058,0.088],
+      Dice_Field:[0.430,0.150,0.140,0.052],PendingChallengeButton:[0.470,0.215,0.060,0.048],
+      ChatDisplay1:[0.008,0.700,0.300,0.280],ChatDisplay2:[0.312,0.700,0.240,0.180],
+      ShortcutsBar:[0.560,0.940,0.300,0.044],HenchmanBar:[0.560,0.896,0.300,0.038],
+      TumbleDisplay:[0.930,0.926,0.060,0.034]},
+    bars:{mode:'h', x:0.560, w:0.300, h:0.040, startY:0.852, step:0.044} },
+
+  caster: { note:'Vertical columns down both edges for spell access.',
+    hud:{Vitals:[0.075,0.018,0.160,0.062],Vitals_minimal:[0.075,0.018,0.115,0.046],
+      FocusField:[0.245,0.018,0.135,0.056],FocusOrb:[0.395,0.014,0.078,0.080],
+      FocusOrb_Classic:[0.395,0.014,0.078,0.080],Hud_NetStatus_Vessel:[0.492,0.004,0.016,0.026],
+      RadarField:[0.800,0.020,0.130,0.226],GlobalObjectives:[0.075,0.100,0.220,0.030],
+      Quest_Field:[0.745,0.265,0.185,0.300],HotQuestJournal_QuestEntry:[0.745,0.265,0.185,0.145],
+      HotStoryQuestJournal_QuestEntry:[0.745,0.415,0.185,0.145],
+      FellowshipDisplay:[0.075,0.150,0.165,0.270],AlchemistReactionDisplay:[0.075,0.440,0.060,0.090],
+      Dice_Field:[0.430,0.160,0.140,0.052],PendingChallengeButton:[0.470,0.225,0.060,0.048],
+      ChatDisplay1:[0.075,0.700,0.310,0.285],ChatDisplay2:[0.390,0.700,0.250,0.190],
+      ShortcutsBar:[0.345,0.938,0.310,0.044],HenchmanBar:[0.345,0.894,0.310,0.038],
+      TumbleDisplay:[0.930,0.926,0.060,0.034]},
+    bars:{mode:'v', y:0.180, w:0.030, h:0.560, leftX:0.006, rightX:0.964, step:0.034} },
+
+  minimal: { note:'One bar, small chat, everything hugging the edges.',
+    hud:{Vitals:[0.010,0.014,0.140,0.056],Vitals_minimal:[0.010,0.014,0.100,0.042],
+      FocusField:[0.160,0.014,0.120,0.050],FocusOrb:[0.292,0.012,0.070,0.072],
+      FocusOrb_Classic:[0.292,0.012,0.070,0.072],Hud_NetStatus_Vessel:[0.492,0.004,0.014,0.024],
+      RadarField:[0.878,0.014,0.112,0.194],GlobalObjectives:[0.010,0.096,0.190,0.028],
+      Quest_Field:[0.836,0.222,0.156,0.250],HotQuestJournal_QuestEntry:[0.836,0.222,0.156,0.120],
+      HotStoryQuestJournal_QuestEntry:[0.836,0.348,0.156,0.120],
+      FellowshipDisplay:[0.010,0.140,0.140,0.230],AlchemistReactionDisplay:[0.010,0.390,0.052,0.078],
+      Dice_Field:[0.430,0.140,0.130,0.048],PendingChallengeButton:[0.470,0.200,0.056,0.044],
+      ChatDisplay1:[0.006,0.760,0.260,0.230],ChatDisplay2:[0.272,0.800,0.200,0.190],
+      ShortcutsBar:[0.372,0.944,0.256,0.040],HenchmanBar:[0.372,0.902,0.256,0.036],
+      TumbleDisplay:[0.936,0.936,0.056,0.032]},
+    bars:{mode:'h', x:0.372, w:0.256, h:0.038, startY:0.862, step:0.042} },
+
+  wide: { note:'For 21:9 — the centre stays empty, everything sits at the far edges.',
+    hud:{Vitals:[0.006,0.016,0.130,0.058],Vitals_minimal:[0.006,0.016,0.096,0.044],
+      FocusField:[0.144,0.016,0.116,0.052],FocusOrb:[0.270,0.012,0.070,0.074],
+      FocusOrb_Classic:[0.270,0.012,0.070,0.074],Hud_NetStatus_Vessel:[0.494,0.004,0.012,0.024],
+      RadarField:[0.888,0.016,0.106,0.208],GlobalObjectives:[0.006,0.100,0.180,0.028],
+      Quest_Field:[0.856,0.240,0.138,0.280],HotQuestJournal_QuestEntry:[0.856,0.240,0.138,0.136],
+      HotStoryQuestJournal_QuestEntry:[0.856,0.382,0.138,0.136],
+      FellowshipDisplay:[0.006,0.142,0.150,0.300],AlchemistReactionDisplay:[0.006,0.460,0.050,0.082],
+      Dice_Field:[0.440,0.150,0.120,0.046],PendingChallengeButton:[0.474,0.208,0.052,0.044],
+      ChatDisplay1:[0.006,0.720,0.240,0.270],ChatDisplay2:[0.006,0.430,0.200,0.270],
+      ShortcutsBar:[0.400,0.944,0.200,0.040],HenchmanBar:[0.400,0.902,0.200,0.036],
+      TumbleDisplay:[0.940,0.936,0.054,0.032]},
+    bars:{mode:'split', x:0.400, w:0.200, h:0.038, startY:0.862, step:0.042,
+          leftX:0.006, rightX:0.966, vy:0.200, vw:0.028, vh:0.480, vstep:0.032} }
+};
+
+function applyLayoutPreset(key){
+  const P = PRESET_LAYOUTS[key]; if (!P) return;
+  pushUndo();
+  elements.forEach(e => { const p = P.hud[e.id]; if (p) { e.x=p[0]; e.y=p[1]; e.w=p[2]; e.h=p[3]; } });
+  const act = activeBars(), B = P.bars;
+  act.forEach((a, k) => {
+    const e = elements[a.idx];
+    let vert = B.mode === 'v';
+    if (B.mode === 'split') vert = k >= Math.ceil(act.length/2) ? true : false;
+    const m = e.id.match(HOTBAR_RE);
+    if (m && (m[2] === 'Vertical') !== vert) e.id = barId(a.n, vert);
+    if (vert) {
+      const col = B.mode === 'split' ? k - Math.ceil(act.length/2) : k;
+      const half = Math.ceil((B.mode==='v'?act.length:act.length/2)/2);
+      const onLeft = B.mode === 'v' ? col < half : col % 2 === 1;
+      e.w = B.vw || B.w; e.h = B.vh || B.h; e.y = B.vy != null ? B.vy : B.y;
+      const step = B.vstep || B.step, slot = B.mode==='v' ? (onLeft ? col : col-half) : Math.floor(col/2);
+      e.x = onLeft ? (B.leftX + slot*step) : (B.rightX - slot*step);
+    } else {
+      e.w = B.w; e.h = B.h; e.x = B.x; e.y = B.startY - k*B.step;
+    }
+  });
+  showHud = true; syncGroupBtns(); renderScreen();
+  setStatus(P.note);
+}
+$('#btnApplyPreset').onclick = () => {
+  const k = $('#presetSel').value;
+  if (!k) { setStatus('Pick a layout first.', true); return; }
+  applyLayoutPreset(k);
+};
+
+$('#grpHud').onclick = () => { showHud = true;  selectClear(); syncGroupBtns(); renderScreen(); };
+$('#grpWin').onclick = () => { showHud = false; selectClear(); syncGroupBtns(); renderScreen(); };
+function syncGroupBtns(){
+  $('#grpHud').setAttribute('aria-pressed', String(showHud));
+  $('#grpWin').setAttribute('aria-pressed', String(!showHud));
+}
+
+/* Hotbars carry their orientation in the element ID, and the game lets you
+   flip one between horizontal and vertical. Turning it here renames the
+   element and swaps its width and height to match. */
+const HOTBAR_RE = /^(UndockedShortcut\d+)_(Horizontal|Vertical)(_MarkerList)$/;
+function rotateHotbar(){
+  const e = elements[selEl]; if (!e) return;
+  const m = e.id.match(HOTBAR_RE); if (!m) return;
+  const to = m[2] === 'Horizontal' ? 'Vertical' : 'Horizontal';
+  if (elements.some((o,i) => i !== selEl && o.id === m[1] + '_' + to + m[3])) {
+    setStatus('This file already has a ' + to.toLowerCase() + ' entry for that hotbar.', true);
+    return;
+  }
+  e.id = m[1] + '_' + to + m[3];
+  const bs = barSizeFor(to === 'Vertical'); e.w = bs.w; e.h = bs.h;
+  renderScreen();
+  setStatus('Turned ' + friendly(e.id) + '. Flip the bar in game too — this records the position, it does not rotate the bar for you.');
+}
+$('#btnRotate').onclick = rotateHotbar;
+
+function renderFields(){
+  const e = elements[selEl];
+  $('#elName').textContent = e ? friendly(e.id) : 'nothing selected';
+  const m = e && e.id.match(HOTBAR_RE);
+  $('#rotWrap').classList.toggle('hidden', !m);
+  if (m) {
+    $('#btnRotate').textContent = m[2] === 'Horizontal' ? 'Make vertical' : 'Make horizontal';
+    $('#rotNote').textContent = 'currently ' + m[2].toLowerCase();
+  }
+  ['x','y','w','h'].forEach(k => {
+    const f = $('#f' + k);
+    f.value = e ? e[k].toFixed(6) : '';
+    f.disabled = !e;
+  });
+}
+['x','y','w','h'].forEach(k => {
+  $('#f'+k).oninput = () => {
+    const e = elements[selEl]; if (!e) return;
+    const v = parseFloat($('#f'+k).value); if (isNaN(v)) return;
+    e[k] = v; renderScreen();
+  };
+});
+
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+/* ---- undo stack over element geometry ---- */
+let undoStack = [], redoStack = [];
+const snapshot = () => elements.map(e => ({id:e.id, x:e.x, y:e.y, w:e.w, h:e.h}));
+function pushUndo(){ undoStack.push(snapshot()); if (undoStack.length > 60) undoStack.shift();
+                     redoStack = []; syncUndo(); }
+function restore(list){ list.forEach((s,i) => { const e = elements[i]; if (!e) return;
+  e.id = s.id; e.x = s.x; e.y = s.y; e.w = s.w; e.h = s.h; }); }
+function syncUndo(){ $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
+$('#btnUndo').onclick = () => { if (!undoStack.length) return;
+  redoStack.push(snapshot()); restore(undoStack.pop()); syncUndo(); renderScreen(); };
+$('#btnRedo').onclick = () => { if (!redoStack.length) return;
+  undoStack.push(snapshot()); restore(redoStack.pop()); syncUndo(); renderScreen(); };
+
+/* ---- rulers + grid ---- */
+function gridStep(){ return parseFloat($('#gridSize').value); }
+function drawRulers(){
+  const step = gridStep(), h = $('#rulerH'), v = $('#rulerV');
+  h.textContent = ''; v.textContent = '';
+  for (let t = 0; t <= 1.0001; t += step) {
+    const maj = Math.abs((t/0.1) - Math.round(t/0.1)) < 1e-6;
+    const a = el('div','tk' + (maj ? ' maj' : '')); a.style.left = (t*100) + '%'; h.appendChild(a);
+    const b = el('div','tk' + (maj ? ' maj' : '')); b.style.top  = (t*100) + '%'; v.appendChild(b);
+    if (maj && t > 0.001 && t < 0.999) {
+      const la = el('div','lb'); la.textContent = Math.round(t*100); la.style.left = (t*100) + '%'; h.appendChild(la);
+      const lb = el('div','lb'); lb.textContent = Math.round(t*100); lb.style.top  = (t*100) + '%'; v.appendChild(lb);
+    }
+  }
+}
+function drawGrid(){
+  const g = $('#gridLay');
+  if (!$('#optGrid').checked) { g.style.background = 'none'; return; }
+  const p = (gridStep()*100).toFixed(4) + '%';
+  const minor = 'rgba(190,214,240,.16)';   // fine lines
+  const major = 'rgba(255,190,90,.30)';    // every tenth, warm so it reads as a guide
+  const half  = 'rgba(190,214,240,.26)';   // the centre lines
+  g.style.background =
+    /* centre lines */
+    'linear-gradient(to right, transparent calc(50% - 1px), ' + half + ' calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),' +
+    'linear-gradient(to bottom, transparent calc(50% - 1px), ' + half + ' calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),' +
+    /* tenths */
+    'repeating-linear-gradient(to right, ' + major + ' 0 1px, transparent 1px 10%),' +
+    'repeating-linear-gradient(to bottom, ' + major + ' 0 1px, transparent 1px 10%),' +
+    /* fine grid */
+    'repeating-linear-gradient(to right, ' + minor + ' 0 1px, transparent 1px ' + p + '),' +
+    'repeating-linear-gradient(to bottom, ' + minor + ' 0 1px, transparent 1px ' + p + ')';
+}
+
+/* Straighten everything: nudge each visible panel onto the nearest grid
+   line. Sizes are left alone so small widgets keep their proportions. */
+function tidyToGrid(){
+  const idx = visibleIdx();
+  if (!idx.length) { setStatus('Nothing to line up here.', true); return; }
+  const g = gridStep();
+  const round = v => Math.round(v / g) * g;
+  let moved = 0, worst = 0;
+  pushUndo();
+  idx.forEach(i => {
+    const e = elements[i];
+    const nx = round(e.x), ny = round(e.y);
+    const d = Math.max(Math.abs(nx - e.x), Math.abs(ny - e.y));
+    if (d > 1e-9) { moved++; worst = Math.max(worst, d); }
+    e.x = +nx.toFixed(6); e.y = +ny.toFixed(6);
+  });
+  renderScreen();
+  setStatus(moved
+    ? 'Lined up ' + moved + ' of ' + idx.length + ' panels. The furthest moved about ' +
+      Math.round(worst * 100 * 10) / 10 + '% of the screen.'
+    : 'Everything was already on the grid.');
+}
+$('#btnTidy').onclick = tidyToGrid;
+
+/* Panels sitting on top of each other is the commonest thing to get wrong,
+   and it stays invisible until you are in game. This finds and selects them.
+   Alternate versions of one widget are ignored, since the game only ever
+   draws one of the pair. */
+const ALTERNATES = [
+  ['Vitals','Vitals_minimal'],
+  ['FocusOrb','FocusOrb_Classic'],
+  ['HotQuestJournal_QuestEntry','HotStoryQuestJournal_QuestEntry']
+];
+const areAlternates = (a,b) => ALTERNATES.some(p => p.includes(a) && p.includes(b));
+function findOverlaps(){
+  if (overlapSet.size) {                 // a second press puts it away
+    clearOverlaps(); selSet.clear(); selEl = -1; renderScreen();
+    setStatus('Overlap check cleared.');
+    return;
+  }
+  const idx = visibleIdx();
+  const hits = new Set();
+  let pairs = 0;
+  for (let a = 0; a < idx.length; a++) {
+    for (let b = a + 1; b < idx.length; b++) {
+      const p = elements[idx[a]], q = elements[idx[b]];
+      if (areAlternates(p.id, q.id)) continue;
+      const ox = Math.min(p.x+p.w, q.x+q.w) - Math.max(p.x, q.x);
+      const oy = Math.min(p.y+p.h, q.y+q.h) - Math.max(p.y, q.y);
+      if (ox > 0.002 && oy > 0.002) { hits.add(idx[a]); hits.add(idx[b]); pairs++; }
+    }
+  }
+  if (!pairs) { selectClear(); renderScreen(); setStatus('Nothing is overlapping here.'); return; }
+  selSet = new Set(hits); overlapSet = new Set(hits); selEl = [...hits][0];
+  const ob = $('#btnOverlap');
+  ob.textContent = 'Clear overlaps'; ob.setAttribute('aria-pressed','true');
+  renderScreen();
+  setStatus(pairs + ' overlapping pair' + (pairs===1?'':'s') + ' found, marked in red across ' +
+            hits.size + ' panels. Fix them with Stack down or the align tools, then press Escape, ' +
+            'click empty space, or press Clear overlaps to put the marks away.');
+}
+$('#btnOverlap').onclick = findOverlaps;
+
+/* ---- your own screenshot behind the canvas ----
+   Lining panels up against a real picture of your game is far more
+   reliable than guessing. The image never leaves your browser. */
+let shotURL = null;
+$('#btnShot').onclick = () => $('#shotFile').click();
+$('#shotFile').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    shotURL = r.result;
+    applyShot();
+    $('#shotFade').classList.remove('hidden');
+    $('#btnShotOff').classList.remove('hidden');
+    $('#btnShot').textContent = 'Change screenshot';
+    setStatus('Screenshot loaded. Drag your panels to line up with what you see.');
+  };
+  r.readAsDataURL(f);
+};
+function applyShot(){
+  const s = $('#screen');
+  if (!shotURL) { s.style.backgroundImage = ''; return; }
+  const dim = 1 - ($('#shotOpacity').value / 100);
+  s.style.backgroundImage =
+    'linear-gradient(rgba(6,9,13,' + dim.toFixed(2) + '), rgba(6,9,13,' + dim.toFixed(2) + ')),' +
+    'url(' + shotURL + ')';
+  s.style.backgroundSize = 'cover';
+  s.style.backgroundPosition = 'center';
+}
+$('#shotOpacity').oninput = applyShot;
+$('#btnShotOff').onclick = () => {
+  shotURL = null; applyShot();
+  $('#shotFade').classList.add('hidden');
+  $('#btnShotOff').classList.add('hidden');
+  $('#btnShot').textContent = 'Use my screenshot';
+  $('#shotFile').value = '';
+};
+
+/* ---- window tools ---- */
+const WSIZES = { s:[0.26,0.40], m:[0.34,0.52], l:[0.44,0.66] };
+function windowTargets(){
+  const sel = [...selSet].filter(i => !isHud(elements[i].id));
+  return sel.length ? sel : visibleIdx();
+}
+$('#btnCascade').onclick = () => {
+  const idx = windowTargets(); if (!idx.length) return;
+  pushUndo();
+  idx.forEach((i, k) => { const e = elements[i];
+    e.x = clamp(0.10 + (k % 12) * 0.022, 0, 1 - e.w);
+    e.y = clamp(0.09 + (k % 12) * 0.020, 0, 1 - e.h); });
+  renderScreen(); setStatus('Cascaded ' + idx.length + ' windows.');
+};
+$('#btnTile').onclick = () => {
+  const idx = windowTargets(); if (!idx.length) return;
+  pushUndo();
+  const cols = Math.ceil(Math.sqrt(idx.length)), rows = Math.ceil(idx.length / cols);
+  const cw = 1 / cols, ch = 1 / rows, pad = 0.006;
+  idx.forEach((i, k) => { const e = elements[i];
+    const cx = k % cols, cy = Math.floor(k / cols);
+    e.x = cx * cw + pad; e.y = cy * ch + pad;
+    e.w = cw - pad*2; e.h = ch - pad*2; });
+  renderScreen(); setStatus('Tiled ' + idx.length + ' windows into a ' + cols + ' by ' + rows + ' grid.');
+};
+$('#btnCentreAll').onclick = () => {
+  const idx = windowTargets(); if (!idx.length) return;
+  pushUndo();
+  idx.forEach(i => { const e = elements[i]; e.x = (1 - e.w)/2; e.y = (1 - e.h)/2; });
+  renderScreen(); setStatus('Centred ' + idx.length + ' windows.');
+};
+document.querySelectorAll('[data-wsize]').forEach(b => b.onclick = () => {
+  const idx = windowTargets(); if (!idx.length) return;
+  pushUndo();
+  const [w,h] = WSIZES[b.dataset.wsize];
+  idx.forEach(i => { const e = elements[i]; e.w = w; e.h = h;
+    e.x = clamp(e.x, 0, 1 - w); e.y = clamp(e.y, 0, 1 - h); });
+  renderScreen();
+  setStatus('Resized ' + idx.length + ' windows. The game holds some panels to a minimum size, so a few may spring back when you load this.');
+});
+['optGrid','gridSize'].forEach(id => $('#'+id).onchange = () => { drawGrid(); drawRulers(); });
+$('#aspect').onchange = () => { $('#screen').style.aspectRatio = $('#aspect').value; };
+
+/* ---- snapping ---- */
+const TOL = 0.006;                       // ~6px on a 1000px-wide stage
+function snapTargets(skipIdx, bypass){
+  const xs = [], ys = [];
+  if (bypass) return {xs, ys};
+  if ($('#snapEdge').checked) { xs.push(0, 0.5, 1); ys.push(0, 0.5, 1); }
+  if ($('#snapEl').checked) {
+    visibleIdx().forEach(i => { if (i === skipIdx) return; const o = elements[i];
+      xs.push(o.x, o.x + o.w/2, o.x + o.w); ys.push(o.y, o.y + o.h/2, o.y + o.h); });
+  }
+  return {xs, ys};
+}
+function nearest(v, list){
+  let best = null, d = TOL;
+  list.forEach(t => { const dd = Math.abs(v - t); if (dd < d) { d = dd; best = t; } });
+  return best;
+}
+function showGuides(lines){
+  const g = $('#guides'); g.textContent = '';
+  lines.forEach(([axis, at]) => { const d = el('div','g ' + axis);
+    if (axis === 'v') d.style.left = (at*100) + '%'; else d.style.top = (at*100) + '%';
+    g.appendChild(d); });
+}
+const clearGuides = () => { $('#guides').textContent = ''; };
+
+/* ---- drag & resize ---- */
+/* ---- selection: selSet holds every chosen panel, selEl is the anchor ---- */
+let selSet = new Set();
+let overlapSet = new Set();
+function clearOverlaps(){
+  if (!overlapSet.size) return false;
+  overlapSet.clear();
+  const b = document.getElementById('btnOverlap');
+  if (b) { b.textContent = 'Find overlaps'; b.removeAttribute('aria-pressed'); }
+  return true;
+}
+function selectOnly(i){ clearOverlaps(); selSet = new Set(i >= 0 ? [i] : []); selEl = i; }
+function selectClear(){ clearOverlaps(); selSet.clear(); selEl = -1; }
+function selCount(){ return selSet.size; }
+function syncArrange(){
+  const n = selCount();
+  const c = $('#selCount');
+  c.textContent = n === 0 ? 'nothing selected'
+    : n === 1 ? '1 panel' : n + ' panels';
+  c.classList.toggle('live', n > 1);
+  document.querySelectorAll('.btn.ar').forEach(b => b.disabled = n < 2);
+  document.querySelectorAll('.btn.ar3').forEach(b => b.disabled = n < 3);
+}
+
+let act = null;
+function startDrag(ev, i, node){
+  if (ev.target.classList.contains('hd')) return;
+  if (ev.ctrlKey || ev.metaKey || ev.shiftKey) {
+    if (selSet.has(i) && selSet.size > 1) { selSet.delete(i); if (selEl === i) selEl = [...selSet][0]; }
+    else { selSet.add(i); selEl = i; }
+    renderScreen(); ev.preventDefault(); return;
+  }
+  if (!selSet.has(i)) selectOnly(i); else selEl = i;
+  pushUndo();
+  const s = $('#screen').getBoundingClientRect(), e = elements[i];
+  act = {mode:'move', i, sx:ev.clientX, sy:ev.clientY, ox:e.x, oy:e.y, ow:e.w, oh:e.h,
+         W:s.width, H:s.height,
+         group:[...selSet].map(k => ({k, x:elements[k].x, y:elements[k].y}))};
+  try { node.setPointerCapture(ev.pointerId); } catch (err) {}
+  ev.preventDefault();
+  renderScreen();
+}
+
+/* ---- marquee: drag across empty space to rope panels in ---- */
+let band = null;
+$('#screen').addEventListener('pointerdown', ev => {
+  if (ev.target.closest('.el')) return;
+  const s = $('#screen').getBoundingClientRect();
+  band = {sx:ev.clientX, sy:ev.clientY, W:s.width, H:s.height, L:s.left, T:s.top,
+          add: ev.ctrlKey || ev.metaKey || ev.shiftKey};
+  if (!band.add) { selectClear(); renderScreen(); }
+  const m = el('div','marquee'); m.id = 'marqueeBox';
+  $('#screen').appendChild(m);
+  try { $('#screen').setPointerCapture(ev.pointerId); } catch (err) {}
+  ev.preventDefault();
+});
+document.addEventListener('pointermove', ev => {
+  if (!band) return;
+  const m = document.getElementById('marqueeBox'); if (!m) return;
+  const x1 = Math.min(band.sx, ev.clientX) - band.L, x2 = Math.max(band.sx, ev.clientX) - band.L;
+  const y1 = Math.min(band.sy, ev.clientY) - band.T, y2 = Math.max(band.sy, ev.clientY) - band.T;
+  m.style.left = x1 + 'px'; m.style.top = y1 + 'px';
+  m.style.width = (x2-x1) + 'px'; m.style.height = (y2-y1) + 'px';
+  const a = x1/band.W, b = x2/band.W, c = y1/band.H, d = y2/band.H;
+  if (!band.add) selSet.clear();
+  visibleIdx().forEach(i => {
+    const e = elements[i];
+    if (e.x < b && e.x + e.w > a && e.y < d && e.y + e.h > c) selSet.add(i);
+  });
+  if (selSet.size && (selEl < 0 || !selSet.has(selEl))) selEl = [...selSet][0];
+  renderScreen();
+});
+document.addEventListener('pointerup', () => {
+  if (band) { const m = document.getElementById('marqueeBox'); if (m) m.remove(); band = null; }
+});
+
+/* ================= right-click menu =================
+   Only offers things the game actually honours. There is deliberately no
+   bring-to-front, lock or hide: DDO stores no stacking order or
+   visibility per panel, so those would be inventions. */
+let clip = null;
+function closeCtx(){ const m = document.getElementById('ctxMenu'); if (m) m.remove(); }
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.ctx')) closeCtx(); }, true);
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeCtx();
+  if ($('#pane-interface').classList.contains('hidden')) return;
+  const had = overlapSet.size;
+  selectClear(); renderScreen();
+  if (had) setStatus('Overlap check cleared.');
+});
+window.addEventListener('blur', closeCtx);
+
+function openCtx(x, y, items, headline){
+  closeCtx();
+  const m = el('div','ctx'); m.id = 'ctxMenu';
+  if (headline) { const h = el('div','ctxhead'); h.textContent = headline; m.appendChild(h); }
+  items.forEach(it => {
+    if (it === '-') { m.appendChild(el('hr')); return; }
+    const b = el('button');
+    b.textContent = it.label;
+    if (it.key) { const k = el('kbd'); k.textContent = it.key; b.appendChild(k); }
+    if (it.disabled) b.disabled = true;
+    else b.onclick = () => { closeCtx(); it.run(); };
+    m.appendChild(b);
+  });
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.min(x, innerWidth  - r.width  - 8) + 'px';
+  m.style.top  = Math.min(y, innerHeight - r.height - 8) + 'px';
+}
+
+$('#screen').addEventListener('contextmenu', ev => {
+  ev.preventDefault();
+  const node = ev.target.closest('.el');
+  const idx = visibleIdx();
+
+  if (!node) {                                   /* empty space */
+    openCtx(ev.clientX, ev.clientY, [
+      {label:'Select everything here', run:() => { selSet = new Set(idx);
+        selEl = idx[0] ?? -1; renderScreen(); }, disabled: !idx.length},
+      {label:'Select nothing', run:() => { selectClear(); renderScreen(); }, disabled: !selSet.size},
+      '-',
+      {label:'Line everything up to the grid', run:tidyToGrid, disabled: !idx.length},
+      {label: $('#optGrid').checked ? 'Hide the grid' : 'Show the grid',
+        run:() => { $('#optGrid').checked = !$('#optGrid').checked; drawGrid(); }},
+      '-',
+      {label: shotURL ? 'Remove my screenshot' : 'Use one of my screenshots',
+        run:() => { if (shotURL) $('#btnShotOff').click(); else $('#btnShot').click(); }}
+    ], showHud ? 'On-screen HUD' : 'Windows & panels');
+    return;
+  }
+
+  /* a panel */
+  const i = parseInt(node.dataset.i, 10);
+  if (isNaN(i) || !elements[i]) return;
+  if (!selSet.has(i)) selectOnly(i); else selEl = i;
+  renderScreen();
+
+  const e = elements[i];
+  const bar = e.id.match(HOTBAR_RE);
+  const kind = elKind(e.id);
+  const many = selSet.size > 1;
+
+  openCtx(ev.clientX, ev.clientY, [
+    {label:'Select every ' + (bar ? 'hotbar' : kindWord(kind)), run:() => {
+      selSet = new Set(idx.filter(k => elKind(elements[k].id) === kind));
+      selEl = i; renderScreen();
+    }},
+    '-',
+    {label:'Centre on screen', run:() => { pushUndo();
+      e.x = (1 - e.w)/2; e.y = (1 - e.h)/2; renderScreen(); }},
+    {label:'Line up to the grid', run:() => { pushUndo();
+      const g = gridStep(); e.x = Math.round(e.x/g)*g; e.y = Math.round(e.y/g)*g; renderScreen(); }},
+    '-',
+    {label:'Copy its size and position', run:() => { clip = {x:e.x, y:e.y, w:e.w, h:e.h};
+      setStatus('Copied from ' + friendly(e.id) + '.'); }},
+    {label:'Paste size and position', disabled: !clip, run:() => { pushUndo();
+      [...selSet].forEach(k => { const t = elements[k]; if (!t) return;
+        t.x = clip.x; t.y = clip.y; t.w = clip.w; t.h = clip.h; });
+      renderScreen(); }},
+    {label:'Make the others this size', disabled: !many, run:() => { pushUndo();
+      [...selSet].forEach(k => { const t = elements[k]; if (!t || t === e) return;
+        t.w = e.w; t.h = e.h; });
+      renderScreen(); }},
+    '-',
+    ...(bar ? [
+      {label:'Turn it ' + (bar[2] === 'Horizontal' ? 'vertical' : 'horizontal'), run:rotateHotbar},
+      {label:'Take this hotbar away', run:() => toggleBar(+bar[1].replace('UndockedShortcut',''))},
+      '-'
+    ] : []),
+    {label:'Put it back as the file had it',
+      disabled: !e.orig || (e.x === e.orig.x && e.y === e.orig.y && e.w === e.orig.w && e.h === e.orig.h),
+      run:() => { pushUndo(); e.id = e.orig.id; e.x = e.orig.x; e.y = e.orig.y;
+        e.w = e.orig.w; e.h = e.orig.h; renderScreen(); }}
+  ], friendly(e.id));
+});
+
+function kindWord(k){
+  return {hbar:'hotbar', vbar:'hotbar', vitals:'health bar', orb:'target portrait',
+          radar:'minimap', chat:'chat window', party:'party list', text:'text panel',
+          window:'window', plain:'panel of this kind'}[k] || 'panel of this kind';
+}
+
+/* ---- align, distribute, match size ---- */
+function bounds(list){
+  const xs = list.map(e => e.x), ys = list.map(e => e.y);
+  const x2 = list.map(e => e.x + e.w), y2 = list.map(e => e.y + e.h);
+  return {l:Math.min(...xs), t:Math.min(...ys), r:Math.max(...x2), b:Math.max(...y2)};
+}
+function selected(){ return [...selSet].map(i => elements[i]).filter(Boolean); }
+
+document.querySelectorAll('[data-al]').forEach(btn => btn.onclick = () => {
+  const list = selected(); if (list.length < 2) return;
+  pushUndo();
+  const B = bounds(list), how = btn.dataset.al;
+  list.forEach(e => {
+    if (how === 'l')  e.x = B.l;
+    if (how === 'r')  e.x = B.r - e.w;
+    if (how === 'hc') e.x = (B.l + B.r)/2 - e.w/2;
+    if (how === 't')  e.y = B.t;
+    if (how === 'b')  e.y = B.b - e.h;
+    if (how === 'vc') e.y = (B.t + B.b)/2 - e.h/2;
+  });
+  renderScreen(); setStatus('Lined up ' + list.length + ' panels.');
+});
+
+/* Stack the selection into a tidy column or row: same edge, same gap,
+   original order kept. This is what a stack of hotbars actually wants. */
+document.querySelectorAll('[data-stack]').forEach(btn => btn.onclick = () => {
+  const list = selected(); if (list.length < 2) return;
+  pushUndo();
+  const down = btn.dataset.stack === 'v';
+  const gap = Math.max(0, (parseFloat($('#stackGap').value) || 0) / 100);
+  const pos = down ? 'y' : 'x', size = down ? 'h' : 'w', cross = down ? 'x' : 'y';
+  const sorted = [...list].sort((p, q) => p[pos] - q[pos]);
+  const anchor = elements[selEl] && list.includes(elements[selEl]) ? elements[selEl] : sorted[0];
+  const edge = anchor[cross];
+  let cur = sorted[0][pos];
+  sorted.forEach(e => {
+    e[pos] = +cur.toFixed(6);
+    e[cross] = edge;
+    cur += e[size] + gap;
+  });
+  renderScreen();
+  setStatus('Stacked ' + list.length + ' panels ' + (down ? 'downward' : 'across') +
+            ' with a ' + (gap*100).toFixed(1) + '% gap.');
+});
+
+document.querySelectorAll('[data-dist]').forEach(btn => btn.onclick = () => {
+  const list = selected(); if (list.length < 3) return;
+  pushUndo();
+  const how = btn.dataset.dist;
+  if (how === 'h' || how === 'v') {              // even centres
+    const k = how === 'h' ? 'x' : 'y', s = how === 'h' ? 'w' : 'h';
+    const sorted = [...list].sort((p,q) => (p[k]+p[s]/2) - (q[k]+q[s]/2));
+    const first = sorted[0][k] + sorted[0][s]/2;
+    const last  = sorted[sorted.length-1][k] + sorted[sorted.length-1][s]/2;
+    const gap = (last - first) / (sorted.length - 1);
+    sorted.forEach((e, i) => { e[k] = first + gap*i - e[s]/2; });
+  } else {                                        // even gaps between edges
+    const k = how === 'hg' ? 'x' : 'y', s = how === 'hg' ? 'w' : 'h';
+    const sorted = [...list].sort((p,q) => p[k] - q[k]);
+    const start = sorted[0][k];
+    const end = sorted[sorted.length-1][k] + sorted[sorted.length-1][s];
+    const total = sorted.reduce((n,e) => n + e[s], 0);
+    const gap = (end - start - total) / (sorted.length - 1);
+    let cur = start;
+    sorted.forEach(e => { e[k] = cur; cur += e[s] + gap; });
+  }
+  renderScreen(); setStatus('Spaced ' + list.length + ' panels evenly.');
+});
+
+document.querySelectorAll('[data-size]').forEach(btn => btn.onclick = () => {
+  const list = selected(); if (list.length < 2) return;
+  const ref = elements[selEl] || list[list.length-1];
+  pushUndo();
+  const what = btn.dataset.size;
+  let skipped = 0;
+  list.forEach(e => {
+    if (HOTBAR_RE.test(e.id)) { skipped++; return; }   // the game fixes bar sizes
+    if (what === 'w' || what === 'wh') e.w = ref.w;
+    if (what === 'h' || what === 'wh') e.h = ref.h;
+  });
+  renderScreen(); setStatus('Matched ' + list.length + ' panels to ' + friendly(ref.id) + '.');
+});
+function startResize(ev, i, dir){
+  selEl = i; pushUndo();
+  const s = $('#screen').getBoundingClientRect(), e = elements[i];
+  act = {mode:'size', dir, i, sx:ev.clientX, sy:ev.clientY, ox:e.x, oy:e.y, ow:e.w, oh:e.h, W:s.width, H:s.height};
+  try { ev.target.setPointerCapture(ev.pointerId); } catch (err) {}
+  ev.preventDefault(); ev.stopPropagation();
+}
+document.addEventListener('pointermove', ev => {
+  if (!act) return;
+  const e = elements[act.i];
+  const dx = (ev.clientX - act.sx)/act.W, dy = (ev.clientY - act.sy)/act.H;
+  const {xs, ys} = snapTargets(act.i, ev.ctrlKey || ev.metaKey);
+  const bypass = ev.ctrlKey || ev.metaKey;
+  const grid = ($('#snapGrid').checked && !bypass) ? gridStep() : 0;
+  const gsnap = v => grid ? Math.round(v/grid)*grid : v;
+  const guides = [];
+
+  if (act.mode === 'move') {
+    let nx = gsnap(act.ox + dx), ny = gsnap(act.oy + dy);
+    const cx = [nx, nx + e.w/2, nx + e.w], cy = [ny, ny + e.h/2, ny + e.h];
+    for (let k = 0; k < 3; k++) {
+      const t = nearest(cx[k], xs); if (t !== null) { nx += t - cx[k]; guides.push(['v', t]); break; }
+    }
+    for (let k = 0; k < 3; k++) {
+      const t = nearest(cy[k], ys); if (t !== null) { ny += t - cy[k]; guides.push(['h', t]); break; }
+    }
+    nx = clamp(nx, -0.25, 1.25); ny = clamp(ny, -0.25, 1.25);
+    /* everything selected moves by the same amount as the one under the cursor */
+    const mx = nx - act.ox, my = ny - act.oy;
+    act.group.forEach(g2 => {
+      const t = elements[g2.k]; if (!t) return;
+      t.x = clamp(g2.x + mx, -0.25, 1.25);
+      t.y = clamp(g2.y + my, -0.25, 1.25);
+    });
+  } else {
+    const d = act.dir; const MIN = 0.008;
+    let x = act.ox, y = act.oy, w = act.ow, h = act.oh;
+    if (d.includes('e')) { let r = gsnap(act.ox + act.ow + dx);
+      const t = nearest(r, xs); if (t !== null) { r = t; guides.push(['v', t]); } w = Math.max(MIN, r - x); }
+    if (d.includes('w')) { let L = gsnap(act.ox + dx);
+      const t = nearest(L, xs); if (t !== null) { L = t; guides.push(['v', t]); }
+      w = Math.max(MIN, act.ox + act.ow - L); x = act.ox + act.ow - w; }
+    if (d.includes('s')) { let b = gsnap(act.oy + act.oh + dy);
+      const t = nearest(b, ys); if (t !== null) { b = t; guides.push(['h', t]); } h = Math.max(MIN, b - y); }
+    if (d.includes('n')) { let T = gsnap(act.oy + dy);
+      const t = nearest(T, ys); if (t !== null) { T = t; guides.push(['h', t]); }
+      h = Math.max(MIN, act.oy + act.oh - T); y = act.oy + act.oh - h; }
+    e.x = x; e.y = y; e.w = w; e.h = h;
+  }
+  showGuides(guides);
+  renderScreen();
+});
+document.addEventListener('pointerup', () => { if (act) { act = null; clearGuides(); } });
+
+/* ---- keyboard nudge ---- */
+document.addEventListener('keydown', ev => {
+  if ($('#pane-interface').classList.contains('hidden')) return;
+  const e = elements[selEl]; if (!e) return;
+  const tag = (ev.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'select' || tag === 'textarea' || ev.target.isContentEditable) return;
+  const map = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]};
+  const m = map[ev.key]; if (!m) return;
+  ev.preventDefault(); pushUndo();
+  const step = ev.shiftKey ? gridStep() : 0.002;
+  const targets = selSet.size ? [...selSet].map(k2 => elements[k2]).filter(Boolean) : [e];
+  targets.forEach(t2 => {
+    if (ev.altKey) { t2.w = Math.max(0.008, t2.w + m[0]*step); t2.h = Math.max(0.008, t2.h + m[1]*step); }
+    else { t2.x = clamp(t2.x + m[0]*step, -0.25, 1.25); t2.y = clamp(t2.y + m[1]*step, -0.25, 1.25); }
+  });
+  renderScreen();
+});
+
+/* ---- align to screen ---- */
+document.querySelectorAll('[data-snap]').forEach(b => b.onclick = () => {
+  const e = elements[selEl]; if (!e) return;
+  pushUndo();
+  const p = b.dataset.snap;
+  if (p === 'tl') { e.x = 0; e.y = 0; }
+  if (p === 'tr') { e.x = 1 - e.w; e.y = 0; }
+  if (p === 'bl') { e.x = 0; e.y = 1 - e.h; }
+  if (p === 'br') { e.x = 1 - e.w; e.y = 1 - e.h; }
+  if (p === 'c')  { e.x = (1 - e.w)/2; e.y = (1 - e.h)/2; }
+  if (p === 'hc') { e.x = (1 - e.w)/2; }
+  if (p === 'vc') { e.y = (1 - e.h)/2; }
+  if (p === 'l')  { e.x = 0; }   if (p === 'r') { e.x = 1 - e.w; }
+  if (p === 't')  { e.y = 0; }   if (p === 'b') { e.y = 1 - e.h; }
+  renderScreen();
+});
+
+/* ---------------- options ---------------- */
+/* ---- the game stores colours as four floats: r g b a, each 0-1 ---- */
+const isColourVal = v => /^\s*(-?\d*\.?\d+\s+){3}-?\d*\.?\d+\s*$/.test(v);
+function floatsToHex(v){
+  const p = v.trim().split(/\s+/).map(Number);
+  const h = n => Math.max(0, Math.min(255, Math.round(n*255))).toString(16).padStart(2,'0');
+  return '#' + h(p[0]) + h(p[1]) + h(p[2]);
+}
+function hexToFloats(hex, keepAlpha){
+  const m = hex.replace('#','');
+  const c = i => (parseInt(m.substr(i*2,2),16)/255).toFixed(3);
+  return c(0) + ' ' + c(1) + ' ' + c(2) + ' ' + (keepAlpha != null ? keepAlpha : '1.000');
+}
+const alphaOf = v => { const p = v.trim().split(/\s+/); return p.length > 3 ? p[3] : '1.000'; };
+
+/* known drop-down values */
+const OPT_ENUMS = {
+  HotQuestPanelState: ['Opaque','Transparent','Hidden'],
+  Map_Level: ['Game','World','Region'],
+  Map_Region: ['ForgottenRealms','Eberron']
+};
+
+/* categories, in the order they are shown */
+const OPT_CATS = [
+  ['floaty',  'Floating combat text', o => /^FloatyText_/.test(o) && !/Color$/.test(o)],
+  ['floatyc', 'Combat text colours',  o => /^FloatyText_.*Color$/.test(o)],
+  ['chatc',   'Chat channel colours', o => /^TextColor_/.test(o)],
+  ['feedback','Combat feedback',      o => /^CombatFeedbackText_/.test(o)],
+  ['target',  'Targeting & combat',   o => /^(AutoTarget|Attack_|Autoattack|MouseTarget|MouseOver|StickySelection|AllowTemporaryMouselook)/.test(o)],
+  ['vitals',  'Health & party bars',  o => /^(Show(Big)?Vitals|ShowParty|ShowPet|ShowPlayerOverhead|ShowOverhead|ShowMonsterOverhead)/.test(o)],
+  ['chat',    'Chat & social',        o => /^(Disable.*Chat|ChatReset|Accept|ShowGuildMember|Surpress|VoiceEnabled|PlayLocalizedDM)/.test(o)],
+  ['bars',    'Hotbars',              o => /^(LockShortcutBars|ShowShortcut|UndockNewHenchmen|HirelingStandGround)/.test(o)],
+  ['map',     'Map',                  o => /^Map_/.test(o)],
+  ['ui',      'Interface',            o => /^(Show|Hints|GlobalObjectivesOff|Examination|Quest|Dungeon|LFX|HotQuestPanelState)/.test(o)],
+  ['other',   'Everything else',      () => true]
+];
+function catOf(name){ for (const c of OPT_CATS) if (c[2](name)) return c[0]; return 'other'; }
+
+/* plain-English label from the stored name */
+function optLabel(name){
+  let s = name
+    .replace(/^FloatyText_/,'').replace(/^TextColor_/,'').replace(/^CombatFeedbackText_/,'')
+    .replace(/^Map_/,'').replace(/^Show/,'Show ').replace(/Color$/,'')
+    .replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/_/g,' ').replace(/\s+/g,' ').trim();
+  s = s.replace(/\bOff\b$/,'(hidden)').replace(/\bUI\b/,'UI').replace(/\b3D\b/,'3D');
+  if (!s) s = name;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+let optCat = 'all';
+function optDefault(o){ return o.orig != null ? o.orig : o.value; }
+
+function renderOptions(filter){
+  const l = $('#optList'); l.textContent = '';
+  const q = (filter||'').toLowerCase();
+  const changedOnly = $('#optChangedOnly').checked;
+
+  let shown = options.filter(o => {
+    if (changedOnly && o.value === optDefault(o)) return false;
+    if (optCat !== 'all' && catOf(o.name) !== optCat) return false;
+    if (!q) return true;
+    return o.name.toLowerCase().includes(q) || optLabel(o.name).toLowerCase().includes(q);
+  });
+
+  renderCats();
+  $('#btnOptReset').disabled = !options.some(o => o.value !== optDefault(o));
+
+  if (!shown.length) {
+    const d = el('div'); d.className = 'hint'; d.style.padding = '.9rem';
+    d.textContent = options.length ? 'Nothing matches.' : 'This file has no saved settings.';
+    l.appendChild(d); renderColourDemo(); return;
+  }
+
+  let lastCat = null;
+  shown.forEach(o => {
+    const c = catOf(o.name);
+    if (c !== lastCat) {
+      const h = el('div','optgrp');
+      h.textContent = (OPT_CATS.find(x => x[0] === c) || [,'Other'])[1];
+      l.appendChild(h); lastCat = c;
+    }
+    const row = el('div','optrow');
+    if (o.value !== optDefault(o)) row.classList.add('dirty');
+
+    const k = el('span','k');
+    const b = el('b'); b.textContent = optLabel(o.name);
+    const i = el('i'); i.textContent = o.name;
+    k.append(b, i); row.appendChild(k);
+
+    const ctl = el('div','ctl');
+    if (isColourVal(o.value)) {
+      const hex = el('span','hex'); hex.textContent = floatsToHex(o.value);
+      const cp = el('input'); cp.type = 'color'; cp.value = floatsToHex(o.value);
+      cp.setAttribute('aria-label', optLabel(o.name));
+      cp.oninput = () => { o.value = hexToFloats(cp.value, alphaOf(o.value));
+        hex.textContent = cp.value.toUpperCase(); row.classList.toggle('dirty', o.value !== optDefault(o));
+        renderColourDemo(); $('#btnOptReset').disabled = false; };
+      ctl.append(hex, cp);
+    } else if (/^(True|False)$/i.test(o.value)) {
+      const sw = el('label','sw');
+      const c2 = el('input'); c2.type = 'checkbox'; c2.checked = /true/i.test(o.value);
+      c2.setAttribute('aria-label', optLabel(o.name));
+      const kn = el('span');
+      c2.onchange = () => { o.value = c2.checked ? 'True' : 'False';
+        row.classList.toggle('dirty', o.value !== optDefault(o));
+        $('#btnOptReset').disabled = false; };
+      sw.append(c2, kn); ctl.appendChild(sw);
+    } else if (OPT_ENUMS[o.name]) {
+      const sel = el('select');
+      const opts = OPT_ENUMS[o.name].slice();
+      if (!opts.includes(o.value)) opts.unshift(o.value);
+      opts.forEach(v => { const op = el('option'); op.value = v; op.textContent = v; sel.appendChild(op); });
+      sel.value = o.value;
+      sel.onchange = () => { o.value = sel.value; row.classList.toggle('dirty', o.value !== optDefault(o));
+        $('#btnOptReset').disabled = false; };
+      ctl.appendChild(sel);
+    } else {
+      const t = el('input'); t.type = 'text'; t.value = o.value;
+      t.oninput = () => { o.value = t.value; row.classList.toggle('dirty', o.value !== optDefault(o));
+        $('#btnOptReset').disabled = false; };
+      ctl.appendChild(t);
+    }
+
+    const rv = el('button','revert'); rv.textContent = '⟲';
+    rv.title = 'Put this back to how the file had it';
+    rv.onclick = () => { o.value = optDefault(o); renderOptions($('#optSearch').value); };
+    ctl.appendChild(rv);
+
+    row.appendChild(ctl);
+    l.appendChild(row);
+  });
+  renderColourDemo();
+}
+
+function renderCats(){
+  const box = $('#catList'); box.textContent = '';
+  const mk = (id, label, n) => {
+    const b = el('button'); b.textContent = label;
+    const e2 = el('em'); e2.textContent = n; b.appendChild(e2);
+    if (optCat === id) b.setAttribute('aria-current','true');
+    b.onclick = () => { optCat = id; renderOptions($('#optSearch').value); };
+    box.appendChild(b);
+  };
+  mk('all', 'All settings', options.length);
+  OPT_CATS.forEach(([id, label]) => {
+    const n = options.filter(o => catOf(o.name) === id).length;
+    if (n) mk(id, label, n);
+  });
+}
+
+function renderColourDemo(){
+  const d = $('#colourDemo'); d.textContent = '';
+  const pick = n => options.find(o => o.name === n);
+  const rows = [
+    ['TextColor_Say',   '[Say] Kelas: watch the roar'],
+    ['TextColor_Group', '[Party] moving to the platform'],
+    ['TextColor_Guild', '[Guild] grats on the completion'],
+    ['TextColor_Tell',  '[Tell] Osfield: invite please'],
+    ['FloatyText_DamageColor',      '  247 damage'],
+    ['FloatyText_HealColor',        '  +180 healed'],
+    ['FloatyText_PlayerDamageColor','  92 taken'],
+    ['FloatyText_MissColor',        '  miss']
+  ];
+  let any = false;
+  rows.forEach(([name, text]) => {
+    const o = pick(name); if (!o || !isColourVal(o.value)) return;
+    any = true;
+    const line = el('div'); line.textContent = text;
+    line.style.color = floatsToHex(o.value);
+    d.appendChild(line);
+  });
+  if (!any) { const s = el('span','meta'); s.textContent = 'No colour settings in this file.'; d.appendChild(s); }
+}
+
+$('#optSearch').oninput = e => renderOptions(e.target.value);
+$('#optChangedOnly').onchange = () => renderOptions($('#optSearch').value);
+$('#btnOptReset').onclick = () => {
+  options.forEach(o => { o.value = optDefault(o); });
+  renderOptions($('#optSearch').value);
+  setStatus('All settings put back to how the file had them.');
+};
+
+/* ---------------- serialise ---------------- */
+/* Write the file exactly the way DDO writes it: CRLF, two-space nesting,
+   attributes in the game's own order, options as <Option Name=... />,
+   and a blank line between sections. Building the text by hand rather
+   than serialising the DOM keeps that formatting exact. */
+/* Escape only what XML actually requires inside an attribute: & < and the
+   quote. A bare > is legal, and the one published colour-alias file known
+   to work in DDO writes it raw - "&lt;rgb=#FF0000>". If the client decodes
+   &lt; but not &gt;, escaping the closing bracket yields a tag the game
+   never recognises, and the colour silently fails to apply. */
+function xmlAttr(v){
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+function buildXML(){
+  if (!doc) return '';
+  const NL = '\r\n';
+  const ver = (doc.querySelector('Version') || {}).getAttribute
+             ? doc.querySelector('Version').getAttribute('Value') : '1.0';
+  const out = [];
+  out.push('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
+  out.push('<UI>');
+  out.push('');
+  out.push('  <Version Value="' + xmlAttr(ver || '1.0') + '"/>');
+  out.push('');
+
+  /* aliases */
+  const live = aliases.filter(a => a.name.trim());
+  if (!live.length) out.push('  <Aliases/>');
+  else {
+    out.push('  <Aliases>');
+    live.forEach(a => out.push('    <Alias String="' + xmlAttr(a.name.trim()) +
+                               '" Value="' + xmlAttr(a.value) + '"/>'));
+    out.push('  </Aliases>');
+  }
+  out.push('');
+
+  /* layouts, grouped exactly as the file had them */
+  const order = [];
+  const byLayout = new Map();
+  [...doc.querySelectorAll('Layouts > Layout')].forEach(L => {
+    const id = L.getAttribute('ID') || '';
+    order.push(id); byLayout.set(id, []);
+  });
+  elements.forEach(e => {
+    const id = e.layoutId || '';
+    if (!byLayout.has(id)) { order.push(id); byLayout.set(id, []); }
+    byLayout.get(id).push(e);
+  });
+  if (order.length) {
+    out.push('  <Layouts>');
+    order.forEach(id => {
+      const list = byLayout.get(id) || [];
+      out.push('    <Layout ID="' + xmlAttr(id) + '">');
+      list.forEach(e => out.push('      <Element Height="' + e.h.toFixed(6) +
+        '" ID="' + xmlAttr(e.id) + '" Width="' + e.w.toFixed(6) +
+        '" X="' + e.x.toFixed(6) + '" Y="' + e.y.toFixed(6) + '"/>'));
+      out.push('    </Layout>');
+    });
+    out.push('  </Layouts>');
+    out.push('');
+  }
+
+  /* options - the tag is literally <Option>, the setting is an attribute */
+  if (options.length) {
+    out.push('  <Options>');
+    options.forEach(o => out.push('    <Option Name="' + xmlAttr(o.name) +
+                                  '" Value="' + xmlAttr(o.value) + '"/>'));
+    out.push('  </Options>');
+    out.push('');
+  }
+
+  out.push('</UI>');
+  return out.join(NL) + NL;
+}
+/* Saving.
+   A downloaded copy of this page is an ordinary local file, so the browser
+   writes a real ddo.layout with nothing in the way - that is how you save.
+   The claude.ai viewer cannot write that extension at all, so there the
+   save button is removed and copying the text is the route out. */
+const inViewer = (typeof claude !== 'undefined' && !!claude && typeof claude.use === 'function');
+
+if (inViewer) {
+  const sb = document.getElementById('btnSave');
+  if (sb) sb.remove();
+  $('#btnCopy').classList.add('primary');
+  const wn = document.getElementById('webNote');
+  if (wn) wn.classList.remove('hidden');
+} else {
+  /* Save As: put up a real file dialog so you can drop it straight into
+     your UI\layouts folder under whatever name you want. Falls back to an
+     ordinary download if the browser has no file picker. */
+  $('#btnSave').onclick = async () => {
+    const xml = buildXML();
+    if (loadedText && !backedUp) {
+      backedUp = true;   // only nag once
+      setStatus('Tip: Back up original keeps a copy of the file as you opened it, in case you want to go back.');
+    }
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'ddo.layout',
+          types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
+        });
+        const w = await handle.createWritable();
+        await w.write(xml);
+        await w.close();
+        const nm = (handle.name || 'ddo.layout').replace(/\.layout$/i, '');
+        setStatus('Saved ' + handle.name + '. In game type /alias clear then /ui layout load ' + nm + '.');
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') { setStatus('Save cancelled.'); return; }
+        /* anything else: fall through to a plain download */
+      }
+    }
+    try {
+      const blob = new Blob([xml], {type:'application/xml'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'ddo.layout';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      setStatus('Saved ddo.layout to your downloads. Move it into your UI\\layouts folder, then in game type /alias clear followed by /ui layout load ddo.');
+    } catch (err2) {
+      setStatus('This browser blocked the download. Use Copy .layout text instead.', true);
+    }
+  };
+}
+
+/* ---- keep a pristine copy of whatever was opened ----
+   Every editor in this space warns you to back the file up first, so make
+   it one click. This writes the file exactly as it was read, not as it is
+   now, which is the only version worth keeping if something goes wrong. */
+$('#btnBackup').onclick = async () => {
+  if (!loadedText) { setStatus('Open a .layout file first - there is nothing to back up yet.', true); return; }
+  const stamp = new Date().toISOString().slice(0,10);
+  const base = loadedName.replace(/\.layout$/i, '');
+  const name = base + '-backup-' + stamp + '.layout';
+  if (window.showSaveFilePicker) {
+    try {
+      const h = await window.showSaveFilePicker({
+        suggestedName: name,
+        types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
+      });
+      const w = await h.createWritable();
+      await w.write(loadedText);
+      await w.close();
+      backedUp = true;
+      $('#btnBackup').textContent = 'Backed up';
+      setStatus('Backed up to ' + h.name + '. That is the file as you opened it, none of your changes.');
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') { setStatus('Backup cancelled.'); return; }
+    }
+  }
+  try {
+    const blob = new Blob([loadedText], {type:'application/xml'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    backedUp = true;
+    $('#btnBackup').textContent = 'Backed up';
+    setStatus('Backed up as ' + name + '.');
+  } catch (err2) {
+    setStatus('Could not write the backup here.', true);
+  }
+};
+
+/* ---- move a layout between screen sizes ----
+   Coordinates are stored as a fraction of the screen, but the things they
+   describe are a fixed number of pixels: a hotbar is ten slots wide whatever
+   monitor you own. Carrying a layout to a different screen therefore needs
+   every size converted, and the sensible way to keep a bottom-right stack in
+   the bottom right is to preserve each panel's pixel gap from its nearest
+   edge rather than its fraction. */
+const RESOLUTIONS = [
+  [3840,2160], [3440,1440], [2560,1440], [2560,1080], [1920,1200],
+  [1920,1080], [1680,1050], [1600,900], [1440,900], [1366,768], [1280,720]
+];
+function fillResolutions(){
+  const guess = (window.screen && screen.width) ? [screen.width, screen.height] : [2560,1440];
+  [['#resFrom', guess], ['#resTo', guess]].forEach(([sel, def]) => {
+    const s = $(sel); if (!s) return;
+    s.textContent = '';
+    let list = RESOLUTIONS.slice();
+    if (!list.some(r => r[0] === def[0] && r[1] === def[1])) list.unshift(def);
+    list.forEach(([w,h]) => {
+      const o = el('option'); o.value = w + 'x' + h;
+      o.textContent = w + ' x ' + h + ((w === def[0] && h === def[1]) ? '  (this screen)' : '');
+      s.appendChild(o);
+    });
+    s.value = def[0] + 'x' + def[1];
+  });
+}
+$('#btnRes').onclick = () => {
+  const from = $('#resFrom').value.split('x').map(Number);
+  const to   = $('#resTo').value.split('x').map(Number);
+  if (from[0] === to[0] && from[1] === to[1]) {
+    setStatus('Those are the same screen size - nothing to change.', true); return;
+  }
+  if (!elements.length) { setStatus('Open a .layout file first.', true); return; }
+  pushUndo();
+  const sx = from[0] / to[0], sy = from[1] / to[1];
+  elements.forEach(e => {
+    const leftGap = e.x, rightGap = 1 - e.x - e.w;
+    const topGap  = e.y, botGap   = 1 - e.y - e.h;
+    const nw = e.w * sx, nh = e.h * sy;
+    e.x = (leftGap <= rightGap) ? leftGap * sx : 1 - nw - rightGap * sx;
+    e.y = (topGap  <= botGap)   ? topGap  * sy : 1 - nh - botGap  * sy;
+    e.w = nw; e.h = nh;
+  });
+  learnBarSizes(); enforceBarSizes();
+  renderScreen();
+  $('#resNote').textContent = 'Save this under a name that says which screen it is for, such as ' +
+    'mylayout_' + to[0] + '_' + to[1] + '.layout';
+  setStatus('Rescaled ' + elements.length + ' panels from ' + from.join(' x ') + ' to ' + to.join(' x ') +
+            '. Every panel keeps its real size and its distance from the nearest edge.');
+};
+
+$('#btnCopy').onclick = async () => {
+  const xml = buildXML();
+  try { await navigator.clipboard.writeText(xml); setStatus('Copied. Paste into a new text file and save it as something.layout in your UI\\layouts folder.'); }
+  catch {
+    const t = document.createElement('textarea');
+    t.value = xml; document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); setStatus('Copied. Paste into a plain text editor and save it as ddo.layout.'); }
+    catch { setStatus('Could not copy. Select the text yourself, or use the downloadable copy of this page.', true); }
+    t.remove();
+  }
+};
+
+/* ---------------- alias buttons ---------------- */
+$('#addAlias').onclick = () => {
+  aliases.push({name:';new', value:''});
+  selAlias = aliases.length - 1;
+  renderAliases(); renderPreview(); renderChecks();
+  const inp = document.querySelector('.atable tr:last-child input');
+  if (inp) { inp.focus(); inp.select(); }
+};
+$('#clearAliases').onclick = () => {
+  if (!aliases.length || confirm('Remove all ' + aliases.length + ' aliases from this file?')) {
+    aliases = []; selAlias = -1; renderAliases(); renderPreview(); renderChecks();
+  }
+};
+$('#loadGeneral').onclick = () => applyPreset('general');
+$('#loadYarrow').onclick  = () => applyPreset('yarrow');
+function applyPreset(k){
+  const set = PRESETS[k] || [];
+  if (!set.length) { setStatus('That preset is empty.', true); return; }
+  aliases = set.map(a => ({name:a[0], value:a[1]}));
+  selAlias = 0;
+  renderAliases(); renderPreview(); renderChecks();
+  setStatus('Loaded the ' + (k === 'general' ? 'general' : 'raid speech') + ' set — ' + set.length + ' aliases. Existing ones were replaced.');
+}
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', String(x === t)));
+  ['aliases','interface','options','help'].forEach(n =>
+    $('#pane-' + n).classList.toggle('hidden', n !== t.dataset.tab));
+});
+
+/* ---------------- boot ---------------- */
+function renderAll(){ renderAliases(); renderPreview(); renderChecks(); renderScreen(); renderOptions($('#optSearch').value); }
+function loadSample(){
+  const d = new DOMParser().parseFromString(SAMPLE, 'application/xml');
+  if (d.querySelector('parsererror')) return false;
+  doc = d; harvest();
+  aliases = (PRESETS.general || []).map(a => ({name:a[0], value:a[1]}));
+  selAlias = 0; selectClear(); showHud = true; syncGroupBtns();
+  renderAll();
+  setStatus('Sample layout loaded — ' + elements.length + ' panels, ' + options.length +
+            ' settings, plus the built-in general alias set. Open a .layout file to work on your own.');
+  $('#btnSave').disabled = false; $('#btnCopy').disabled = false;
+  return true;
+}
+$('#btnSample').onclick = loadSample;
+
+/* the first-run guide stays hidden once dismissed */
+try {
+  if (localStorage.getItem('ddo-starter-hidden') === '1') $('#starter').classList.add('hidden');
+} catch {}
+$('#starterX').onclick = () => {
+  $('#starter').classList.add('hidden');
+  try { localStorage.setItem('ddo-starter-hidden','1'); } catch {}
+};
+
+buildPalette();
+fillResolutions();
+syncGroupBtns();
+drawRulers();
+drawGrid();
+syncUndo();
+if (!loadSample()) {
+  buildBlank();
+  aliases = (PRESETS.general || []).map(a => ({name:a[0], value:a[1]}));
+  selAlias = 0; renderAll();
+  setStatus('Showing the built-in general alias set. Open a .layout file to edit your own.');
+}
+</script>
