@@ -85,6 +85,23 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 23rem;gap:1.4rem;align-items:start}
 @media(max-width:960px){.grid{grid-template-columns:1fr}}
+/* Screen layout tab: outliner on the left, canvas in the middle, inspector
+   on the right - the arrangement every scene editor settles on. The page
+   widens for this tab so the canvas does not pay for the extra column. */
+.grid.three{grid-template-columns:15.5rem minmax(0,1fr) 22rem;gap:1.1rem}
+.shell:has(#pane-interface:not(.hidden)){max-width:1640px}
+.side-l,.side-r{display:flex;flex-direction:column;gap:1rem;min-width:0}
+.stage-col{min-width:0}
+.side-l .ellist{max-height:min(30rem,44vh)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.6rem}
+.seg .btn{justify-content:center}
+@media(max-width:1200px){
+  .grid.three{grid-template-columns:minmax(0,1fr) 22rem}
+  .grid.three .stage-col{order:1}
+  .grid.three .side-r{order:2}
+  .grid.three .side-l{order:3;grid-column:1/-1;flex-direction:row;flex-wrap:wrap;align-items:start}
+  .grid.three .side-l > .card{flex:1 1 20rem}
+}
 .card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:1.05rem 1.1rem;
   box-shadow:var(--shadow)}
 .card h3{font-size:.78rem;margin-bottom:.75rem;letter-spacing:.11em;text-transform:uppercase;
@@ -390,6 +407,11 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .optrow .cflag{width:.9rem;text-align:center;font-weight:700;font-size:.85rem;color:transparent}
 .optrow .cflag.on{color:var(--warn);cursor:help}
 .colwarn{margin:.5rem 0 0}
+.tune{display:grid;grid-template-columns:auto minmax(0,1fr) 3.2rem;gap:.4rem .6rem;align-items:center}
+.tune label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.tune input[type=range]{width:100%;margin:0;accent-color:var(--accent)}
+.tune output{font-family:"JetBrains Mono",monospace;font-size:.74rem;color:var(--ink-soft);text-align:right;
+  font-variant-numeric:tabular-nums}
 .revert{background:none;border:0;color:var(--ink-faint);cursor:pointer;font-size:.9rem;
   padding:0 .2rem;border-radius:3px;line-height:1}
 .revert:hover{color:var(--accent);background:var(--accent-bg)}
@@ -481,7 +503,7 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
 /* One breakpoint for the whole stack: the sidebar is 23rem, so below roughly
    960px it cannot sit beside anything. */
 @media (max-width:960px){
-  .grid{grid-template-columns:minmax(0,1fr)}
+  .grid,.grid.three{grid-template-columns:minmax(0,1fr)}
   .grid > *{min-width:0}
   .starter code{white-space:normal;overflow-wrap:anywhere}
   .importbar .impHead,
@@ -605,13 +627,53 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
 
   <!-- ============ INTERFACE ============ -->
   <div id="pane-interface" class="hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-interface">
-    <div class="grid">
-      <div>
-        <div class="bar" style="margin-bottom:.7rem">
-          <button class="btn sm" id="grpHud" aria-pressed="true">On-screen HUD</button>
-          <button class="btn sm" id="grpWin" aria-pressed="false">Windows &amp; panels</button>
-          <span class="hint" id="grpNote" style="margin:0"></span>
+    <div class="grid three">
+      <!-- left: what is in the file and what is selected -->
+      <div class="side-l">
+        <div class="card">
+          <h3>Panels <span id="grpNote" class="selcount"></span></h3>
+          <div class="seg" role="group" aria-label="Which panels to show">
+            <button class="btn sm" id="grpHud" aria-pressed="true">On-screen HUD</button>
+            <button class="btn sm" id="grpWin" aria-pressed="false">Windows &amp; panels</button>
+          </div>
+          <div class="ellist" id="elList"></div>
+          <p class="hint">Click to select. Ctrl-click adds to the selection.</p>
         </div>
+
+        <div class="card" id="barsCard">
+          <h3>Hotbars</h3>
+          <div class="bar" style="margin-bottom:.5rem">
+            <span class="hint" id="barCount" style="margin:0"></span>
+          </div>
+          <div class="barsgrid" id="barsGrid"></div>
+          <div class="bar" style="margin-top:.5rem">
+            <button class="btn sm" id="btnSelBars">Select them all</button>
+            <button class="btn sm" id="btnBarsEven">Even out spacing</button>
+          </div>
+
+          <label class="flabel" style="margin-top:.75rem">Arrange every bar</label>
+          <select id="barShape" class="field" aria-label="Hotbar arrangement">
+            <option value="bc">Rows stacked up from the bottom, centred</option>
+            <option value="bl">Rows stacked up from the bottom left</option>
+            <option value="br">Rows stacked up from the bottom right</option>
+            <option value="cl">Upright bars along the left edge</option>
+            <option value="cr">Upright bars along the right edge</option>
+            <option value="split">Half in rows at the bottom, half upright on the right</option>
+          </select>
+          <div class="bar" style="margin-top:.45rem">
+            <label class="gapfield">gap <input type="number" id="barGap" value="0.4" min="0" max="6" step="0.1"> %</label>
+            <select id="barOrder" class="minisel" aria-label="Order the hotbars are stacked in">
+              <option value="num">Bar 1 nearest the edge</option>
+              <option value="pos">Keep the order they are in</option>
+            </select>
+            <button class="btn sm primary" id="btnBarsArrange">Arrange</button>
+          </div>
+          <p class="hint">You get 20 hotbars in game. Click a number to add it here, click again to take it away. <b>This records where a bar sits, it cannot create one</b> &mdash; make the bar itself in game with the arrow at the end of your hotbar.</p>
+        </div>
+      </div>
+
+      <!-- centre: the canvas -->
+      <div class="stage-col">
         <div class="stage">
           <div class="rcorner"></div>
           <div class="ruler rh" id="rulerH"></div>
@@ -661,88 +723,41 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
           <p class="hint">Things the game will quietly ignore or draw off the edge. Click one to select it.</p>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:1rem">
-        <div class="card hidden" id="winCard">
-          <h3>Window tools</h3>
-          <p class="hint" style="margin:0 0 .6rem">These open only when you need them &mdash; bags, banks, the auction house. They are never all on screen at once, so overlap here is normal.</p>
-          <div class="bar">
-            <button class="btn sm" id="btnCascade">Cascade</button>
-            <button class="btn sm" id="btnTile">Tile</button>
-            <button class="btn sm" id="btnCentreAll">Centre all</button>
-          </div>
-          <label class="flabel" style="margin-top:.7rem">Give them a sensible size</label>
-          <div class="bar">
-            <button class="btn sm" data-wsize="s">Small</button>
-            <button class="btn sm" data-wsize="m">Medium</button>
-            <button class="btn sm" data-wsize="l">Large</button>
-          </div>
-          <p class="hint">Applies to what you have selected, or to all of them if nothing is.</p>
-        </div>
-
+      <!-- right: what to do with the selection -->
+      <div class="side-r">
         <div class="card">
-          <h3>Change resolution</h3>
-          <p class="hint" style="margin:0 0 .6rem">Panels are a fixed number of pixels, so a layout built for one screen comes out the wrong size on another. This rescales everything and keeps each panel the same physical size and the same distance from its nearest edge.</p>
-          <div class="resrow">
-            <label class="flabel" for="resFrom">Built for</label>
-            <select id="resFrom" class="minisel"></select>
+          <h3>Selected panel</h3>
+          <p class="mono" id="elName" style="font-size:.82rem;color:var(--accent);word-break:break-all">none</p>
+          <div class="fields">
+            <div><label for="fx">X</label><input id="fx" type="number" step="0.001" min="-1" max="2"></div>
+            <div><label for="fy">Y</label><input id="fy" type="number" step="0.001" min="-1" max="2"></div>
+            <div><label for="fw">Width</label><input id="fw" type="number" step="0.001" min="0" max="2"></div>
+            <div><label for="fh">Height</label><input id="fh" type="number" step="0.001" min="0" max="2"></div>
           </div>
-          <div class="resrow" style="margin-top:.4rem">
-            <label class="flabel" for="resTo">Moving to</label>
-            <select id="resTo" class="minisel"></select>
+          <p class="hint mono" id="pxNote" style="font-size:.74rem"></p>
+          <label class="flabel" style="margin-top:.8rem">Align to screen</label>
+          <div class="alignbar">
+            <button class="btn sm" data-snap="tl" aria-label="Move to the top left corner" title="Top left">↖</button>
+            <button class="btn sm" data-snap="t"  aria-label="Move to the top edge" title="Top edge">↑</button>
+            <button class="btn sm" data-snap="tr" aria-label="Move to the top right corner" title="Top right">↗</button>
+            <button class="btn sm" data-snap="l"  aria-label="Move to the left edge" title="Left edge">←</button>
+            <button class="btn sm" data-snap="c"  aria-label="Move to dead centre" title="Dead centre">◆</button>
+            <button class="btn sm" data-snap="r"  aria-label="Move to the right edge" title="Right edge">→</button>
+            <button class="btn sm" data-snap="bl" aria-label="Move to the bottom left corner" title="Bottom left">↙</button>
+            <button class="btn sm" data-snap="b"  aria-label="Move to the bottom edge" title="Bottom edge">↓</button>
+            <button class="btn sm" data-snap="br" aria-label="Move to the bottom right corner" title="Bottom right">↘</button>
           </div>
-          <button class="btn sm" id="btnRes" style="margin-top:.55rem">Rescale the layout</button>
-          <p class="hint" id="resNote"></p>
+          <div class="bar" style="margin-top:.4rem">
+            <button class="btn sm" data-snap="hc">Centre across</button>
+            <button class="btn sm" data-snap="vc">Centre down</button>
+          </div>
+          <p class="hint hidden" id="fixedNote">A hotbar is ten slots and the game sizes it, so width and height are fixed here. You can still move it and turn it.</p>
+          <div class="bar hidden" id="rotWrap" style="margin-top:.55rem">
+            <button class="btn sm" id="btnRotate">Turn sideways</button>
+            <span class="hint" id="rotNote" style="margin:0"></span>
+          </div>
         </div>
 
-        <div class="card" id="presetCard">
-          <h3>Auto-arrange</h3>
-          <select id="presetSel" class="field" aria-label="Ready-made screen layout">
-            <option value="">Choose a starting layout…</option>
-            <option value="classic">Classic — bars centre, chat left</option>
-            <option value="raid">Raid — party left, centre kept clear</option>
-            <option value="caster">Caster — vertical bars both sides</option>
-            <option value="minimal">Minimal — one bar, edges only</option>
-            <option value="wide">Ultrawide — everything pushed outward</option>
-          </select>
-          <button class="btn sm primary" id="btnApplyPreset" style="margin-top:.5rem">Apply this layout</button>
-          <p class="hint">Rearranges everything on screen. Changed your mind? Press Undo.</p>
-        </div>
-
-        <div class="card" id="barsCard">
-          <h3>Hotbars</h3>
-          <div class="bar" style="margin-bottom:.5rem">
-            <span class="hint" id="barCount" style="margin:0"></span>
-          </div>
-          <div class="barsgrid" id="barsGrid"></div>
-          <div class="bar" style="margin-top:.5rem">
-            <button class="btn sm" id="btnSelBars">Select them all</button>
-            <button class="btn sm" id="btnBarsEven">Even out spacing</button>
-          </div>
-
-          <label class="flabel" style="margin-top:.75rem">Arrange every bar</label>
-          <select id="barShape" class="field" aria-label="Hotbar arrangement">
-            <option value="bc">Rows stacked up from the bottom, centred</option>
-            <option value="bl">Rows stacked up from the bottom left</option>
-            <option value="br">Rows stacked up from the bottom right</option>
-            <option value="cl">Upright bars along the left edge</option>
-            <option value="cr">Upright bars along the right edge</option>
-            <option value="split">Half in rows at the bottom, half upright on the right</option>
-          </select>
-          <div class="bar" style="margin-top:.45rem">
-            <label class="gapfield">gap <input type="number" id="barGap" value="0.4" min="0" max="6" step="0.1"> %</label>
-            <select id="barOrder" class="minisel" aria-label="Order the hotbars are stacked in">
-              <option value="num">Bar 1 nearest the edge</option>
-              <option value="pos">Keep the order they are in</option>
-            </select>
-            <button class="btn sm primary" id="btnBarsArrange">Arrange</button>
-          </div>
-          <p class="hint">You get 20 hotbars in game. Click a number to add it here, click again to take it away. <b>This records where a bar sits, it cannot create one</b> &mdash; make the bar itself in game with the arrow at the end of your hotbar.</p>
-        </div>
-
-        <div class="card">
-          <h3 id="elListTitle">Panels</h3>
-          <div class="ellist" id="elList"></div>
-        </div>
         <div class="card" id="arrangeCard">
           <h3>Arrange <span id="selCount" class="selcount">nothing selected</span></h3>
           <p class="hint" style="margin:0 0 .6rem">Ctrl-click to add panels to the selection, or drag a box across empty space. Two or more unlocks these.</p>
@@ -791,37 +806,50 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
           <p class="hint">Handy for building a symmetrical layout: set up one side, copy the positions to the other bars, then mirror them.</p>
         </div>
 
+        <div class="card hidden" id="winCard">
+          <h3>Window tools</h3>
+          <p class="hint" style="margin:0 0 .6rem">These open only when you need them &mdash; bags, banks, the auction house. They are never all on screen at once, so overlap here is normal.</p>
+          <div class="bar">
+            <button class="btn sm" id="btnCascade">Cascade</button>
+            <button class="btn sm" id="btnTile">Tile</button>
+            <button class="btn sm" id="btnCentreAll">Centre all</button>
+          </div>
+          <label class="flabel" style="margin-top:.7rem">Give them a sensible size</label>
+          <div class="bar">
+            <button class="btn sm" data-wsize="s">Small</button>
+            <button class="btn sm" data-wsize="m">Medium</button>
+            <button class="btn sm" data-wsize="l">Large</button>
+          </div>
+          <p class="hint">Applies to what you have selected, or to all of them if nothing is.</p>
+        </div>
+
+        <div class="card" id="presetCard">
+          <h3>Auto-arrange</h3>
+          <select id="presetSel" class="field" aria-label="Ready-made screen layout">
+            <option value="">Choose a starting layout…</option>
+            <option value="classic">Classic — bars centre, chat left</option>
+            <option value="raid">Raid — party left, centre kept clear</option>
+            <option value="caster">Caster — vertical bars both sides</option>
+            <option value="minimal">Minimal — one bar, edges only</option>
+            <option value="wide">Ultrawide — everything pushed outward</option>
+          </select>
+          <button class="btn sm primary" id="btnApplyPreset" style="margin-top:.5rem">Apply this layout</button>
+          <p class="hint">Rearranges everything on screen. Changed your mind? Press Undo.</p>
+        </div>
+
         <div class="card">
-          <h3>Selected panel</h3>
-          <p class="mono" id="elName" style="font-size:.82rem;color:var(--accent);word-break:break-all">none</p>
-          <div class="fields">
-            <div><label for="fx">X</label><input id="fx" type="number" step="0.001" min="-1" max="2"></div>
-            <div><label for="fy">Y</label><input id="fy" type="number" step="0.001" min="-1" max="2"></div>
-            <div><label for="fw">Width</label><input id="fw" type="number" step="0.001" min="0" max="2"></div>
-            <div><label for="fh">Height</label><input id="fh" type="number" step="0.001" min="0" max="2"></div>
+          <h3>Change resolution</h3>
+          <p class="hint" style="margin:0 0 .6rem">Panels are a fixed number of pixels, so a layout built for one screen comes out the wrong size on another. This rescales everything and keeps each panel the same physical size and the same distance from its nearest edge.</p>
+          <div class="resrow">
+            <label class="flabel" for="resFrom">Built for</label>
+            <select id="resFrom" class="minisel"></select>
           </div>
-          <p class="hint mono" id="pxNote" style="font-size:.74rem"></p>
-          <label class="flabel" style="margin-top:.8rem">Align to screen</label>
-          <div class="alignbar">
-            <button class="btn sm" data-snap="tl" aria-label="Move to the top left corner" title="Top left">↖</button>
-            <button class="btn sm" data-snap="t"  aria-label="Move to the top edge" title="Top edge">↑</button>
-            <button class="btn sm" data-snap="tr" aria-label="Move to the top right corner" title="Top right">↗</button>
-            <button class="btn sm" data-snap="l"  aria-label="Move to the left edge" title="Left edge">←</button>
-            <button class="btn sm" data-snap="c"  aria-label="Move to dead centre" title="Dead centre">◆</button>
-            <button class="btn sm" data-snap="r"  aria-label="Move to the right edge" title="Right edge">→</button>
-            <button class="btn sm" data-snap="bl" aria-label="Move to the bottom left corner" title="Bottom left">↙</button>
-            <button class="btn sm" data-snap="b"  aria-label="Move to the bottom edge" title="Bottom edge">↓</button>
-            <button class="btn sm" data-snap="br" aria-label="Move to the bottom right corner" title="Bottom right">↘</button>
+          <div class="resrow" style="margin-top:.4rem">
+            <label class="flabel" for="resTo">Moving to</label>
+            <select id="resTo" class="minisel"></select>
           </div>
-          <div class="bar" style="margin-top:.4rem">
-            <button class="btn sm" data-snap="hc">Centre across</button>
-            <button class="btn sm" data-snap="vc">Centre down</button>
-          </div>
-          <p class="hint hidden" id="fixedNote">A hotbar is ten slots and the game sizes it, so width and height are fixed here. You can still move it and turn it.</p>
-          <div class="bar hidden" id="rotWrap" style="margin-top:.55rem">
-            <button class="btn sm" id="btnRotate">Turn sideways</button>
-            <span class="hint" id="rotNote" style="margin:0"></span>
-          </div>
+          <button class="btn sm" id="btnRes" style="margin-top:.55rem">Rescale the layout</button>
+          <p class="hint" id="resNote"></p>
         </div>
       </div>
     </div>
@@ -853,6 +881,33 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
             <button class="btn sm" id="btnProfileDel" disabled>Delete</button>
           </div>
           <p class="hint" id="profileNote">A profile sets the chat channel and combat text colours together. It only touches colours already in this file, and keeps each one's transparency.</p>
+        </div>
+        <div class="card">
+          <h3>Tune every colour</h3>
+          <div class="resrow" style="margin-bottom:.55rem">
+            <label class="flabel" for="tuneScope">Apply to</label>
+            <select id="tuneScope" class="minisel">
+              <option value="all">All colours</option>
+              <option value="chatc">Chat channels only</option>
+              <option value="floatyc">Combat text only</option>
+            </select>
+          </div>
+          <div class="tune">
+            <label for="tuneHue">Hue</label>
+            <input type="range" id="tuneHue" min="-180" max="180" value="0" step="1">
+            <output id="tuneHueV" for="tuneHue">0°</output>
+            <label for="tuneSat">Saturation</label>
+            <input type="range" id="tuneSat" min="-100" max="100" value="0" step="1">
+            <output id="tuneSatV" for="tuneSat">0%</output>
+            <label for="tuneLum">Brightness</label>
+            <input type="range" id="tuneLum" min="-50" max="50" value="0" step="1">
+            <output id="tuneLumV" for="tuneLum">0%</output>
+          </div>
+          <div class="bar" style="margin-top:.55rem">
+            <button class="btn sm primary" id="btnTuneKeep" disabled>Keep these</button>
+            <button class="btn sm" id="btnTuneReset" disabled>Back to zero</button>
+          </div>
+          <p class="hint">Shifts the whole set together; the preview below follows as you drag. Slide back to zero and nothing has changed. The game shows the new colours once you save the file and load it in.</p>
         </div>
         <div class="card">
           <h3>Colour preview</h3>
@@ -895,6 +950,7 @@ body.dropping::after{content:"Drop your .layout file to open it";position:fixed;
 
       <h3 style="margin-top:1.2rem">Colour profiles</h3>
       <p>The Game settings tab can set all the chat channel and combat text colours in one go. <b>DDO default</b> is copied from files the game itself wrote, so it is a true reset. A profile only changes colours that are already in your file, and it keeps each colour&rsquo;s transparency. <b>Save current as&hellip;</b> keeps your own set in this browser so you can apply it to another character&rsquo;s file.</p>
+      <p><b>Tune every colour</b> shifts the whole set at once &mdash; hue, saturation and brightness &mdash; with the preview following as you drag. Slide back to zero and nothing has changed; press <b>Keep these</b> to make the new colours the starting point for further tuning. Use it after a profile to warm it up, cool it down, or lift everything for a bright monitor.</p>
 
       <h3 style="margin-top:1.2rem">Two mistakes this catches for you</h3>
       <p><strong>One shortcut swallowing another.</strong> If you have both <code>;ro</code> and <code>;roar</code>, the shorter one can win and the longer never fires. The Checks panel warns you about every pair like that.</p>
@@ -1187,6 +1243,7 @@ function harvest(){
     const v = n.getAttribute('Value') || '';
     return { name: n.getAttribute('Name') || n.nodeName, value: v, orig: v };
   }) : [];
+  resetTune(false);
   optCat = 'all';
   selAlias = -1; selectClear();
 }
@@ -1645,7 +1702,6 @@ function renderScreen(){
   $('#grpNote').textContent = elements.length
     ? n + (showHud ? ' HUD element' : ' window') + (n===1?'':'s') + ' in this file'
     : '';
-  $('#elListTitle').textContent = showHud ? 'On-screen HUD' : 'Windows & panels';
   $('#winCard').classList.toggle('hidden', showHud);
   $('#presetCard').classList.toggle('hidden', !showHud);
   $('#barsCard').classList.toggle('hidden', !showHud);
@@ -2926,9 +2982,11 @@ const KNOWN_OPT = new Set(Object.keys(OPT_HELP).concat(
 /* ---- colour profiles ----
    The default is copied from files the client wrote, so applying it is a
    true reset. The others are alternatives people ask for: brighter for a
-   busy screen, a palette that does not lean on red against green, and a
-   quieter set for long sessions. Only options the file already has are
-   touched, and the fourth (alpha) value is always kept. */
+   busy screen, a palette that does not lean on red against green, a
+   quieter set for long sessions, warm and cool casts, a healer's mix that
+   makes heals loud and damage quiet, and a saturated neon set. Every profile
+   carries the same 46 keys so they can be swapped freely. Only options the
+   file already has are touched, and the fourth (alpha) value is always kept. */
 const COLOUR_PROFILES = {
   ddo: { name:'DDO default', colours:{
     TextColor_Advice:'1.000 0.965 0.373', TextColor_Auction:'1.000 0.675 0.122', TextColor_Broadcast:'0.769 0.000 0.071',
@@ -2996,7 +3054,67 @@ const COLOUR_PROFILES = {
     FloatyText_PlayerEffectHarmfulColor:'#D98F8F', FloatyText_PlayerHealColor:'#9BDB9B', FloatyText_PlayerHealReducedColor:'#6FA86F',
     FloatyText_PlayerMissColor:'#9E9E9E', FloatyText_PlayerReducedDamageColor:'#A86F6F', FloatyText_PlayerSpellPointColor:'#8090C9',
     FloatyText_PlayerSpellPointHealColor:'#9BA9DB', FloatyText_RaidBossColor:'#C4A0DB', FloatyText_ReducedDamageColor:'#E0DC8F',
-    FloatyText_SpellPointColor:'#8090C9', FloatyText_SpellPointHealColor:'#9BA9DB', FloatyText_UsableColor:'#E6E0A8' } }
+    FloatyText_SpellPointColor:'#8090C9', FloatyText_SpellPointHealColor:'#9BA9DB', FloatyText_UsableColor:'#E6E0A8' } },
+  ember: { name:'Ember (warm amber & red, cool heals)', colours:{
+    TextColor_Advice:'#FFE082', TextColor_Auction:'#FFB74D', TextColor_Broadcast:'#FF6E40', TextColor_Effect:'#BCAAA4',
+    TextColor_Glossary:'#F48FB1', TextColor_Group:'#FFD54F', TextColor_Guild:'#FF8A65', TextColor_Hardcore:'#FF5252',
+    TextColor_NPC:'#DCE775', TextColor_Say:'#FFCC80', TextColor_Tell:'#FFAB40', TextColor_UserChat1:'#FF9E80',
+    TextColor_UserChat2:'#FFF176', TextColor_UserChat3:'#E6EE9C', TextColor_UserChat4:'#CE93D8', TextColor_WorldEvent:'#FFA726',
+    FloatyText_AmplifiedDamageColor:'#FF7043', FloatyText_BossColor:'#FF3D00', FloatyText_CosmeticPetColor:'#FFE0B2',
+    FloatyText_DamageColor:'#FF9100', FloatyText_EffectColor:'#BDBDBD', FloatyText_EffectHarmfulColor:'#FFEA00',
+    FloatyText_HealColor:'#69F0AE', FloatyText_HealReducedColor:'#26A69A', FloatyText_KillColor:'#FFAB00',
+    FloatyText_MiniBossColor:'#FF6D00', FloatyText_MissColor:'#A1887F', FloatyText_MonsterColor:'#FFC400',
+    FloatyText_NPCColor:'#80CBC4', FloatyText_PartyColor:'#A5D6A7', FloatyText_PlayerAmplifiedDamageColor:'#FF8A80',
+    FloatyText_PlayerColor:'#FFF59D', FloatyText_PlayerDamageColor:'#FF1744', FloatyText_PlayerEffectColor:'#4FC3F7',
+    FloatyText_PlayerEffectHarmfulColor:'#FF5252', FloatyText_PlayerHealColor:'#00E676', FloatyText_PlayerHealReducedColor:'#43A047',
+    FloatyText_PlayerMissColor:'#9E9E9E', FloatyText_PlayerReducedDamageColor:'#E64A19', FloatyText_PlayerSpellPointColor:'#64B5F6',
+    FloatyText_PlayerSpellPointHealColor:'#82B1FF', FloatyText_RaidBossColor:'#E040FB', FloatyText_ReducedDamageColor:'#FFF176',
+    FloatyText_SpellPointColor:'#40C4FF', FloatyText_SpellPointHealColor:'#80D8FF', FloatyText_UsableColor:'#FFECB3' } },
+  arctic: { name:'Arctic (cool blues & teals, warm damage)', colours:{
+    TextColor_Advice:'#E0F7FA', TextColor_Auction:'#FFD180', TextColor_Broadcast:'#FF8A80', TextColor_Effect:'#90A4AE',
+    TextColor_Glossary:'#EA80FC', TextColor_Group:'#69F0AE', TextColor_Guild:'#40C4FF', TextColor_Hardcore:'#FF5252',
+    TextColor_NPC:'#B2FF59', TextColor_Say:'#80D8FF', TextColor_Tell:'#FFE57F', TextColor_UserChat1:'#FFAB91',
+    TextColor_UserChat2:'#CCFF90', TextColor_UserChat3:'#64FFDA', TextColor_UserChat4:'#B388FF', TextColor_WorldEvent:'#1DE9B6',
+    FloatyText_AmplifiedDamageColor:'#EA80FC', FloatyText_BossColor:'#FF5252', FloatyText_CosmeticPetColor:'#E0F2F1',
+    FloatyText_DamageColor:'#FFAB40', FloatyText_EffectColor:'#B0BEC5', FloatyText_EffectHarmfulColor:'#FFFF8D',
+    FloatyText_HealColor:'#69F0AE', FloatyText_HealReducedColor:'#26A69A', FloatyText_KillColor:'#FFD740',
+    FloatyText_MiniBossColor:'#FF8A65', FloatyText_MissColor:'#9FA8DA', FloatyText_MonsterColor:'#FFE57F',
+    FloatyText_NPCColor:'#80CBC4', FloatyText_PartyColor:'#A7FFEB', FloatyText_PlayerAmplifiedDamageColor:'#FF80AB',
+    FloatyText_PlayerColor:'#E6EE9C', FloatyText_PlayerDamageColor:'#FF1744', FloatyText_PlayerEffectColor:'#40C4FF',
+    FloatyText_PlayerEffectHarmfulColor:'#FF6E40', FloatyText_PlayerHealColor:'#00E676', FloatyText_PlayerHealReducedColor:'#00BFA5',
+    FloatyText_PlayerMissColor:'#CFD8DC', FloatyText_PlayerReducedDamageColor:'#F06292', FloatyText_PlayerSpellPointColor:'#448AFF',
+    FloatyText_PlayerSpellPointHealColor:'#82B1FF', FloatyText_RaidBossColor:'#E040FB', FloatyText_ReducedDamageColor:'#FFF59D',
+    FloatyText_SpellPointColor:'#2979FF', FloatyText_SpellPointHealColor:'#8C9EFF', FloatyText_UsableColor:'#B9F6CA' } },
+  healer: { name:'Healer\u2019s view (heals loud, damage quiet)', colours:{
+    TextColor_Advice:'#FFF65F', TextColor_Auction:'#FFAC1F', TextColor_Broadcast:'#E53935', TextColor_Effect:'#8FA69C',
+    TextColor_Glossary:'#D946B8', TextColor_Group:'#33C74D', TextColor_Guild:'#00D4FF', TextColor_Hardcore:'#FF4433',
+    TextColor_NPC:'#9FDF06', TextColor_Say:'#22B8E6', TextColor_Tell:'#FFB700', TextColor_UserChat1:'#EE6C0D',
+    TextColor_UserChat2:'#DEF706', TextColor_UserChat3:'#26B070', TextColor_UserChat4:'#B06BC4', TextColor_WorldEvent:'#2ECC7A',
+    FloatyText_AmplifiedDamageColor:'#A0708A', FloatyText_BossColor:'#FF5A5A', FloatyText_CosmeticPetColor:'#C5E1C5',
+    FloatyText_DamageColor:'#C69062', FloatyText_EffectColor:'#8A8A8A', FloatyText_EffectHarmfulColor:'#E0D070',
+    FloatyText_HealColor:'#00FF7F', FloatyText_HealReducedColor:'#7FFFD4', FloatyText_KillColor:'#D4A060',
+    FloatyText_MiniBossColor:'#E08050', FloatyText_MissColor:'#7A7A7A', FloatyText_MonsterColor:'#D9B060',
+    FloatyText_NPCColor:'#7FB8B0', FloatyText_PartyColor:'#A0E8A0', FloatyText_PlayerAmplifiedDamageColor:'#FF9E9E',
+    FloatyText_PlayerColor:'#FFFFFF', FloatyText_PlayerDamageColor:'#FF3030', FloatyText_PlayerEffectColor:'#78C8FF',
+    FloatyText_PlayerEffectHarmfulColor:'#FF7070', FloatyText_PlayerHealColor:'#39FF14', FloatyText_PlayerHealReducedColor:'#B2FF59',
+    FloatyText_PlayerMissColor:'#8F8F8F', FloatyText_PlayerReducedDamageColor:'#D08080', FloatyText_PlayerSpellPointColor:'#7FA8FF',
+    FloatyText_PlayerSpellPointHealColor:'#B0C8FF', FloatyText_RaidBossColor:'#D8A0FF', FloatyText_ReducedDamageColor:'#E8E0A0',
+    FloatyText_SpellPointColor:'#6F9BFF', FloatyText_SpellPointHealColor:'#A8C0FF', FloatyText_UsableColor:'#FFF3B0' } },
+  neon: { name:'Neon (vivid, saturated)', colours:{
+    TextColor_Advice:'#F9FF3D', TextColor_Auction:'#FFA000', TextColor_Broadcast:'#FF2E63', TextColor_Effect:'#A6B5A0',
+    TextColor_Glossary:'#FF5CF3', TextColor_Group:'#39FF14', TextColor_Guild:'#00F5FF', TextColor_Hardcore:'#FF073A',
+    TextColor_NPC:'#C6FF00', TextColor_Say:'#18DCFF', TextColor_Tell:'#FFC300', TextColor_UserChat1:'#FF7A00',
+    TextColor_UserChat2:'#E6FF00', TextColor_UserChat3:'#00FFA3', TextColor_UserChat4:'#C56CFF', TextColor_WorldEvent:'#00E676',
+    FloatyText_AmplifiedDamageColor:'#FF3DFF', FloatyText_BossColor:'#FF0033', FloatyText_CosmeticPetColor:'#CCFFCC',
+    FloatyText_DamageColor:'#FF7A00', FloatyText_EffectColor:'#B3B3B3', FloatyText_EffectHarmfulColor:'#FFFF00',
+    FloatyText_HealColor:'#00FF66', FloatyText_HealReducedColor:'#00CC88', FloatyText_KillColor:'#FFAA00',
+    FloatyText_MiniBossColor:'#FF4D00', FloatyText_MissColor:'#C0C0C0', FloatyText_MonsterColor:'#FFD000',
+    FloatyText_NPCColor:'#00E5D0', FloatyText_PartyColor:'#66FF99', FloatyText_PlayerAmplifiedDamageColor:'#FF6688',
+    FloatyText_PlayerColor:'#F0FF33', FloatyText_PlayerDamageColor:'#FF1A1A', FloatyText_PlayerEffectColor:'#1AB8FF',
+    FloatyText_PlayerEffectHarmfulColor:'#FF3366', FloatyText_PlayerHealColor:'#33FF77', FloatyText_PlayerHealReducedColor:'#1ADB99',
+    FloatyText_PlayerMissColor:'#D0D0D0', FloatyText_PlayerReducedDamageColor:'#FF2D6F', FloatyText_PlayerSpellPointColor:'#4D79FF',
+    FloatyText_PlayerSpellPointHealColor:'#7AA2FF', FloatyText_RaidBossColor:'#D65CFF', FloatyText_ReducedDamageColor:'#FFFF66',
+    FloatyText_SpellPointColor:'#3D6BFF', FloatyText_SpellPointHealColor:'#6699FF', FloatyText_UsableColor:'#FFFF99' } }
 };
 const PROFILE_KEY = 'ddo-colour-profiles';
 function userProfiles(){
@@ -3029,6 +3147,7 @@ function renderProfiles(){
 }
 function applyProfile(key){
   const p = allProfiles()[key]; if (!p) return;
+  resetTune(false);
   let changed = 0, skipped = 0;
   Object.entries(p.colours).forEach(([name, col]) => {
     const o = options.find(x => x.name === name);
@@ -3067,6 +3186,69 @@ $('#btnProfileDel').onclick = () => {
   if (!confirm('Delete the saved profile \u201c' + name + '\u201d?')) return;
   const u = userProfiles(); delete u[name]; saveUserProfiles(u);
   renderProfiles(); setStatus('Deleted \u201c' + name + '\u201d.');
+};
+
+/* ---- tune every colour ----
+   The sliders work from a snapshot taken when the first one leaves zero, so
+   dragging back to zero lands exactly on the colours you started with, and
+   nothing is lost to rounding on the way. Alpha is kept as always. */
+let tuneBase = null;
+const TUNE_SCOPES = { all: () => true, chatc: o => catOf(o.name) === 'chatc', floatyc: o => catOf(o.name) === 'floatyc' };
+function hexToHsl(hex){
+  const r = parseInt(hex.substr(1,2),16)/255, g = parseInt(hex.substr(3,2),16)/255, b = parseInt(hex.substr(5,2),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), l = (max+min)/2, d = max-min;
+  if (!d) return [0, 0, l];
+  const s = d / (1 - Math.abs(2*l - 1));
+  let h = max === r ? ((g-b)/d) % 6 : max === g ? (b-r)/d + 2 : (r-g)/d + 4;
+  return [(h*60 + 360) % 360, s, l];
+}
+function hslToHex(h, s, l){
+  const c = (1 - Math.abs(2*l - 1)) * s, x = c * (1 - Math.abs((h/60) % 2 - 1)), m = l - c/2;
+  const [r,g,b] = h < 60 ? [c,x,0] : h < 120 ? [x,c,0] : h < 180 ? [0,c,x] : h < 240 ? [0,x,c] : h < 300 ? [x,0,c] : [c,0,x];
+  const hx = v => Math.max(0, Math.min(255, Math.round((v+m)*255))).toString(16).padStart(2,'0');
+  return '#' + hx(r) + hx(g) + hx(b);
+}
+function tuneColour(hex, dh, ds, dl){
+  const [h,s,l] = hexToHsl(hex), clamp = v => Math.max(0, Math.min(1, v));
+  return hslToHex((h + dh + 360) % 360, clamp(s + ds/100), clamp(l + dl/100));
+}
+function tuneValues(){ return { h:+$('#tuneHue').value, s:+$('#tuneSat').value, l:+$('#tuneLum').value }; }
+function tuneReadout(){
+  const {h,s,l} = tuneValues(), sg = n => (n > 0 ? '+' : '') + n;
+  $('#tuneHueV').textContent = sg(h) + '\u00b0';
+  $('#tuneSatV').textContent = sg(s) + '%';
+  $('#tuneLumV').textContent = sg(l) + '%';
+  $('#btnTuneKeep').disabled = $('#btnTuneReset').disabled = !(h || s || l);
+}
+function applyTune(){
+  const {h,s,l} = tuneValues();
+  const pred = TUNE_SCOPES[$('#tuneScope').value] || TUNE_SCOPES.all;
+  if (!tuneBase) tuneBase = new Map(options.filter(o => isColourVal(o.value) && pred(o)).map(o => [o.name, o.value]));
+  tuneBase.forEach((base, name) => {
+    const o = options.find(x => x.name === name); if (!o) return;
+    o.value = (h || s || l) ? hexToFloats(tuneColour(floatsToHex(base), h, s, l), alphaOf(base)) : base;
+  });
+  tuneReadout(); renderColourDemo(); refreshColourFlags();
+  $('#btnOptReset').disabled = !options.some(o => o.value !== optDefault(o));
+}
+/* restore=true puts the snapshot back; otherwise what is on screen is kept */
+function resetTune(restore){
+  if (restore && tuneBase) tuneBase.forEach((v, name) => { const o = options.find(x => x.name === name); if (o) o.value = v; });
+  tuneBase = null;
+  ['#tuneHue','#tuneSat','#tuneLum'].forEach(id => { $(id).value = 0; });
+  tuneReadout();
+}
+['#tuneHue','#tuneSat','#tuneLum'].forEach(id => { $(id).oninput = applyTune; });
+$('#tuneScope').onchange = () => { if (tuneBase) { resetTune(false); setStatus('Kept the tuned colours; the sliders start again from zero for the new scope.'); } };
+$('#btnTuneKeep').onclick = () => {
+  const n = tuneBase ? tuneBase.size : 0;
+  resetTune(false);
+  setStatus('Kept the tuned colours on ' + n + ' setting' + (n===1?'':'s') + '. The sliders start again from here; Revert all still puts the file back.');
+};
+$('#btnTuneReset').onclick = () => {
+  resetTune(true); renderColourDemo(); refreshColourFlags();
+  $('#btnOptReset').disabled = !options.some(o => o.value !== optDefault(o));
+  setStatus('Colours put back to where they were before the sliders moved.');
 };
 
 function renderOptions(filter){
@@ -3130,6 +3312,10 @@ function renderOptions(filter){
       cp.setAttribute('aria-label', optLabel(o.name));
       const flag = el('span','cflag');
       const paint = () => {
+        /* the sliders change o.value from outside this row */
+        const hex = floatsToHex(o.value);
+        if (cp.value !== hex) cp.value = hex;
+        if (hexIn.value !== hex.toUpperCase()) hexIn.value = hex.toUpperCase();
         const notes = colourNotes(o);
         flag.textContent = notes.length ? '!' : '';
         flag.title = notes.join(' ');
@@ -3141,6 +3327,7 @@ function renderOptions(filter){
       colourPainters.push(paint);
       const commit = hex => {
         o.value = hexToFloats(hex, alphaOf(o.value));
+        if (tuneBase) tuneBase.delete(o.name);   // hand-set colours leave the tune set
         cp.value = hex; hexIn.value = hex.toUpperCase();
         renderColourDemo(); refreshColourFlags();
         $('#btnOptReset').disabled = false;
@@ -3185,7 +3372,7 @@ function renderOptions(filter){
     const rv = el('button','revert'); rv.type = 'button'; rv.textContent = '⟲';
     rv.setAttribute('aria-label', 'Put ' + optLabel(o.name) + ' back to how the file had it');
     rv.title = 'Put this back to how the file had it';
-    rv.onclick = () => { o.value = optDefault(o); renderOptions($('#optSearch').value); };
+    rv.onclick = () => { o.value = optDefault(o); if (tuneBase) tuneBase.delete(o.name); renderOptions($('#optSearch').value); };
     ctl.appendChild(rv);
 
     row.appendChild(ctl);
@@ -3254,6 +3441,7 @@ $('#optSearch').oninput = e => renderOptions(e.target.value);
 $('#optChangedOnly').onchange = () => renderOptions($('#optSearch').value);
 $('#btnOptReset').onclick = () => {
   options.forEach(o => { o.value = optDefault(o); });
+  resetTune(false);
   renderOptions($('#optSearch').value);
   setStatus('All settings put back to how the file had them.');
 };
