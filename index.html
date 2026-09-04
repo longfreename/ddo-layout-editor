@@ -1,4 +1,7 @@
-
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
 <title>DDO Layout Editor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8,13 +11,13 @@
 <style>
 :root{
   --ground:#EDF0F4; --panel:#FFFFFF; --panel2:#E3E8EE;
-  --ink:#131820; --ink-soft:#4A5464; --ink-faint:#77828F;
-  --rule:#D7DDE5; --rule-strong:#BEC6D1;
+  --ink:#131820; --ink-soft:#4A5464; --ink-faint:#5E6875;
+  --rule:#D7DDE5; --rule-strong:#7A8593;
   --accent:#8A5200; --accent-bg:#F4E7D2; --accent-line:#C08A2E;
   --ok:#1C6E3E; --ok-bg:#DDEFE3;
   --warn:#8A3A12; --warn-bg:#F7E4DA;
   --bad:#A01A1A; --bad-bg:#F8DCDC;
-  --chat-bg:#0C1015; --chat-ink:#C9D2DE; --chat-rule:#222B35; --chat-dim:#6C7787;
+  --chat-bg:#0C1015; --chat-ink:#C9D2DE; --chat-rule:#222B35; --chat-dim:#7A8595;
   --shadow:0 1px 2px rgba(16,22,30,.05), 0 8px 22px -14px rgba(16,22,30,.28);
   --lift:0 2px 5px rgba(16,22,30,.08), 0 20px 44px -22px rgba(16,22,30,.4);
   --r:9px;
@@ -22,7 +25,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --ground:#0E1218; --panel:#161C24; --panel2:#1E2630;
   --ink:#E8ECF2; --ink-soft:#B0BAC8; --ink-faint:#7B8693;
-  --rule:#232B35; --rule-strong:#323C49;
+  --rule:#232B35; --rule-strong:#626E7C;
   --accent:#FFB43D; --accent-bg:#2A2214; --accent-line:#7A5A22;
   --ok:#6FD79B; --ok-bg:#122619;
   --warn:#FF9E6B; --warn-bg:#2B1B13;
@@ -34,7 +37,7 @@
 :root[data-theme="dark"]{
   --ground:#0E1218; --panel:#161C24; --panel2:#1E2630;
   --ink:#E8ECF2; --ink-soft:#B0BAC8; --ink-faint:#7B8693;
-  --rule:#232B35; --rule-strong:#323C49;
+  --rule:#232B35; --rule-strong:#626E7C;
   --accent:#FFB43D; --accent-bg:#2A2214; --accent-line:#7A5A22;
   --ok:#6FD79B; --ok-bg:#122619;
   --warn:#FF9E6B; --warn-bg:#2B1B13;
@@ -120,7 +123,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 
 .flabel{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);
   display:block;margin-bottom:.25rem}
-.sel{width:100%;background:var(--ground);border:1px solid var(--rule-strong);border-radius:5px;
+.field{width:100%;background:var(--ground);border:1px solid var(--rule-strong);border-radius:5px;
   color:var(--ink);padding:.4rem .5rem;font-size:.86rem;font-family:inherit}
 .chat.editable{min-height:4.5rem;cursor:text;outline:none}
 .chat.editable:focus{border-color:var(--accent)}
@@ -130,7 +133,8 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   min-height:4.5rem;resize:vertical}
 
 /* rendered value shown in the table instead of raw tags */
-.vcell{cursor:pointer;padding:.3rem .4rem;border-radius:3px;border:1px solid transparent;
+.vcell{cursor:pointer;display:block;width:100%;text-align:left;
+  padding:.3rem .4rem;border-radius:3px;border:1px solid transparent;
   background:var(--chat-bg);color:var(--chat-ink);font-family:"JetBrains Mono",monospace;
   font-size:.76rem;line-height:1.45;white-space:pre-wrap;word-break:break-word;
   max-height:3.4rem;overflow:hidden}
@@ -150,7 +154,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .issue.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
 
 /* ---- interface arranger ---- */
-.screen{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;touch-action:none;
+.screen{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
   background:
     radial-gradient(120% 90% at 50% 0%, #141B24 0%, #0A0E13 55%, #06090C 100%);
   border:1px solid var(--chat-rule);border-radius:0 0 var(--r) 0;
@@ -184,7 +188,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .guides .g.h{left:0;right:0;height:1px}
 
 /* resize handles */
-.hd{position:absolute;width:9px;height:9px;background:#FFB43D;border:1px solid #12161C;
+.hd{position:absolute;touch-action:none;width:9px;height:9px;background:var(--accent-line);border:1px solid #12161C;
   border-radius:2px;z-index:4}
 .hd.nw{left:-5px;top:-5px;cursor:nwse-resize}   .hd.ne{right:-5px;top:-5px;cursor:nesw-resize}
 .hd.sw{left:-5px;bottom:-5px;cursor:nesw-resize}.hd.se{right:-5px;bottom:-5px;cursor:nwse-resize}
@@ -214,7 +218,9 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .barsgrid button.on{background:var(--accent);border-color:var(--accent);color:var(--ground);font-weight:700}
 .barsgrid button.on.vert{background:var(--accent-bg);color:var(--accent)}
 .barsgrid button:hover{border-color:var(--accent)}
-.el{position:absolute;border:1px solid rgba(255,180,61,.42);
+/* touch-action lives on the draggable parts, not the whole canvas: a
+   thumb landing on empty canvas should still scroll the page. */
+.el{position:absolute;touch-action:none;border:1px solid rgba(255,180,61,.42);
   background:linear-gradient(180deg, rgba(255,180,61,.16), rgba(255,180,61,.07));
   border-radius:4px;cursor:grab;overflow:hidden;font-size:.6rem;color:#EAD6B0;
   font-family:"JetBrains Mono",monospace;padding:3px 4px;line-height:1.2;z-index:1;
@@ -358,6 +364,14 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .optrow .k b{font-weight:600;display:block}
 .optrow .k i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.66rem;
   color:var(--ink-faint);opacity:.75}
+.optrow .k small{display:block;font-size:.74rem;color:var(--ink-soft);margin:.05rem 0 .1rem;line-height:1.4}
+.optrow .k .unk{display:inline-block;margin-left:.4rem;font-size:.58rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-faint);background:var(--panel2);
+  padding:.05rem .3rem;border-radius:3px;vertical-align:.1em}
+.issue.click{cursor:pointer;display:flex;gap:.5rem;align-items:center}
+.issue.click:hover{filter:brightness(.96)}
+.issue.click .fix{margin-left:auto;font-size:.7rem;padding:.12rem .45rem;border-radius:3px;
+  border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;white-space:nowrap}
 .optrow.dirty{box-shadow:inset 3px 0 0 var(--accent)}
 .optrow.dirty .k b::after{content:"changed";margin-left:.45rem;font-size:.6rem;font-weight:600;
   letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
@@ -369,7 +383,13 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   border-radius:4px;background:none;cursor:pointer}
 .optrow select{background:var(--ground);border:1px solid var(--rule-strong);border-radius:4px;
   color:var(--ink);padding:.2rem .3rem;font-size:.78rem;font-family:inherit}
-.optrow .hex{font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--ink-faint);width:4.4rem}
+.optrow .hexin{font-family:"JetBrains Mono",monospace;font-size:.68rem;width:5.3rem;
+  background:var(--ground);border:1px solid var(--rule-strong);border-radius:4px;
+  color:var(--ink-soft);padding:.2rem .3rem;text-transform:uppercase}
+.optrow .hexin:focus{outline:2px solid var(--accent-line);outline-offset:1px}
+.optrow .cflag{width:.9rem;text-align:center;font-weight:700;font-size:.85rem;color:transparent}
+.optrow .cflag.on{color:var(--warn);cursor:help}
+.colwarn{margin:.5rem 0 0}
 .revert{background:none;border:0;color:var(--ink-faint);cursor:pointer;font-size:.9rem;
   padding:0 .2rem;border-radius:3px;line-height:1}
 .revert:hover{color:var(--accent);background:var(--accent-bg)}
@@ -389,7 +409,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 .selcount{margin-left:auto;font-size:.66rem;letter-spacing:.06em;text-transform:none;
   color:var(--ink-faint);font-weight:400;white-space:nowrap}
 .selcount.live{color:var(--accent);font-weight:600}
-.card h3 .selcount + ::after{content:none}
+.card h3:has(.selcount)::after{content:none}
 .need{font-size:.6rem;color:var(--ink-faint);letter-spacing:.06em;margin-left:.35rem}
 .gapfield{display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;color:var(--ink-faint)}
 .gapfield input{width:3.2rem;background:var(--ground);border:1px solid var(--rule-strong);
@@ -446,13 +466,21 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   color:var(--ink-faint);font-size:.9rem}
 .drop.over{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
 .status{font-size:.82rem;color:var(--ink-faint)}
+.status.bad{color:var(--bad)}
+/* The whole page takes a dropped .layout, so show that while one is over it. */
+body.dropping::after{content:"Drop your .layout file to open it";position:fixed;inset:0;z-index:60;
+  display:grid;place-items:center;background:rgba(12,16,21,.72);color:#FFF;pointer-events:none;
+  font-family:"Source Sans 3",sans-serif;font-size:1.05rem;font-weight:600;
+  outline:3px dashed var(--accent-line);outline-offset:-14px}
 .hidden{display:none!important}
 
 /* ---- narrow screens ----
    The editor is desktop-first and the screen canvas needs room, but the
    reference panels and the starter card should still read on a phone.
    Below the point where the 23rem sidebar stops fitting, stack instead. */
-@media (max-width:820px){
+/* One breakpoint for the whole stack: the sidebar is 23rem, so below roughly
+   960px it cannot sit beside anything. */
+@media (max-width:960px){
   .grid{grid-template-columns:minmax(0,1fr)}
   .grid > *{min-width:0}
   .starter code{white-space:normal;overflow-wrap:anywhere}
@@ -461,6 +489,8 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head>
+<body>
 
 <div class="shell">
   <header class="top">
@@ -507,17 +537,17 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   </div>
 
   <p class="hint hidden" id="webNote" style="margin:0 0 .6rem"><b>Heads up:</b> this web page is not allowed to write a file ending in <code>.layout</code>. <b>Save</b> gives you <code>ddo.layout.txt</code> &mdash; just delete the <code>.txt</code>. Or use <b>Copy .layout text</b> and paste it into a text editor. Saving a copy of this page to your computer and opening it there writes <code>ddo.layout</code> directly, with no renaming.</p>
-  <p class="status" id="status">No file loaded yet.</p>
+  <p class="status" id="status" role="status" aria-live="polite">No file loaded yet.</p>
 
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" aria-selected="true" data-tab="aliases">Chat shortcuts</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="interface">Screen layout</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="options">Game settings</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="help">Help</button>
+  <div class="tabs" role="tablist" aria-label="Editor sections">
+    <button class="tab" role="tab" id="tab-aliases"   aria-controls="pane-aliases"   aria-selected="true"  data-tab="aliases">Chat shortcuts</button>
+    <button class="tab" role="tab" id="tab-interface" aria-controls="pane-interface" aria-selected="false" tabindex="-1" data-tab="interface">Screen layout</button>
+    <button class="tab" role="tab" id="tab-options"   aria-controls="pane-options"   aria-selected="false" tabindex="-1" data-tab="options">Game settings</button>
+    <button class="tab" role="tab" id="tab-help"      aria-controls="pane-help"      aria-selected="false" tabindex="-1" data-tab="help">Help</button>
   </div>
 
   <!-- ============ ALIASES ============ -->
-  <div id="pane-aliases">
+  <div id="pane-aliases" role="tabpanel" tabindex="0" aria-labelledby="tab-aliases">
     <div class="grid">
       <div>
         <div class="bar" style="margin-bottom:.7rem">
@@ -546,10 +576,11 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
         <div class="card">
           <h3>Compose</h3>
           <label class="flabel" for="chanSel">Where it goes</label>
-          <select id="chanSel" class="sel"></select>
+          <select id="chanSel" class="field"></select>
 
           <label class="flabel" style="margin-top:.7rem">Message</label>
-          <div class="chat editable" id="compose" contenteditable="true" spellcheck="false"></div>
+          <div class="chat editable" id="compose" contenteditable="true" spellcheck="false"
+               role="textbox" aria-multiline="true" aria-label="Message this shortcut sends"></div>
 
           <label class="flabel" style="margin-top:.7rem">Colour the selected words</label>
           <div class="pal" id="palette"></div>
@@ -559,7 +590,8 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
             <button class="btn sm" id="btnBreak">New line</button>
             <button class="btn sm" id="btnRaw">Show the code</button>
           </div>
-          <textarea id="rawBox" class="raw hidden" spellcheck="false"></textarea>
+          <textarea id="rawBox" class="raw hidden" spellcheck="false"
+                    aria-label="The shortcut's message as raw tags"></textarea>
           <p class="hint" id="composeHint">Highlight some words, then click a colour.</p>
         </div>
 
@@ -572,7 +604,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   </div>
 
   <!-- ============ INTERFACE ============ -->
-  <div id="pane-interface" class="hidden">
+  <div id="pane-interface" class="hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-interface">
     <div class="grid">
       <div>
         <div class="bar" style="margin-bottom:.7rem">
@@ -603,7 +635,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
           <label class="chk"><input type="checkbox" id="snapEl" checked> Snap to panels</label>
           <span class="sep"></span>
           <button class="btn sm" id="btnTidy" title="Nudge every panel onto the nearest grid line">Line up to grid</button>
-          <button class="btn sm" id="btnOverlap" title="Select the panels sitting on top of each other">Find overlaps</button>
+          <button class="btn sm" id="btnOverlap" aria-pressed="false" title="Select the panels sitting on top of each other">Find overlaps</button>
           <span class="sep"></span>
           <button class="btn sm" id="btnShot" title="Put one of your own DDO screenshots behind the canvas">Use my screenshot</button>
           <input type="file" id="shotFile" accept="image/*" class="hidden">
@@ -622,6 +654,12 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
         </div>
 
         <p class="hint">Drag anything to move it, pull a corner to resize, or use the arrow keys for small nudges. Everything is stored as a proportion of your screen, so it looks the same at any resolution. The <strong>Windows &amp; panels</strong> view shows things that open when you need them, which is why they sit on top of each other.</p>
+
+        <div class="card" style="margin-top:.9rem">
+          <h3>Layout checks <span id="lcCount" class="selcount"></span></h3>
+          <div id="layoutIssues"></div>
+          <p class="hint">Things the game will quietly ignore or draw off the edge. Click one to select it.</p>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:1rem">
         <div class="card hidden" id="winCard">
@@ -658,7 +696,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 
         <div class="card" id="presetCard">
           <h3>Auto-arrange</h3>
-          <select id="presetSel" class="sel">
+          <select id="presetSel" class="field" aria-label="Ready-made screen layout">
             <option value="">Choose a starting layout…</option>
             <option value="classic">Classic — bars centre, chat left</option>
             <option value="raid">Raid — party left, centre kept clear</option>
@@ -682,7 +720,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
           </div>
 
           <label class="flabel" style="margin-top:.75rem">Arrange every bar</label>
-          <select id="barShape" class="sel">
+          <select id="barShape" class="field" aria-label="Hotbar arrangement">
             <option value="bc">Rows stacked up from the bottom, centred</option>
             <option value="bl">Rows stacked up from the bottom left</option>
             <option value="br">Rows stacked up from the bottom right</option>
@@ -692,7 +730,7 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
           </select>
           <div class="bar" style="margin-top:.45rem">
             <label class="gapfield">gap <input type="number" id="barGap" value="0.4" min="0" max="6" step="0.1"> %</label>
-            <select id="barOrder" class="minisel">
+            <select id="barOrder" class="minisel" aria-label="Order the hotbars are stacked in">
               <option value="num">Bar 1 nearest the edge</option>
               <option value="pos">Keep the order they are in</option>
             </select>
@@ -711,12 +749,12 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
 
           <label class="flabel">Line up their edges</label>
           <div class="alignbar">
-            <button class="btn sm ar" data-al="l"  title="Left edges">⇤</button>
-            <button class="btn sm ar" data-al="hc" title="Centres, side to side">⇔</button>
-            <button class="btn sm ar" data-al="r"  title="Right edges">⇥</button>
-            <button class="btn sm ar" data-al="t"  title="Top edges">⤒</button>
-            <button class="btn sm ar" data-al="vc" title="Centres, top to bottom">⇕</button>
-            <button class="btn sm ar" data-al="b"  title="Bottom edges">⤓</button>
+            <button class="btn sm ar" data-al="l"  aria-label="Line up their left edges" title="Left edges">⇤</button>
+            <button class="btn sm ar" data-al="hc" aria-label="Line up their centres, side to side" title="Centres, side to side">⇔</button>
+            <button class="btn sm ar" data-al="r"  aria-label="Line up their right edges" title="Right edges">⇥</button>
+            <button class="btn sm ar" data-al="t"  aria-label="Line up their top edges" title="Top edges">⤒</button>
+            <button class="btn sm ar" data-al="vc" aria-label="Line up their centres, top to bottom" title="Centres, top to bottom">⇕</button>
+            <button class="btn sm ar" data-al="b"  aria-label="Line up their bottom edges" title="Bottom edges">⤓</button>
           </div>
 
           <label class="flabel" style="margin-top:.7rem">Stack in a neat row <span class="need">needs 2</span></label>
@@ -744,6 +782,13 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
             <button class="btn sm ar" data-size="wh">Both</button>
           </div>
           <p class="hint">Matched to the last panel you clicked.</p>
+
+          <label class="flabel" style="margin-top:.7rem">Mirror across the screen <span class="need">needs 1</span></label>
+          <div class="bar">
+            <button class="btn sm ar1" data-mirror="h" title="Swap left and right, keeping the same distance from the edge">Left ↔ right</button>
+            <button class="btn sm ar1" data-mirror="v" title="Swap top and bottom, keeping the same distance from the edge">Top ↔ bottom</button>
+          </div>
+          <p class="hint">Handy for building a symmetrical layout: set up one side, copy the positions to the other bars, then mirror them.</p>
         </div>
 
         <div class="card">
@@ -755,17 +800,18 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
             <div><label for="fw">Width</label><input id="fw" type="number" step="0.001" min="0" max="2"></div>
             <div><label for="fh">Height</label><input id="fh" type="number" step="0.001" min="0" max="2"></div>
           </div>
+          <p class="hint mono" id="pxNote" style="font-size:.74rem"></p>
           <label class="flabel" style="margin-top:.8rem">Align to screen</label>
           <div class="alignbar">
-            <button class="btn sm" data-snap="tl" title="Top left">↖</button>
-            <button class="btn sm" data-snap="t"  title="Top edge">↑</button>
-            <button class="btn sm" data-snap="tr" title="Top right">↗</button>
-            <button class="btn sm" data-snap="l"  title="Left edge">←</button>
-            <button class="btn sm" data-snap="c"  title="Dead centre">◆</button>
-            <button class="btn sm" data-snap="r"  title="Right edge">→</button>
-            <button class="btn sm" data-snap="bl" title="Bottom left">↙</button>
-            <button class="btn sm" data-snap="b"  title="Bottom edge">↓</button>
-            <button class="btn sm" data-snap="br" title="Bottom right">↘</button>
+            <button class="btn sm" data-snap="tl" aria-label="Move to the top left corner" title="Top left">↖</button>
+            <button class="btn sm" data-snap="t"  aria-label="Move to the top edge" title="Top edge">↑</button>
+            <button class="btn sm" data-snap="tr" aria-label="Move to the top right corner" title="Top right">↗</button>
+            <button class="btn sm" data-snap="l"  aria-label="Move to the left edge" title="Left edge">←</button>
+            <button class="btn sm" data-snap="c"  aria-label="Move to dead centre" title="Dead centre">◆</button>
+            <button class="btn sm" data-snap="r"  aria-label="Move to the right edge" title="Right edge">→</button>
+            <button class="btn sm" data-snap="bl" aria-label="Move to the bottom left corner" title="Bottom left">↙</button>
+            <button class="btn sm" data-snap="b"  aria-label="Move to the bottom edge" title="Bottom edge">↓</button>
+            <button class="btn sm" data-snap="br" aria-label="Move to the bottom right corner" title="Bottom right">↘</button>
           </div>
           <div class="bar" style="margin-top:.4rem">
             <button class="btn sm" data-snap="hc">Centre across</button>
@@ -782,11 +828,12 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
   </div>
 
   <!-- ============ OPTIONS ============ -->
-  <div id="pane-options" class="hidden">
+  <div id="pane-options" class="hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-options">
     <div class="grid">
       <div>
         <div class="optbar">
-          <input class="search" id="optSearch" placeholder="Search settings…">
+          <input type="search" class="search" id="optSearch" placeholder="Search settings…"
+                 aria-label="Search settings">
           <label class="chk"><input type="checkbox" id="optChangedOnly"> Changed only</label>
           <button class="btn sm" id="btnOptReset" disabled>Revert all</button>
         </div>
@@ -798,16 +845,27 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
           <div class="catlist" id="catList"></div>
         </div>
         <div class="card">
+          <h3>Colour profiles</h3>
+          <select id="profileSel" class="field"></select>
+          <div class="bar" style="margin-top:.5rem">
+            <button class="btn sm primary" id="btnProfileApply">Apply</button>
+            <button class="btn sm" id="btnProfileSave" title="Keep the chat and combat text colours in this file as a named profile you can apply to other characters">Save current as…</button>
+            <button class="btn sm" id="btnProfileDel" disabled>Delete</button>
+          </div>
+          <p class="hint" id="profileNote">A profile sets the chat channel and combat text colours together. It only touches colours already in this file, and keeps each one's transparency.</p>
+        </div>
+        <div class="card">
           <h3>Colour preview</h3>
           <div class="chat" id="colourDemo"></div>
           <p class="hint">How these colours will look in game.</p>
+          <div id="colourWarn" class="colwarn"></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ============ HELP ============ -->
-  <div id="pane-help" class="hidden">
+  <div id="pane-help" class="hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-help">
     <div class="card" style="max-width:70ch">
       <h3>What this does</h3>
       <p>DDO keeps three things in one settings file: where your bars and windows sit on screen, your chat shortcuts, and your game options. This editor opens that file, lets you change all three, and saves it back in the form the game expects.</p>
@@ -832,6 +890,12 @@ header.top{padding:2.6rem 0 1.4rem;margin-bottom:0;
       <p><b>Some windows are never saved at all</b> &mdash; the main menu, the store, the expanded map and dialogue windows keep no position in the file, so they will not appear in this editor.</p>
       <p><b>Always keep a backup</b> of a layout you are happy with before experimenting. Saving under a second name costs nothing.</p>
 
+      <h3 style="margin-top:1.2rem">Layout checks</h3>
+      <p>Every panel in the file is filed under a numbered <code>Layout</code> group, and the game only looks for each panel in its own group. The <b>Layout checks</b> card on the Screen layout tab flags panels filed in the wrong group, panels with no size, panels that run off the edge, and a hotbar saved twice. Nothing is changed unless you press the fix button beside the warning.</p>
+
+      <h3 style="margin-top:1.2rem">Colour profiles</h3>
+      <p>The Game settings tab can set all the chat channel and combat text colours in one go. <b>DDO default</b> is copied from files the game itself wrote, so it is a true reset. A profile only changes colours that are already in your file, and it keeps each colour&rsquo;s transparency. <b>Save current as&hellip;</b> keeps your own set in this browser so you can apply it to another character&rsquo;s file.</p>
+
       <h3 style="margin-top:1.2rem">Two mistakes this catches for you</h3>
       <p><strong>One shortcut swallowing another.</strong> If you have both <code>;ro</code> and <code>;roar</code>, the shorter one can win and the longer never fires. The Checks panel warns you about every pair like that.</p>
       <p><strong>A stray space before coloured words.</strong> It is easy to end up colouring a blank space instead of the first letter. Colouring words by highlighting them here avoids it entirely.</p>
@@ -851,15 +915,34 @@ const PALETTE = [
   ['#FF0000','Red'],['#FF9900','Orange'],['#FFFF00','Yellow'],['#00FF00','Green'],
   ['#00D8FF','Blue'],['#FF00FF','Magenta'],['#FFFFFF','White'],['#999999','Grey']
 ];
-/* channel prefixes, friendliest first */
+/* Chat channels, in one place. The dropdown, the regex that reads a prefix off
+   a value, and the map that labels it in the preview used to be three lists
+   that had drifted: the regex knew /gu, /shout and /advice but the dropdown
+   did not, so selecting such an alias set the dropdown to "wherever my tab is
+   pointed" and the next commit wrote the value back WITHOUT its prefix. A
+   guild macro quietly became a party one.
+   `pick` is the dropdown label; pick:null is understood when reading but not
+   offered as a choice. */
 const CHANNELS = [
-  [';ch',  'Party — via the ;ch redirect'],
-  ['/p',   'Party'],
-  ['/g',   'Guild'],
-  ['/say', 'Say — nearby players'],
-  ['/em',  'Emote'],
-  ['',     'Wherever my chat tab is pointed']
+  { prefix: ';ch',     label: '[Party]',  pick: 'Party — via the ;ch redirect' },
+  { prefix: '/p',      label: '[Party]',  pick: 'Party' },
+  { prefix: '/g',      label: '[Guild]',  pick: 'Guild' },
+  { prefix: '/gu',     label: '[Guild]',  pick: 'Guild — long form' },
+  { prefix: '/raid',   label: '[Raid]',   pick: 'Raid' },
+  { prefix: '/say',    label: '[Say]',    pick: 'Say — nearby players' },
+  { prefix: '/em',     label: '[Emote]',  pick: 'Emote' },
+  { prefix: '/shout',  label: '[Shout]',  pick: 'Shout' },
+  { prefix: '/advice', label: '[Advice]', pick: 'Advice' },
+  { prefix: '',        label: '',         pick: 'Wherever my chat tab is pointed' }
 ];
+/* Longest first, so /g cannot swallow the /gu in a /gu message, and the
+   prefix must be followed by a space or end of value, so an unrelated command
+   like /gather is left alone rather than split into /g + "ather". */
+const CHANNEL_RE = new RegExp('^(' +
+  CHANNELS.map(c => c.prefix).filter(Boolean)
+          .sort((a, b) => b.length - a.length)
+          .map(x => x.replace(/[/]/g, '\\/')).join('|') +
+  ')(?=\\s|$)\\s*', 'i');
 
 let doc = null;          // parsed XMLDocument
 let aliases = [];        // {name, value}
@@ -898,6 +981,13 @@ $('#btnBlank').onclick = () => { loadedHandle = null; buildBlank(); };
 
 ['dragover','dragleave','drop'].forEach(ev =>
   document.addEventListener(ev, e => { e.preventDefault(); }, false));
+/* dragenter/dragleave also fire crossing every child element, so count the
+   crossings rather than trusting a single leave to mean the pointer has gone. */
+let dragDepth = 0;
+const showDrop = on => document.body.classList.toggle('dropping', on);
+document.addEventListener('dragenter', () => { dragDepth++; showDrop(true); });
+document.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) showDrop(false); });
+document.addEventListener('drop', () => { dragDepth = 0; showDrop(false); });
 document.addEventListener('drop', async e => {
   /* Read everything off dataTransfer now: it is emptied as soon as this
      handler yields, so anything fetched after an await comes back null. */
@@ -1005,9 +1095,7 @@ function closeImport(){ importDoc = null; $('#importBar').classList.add('hidden'
 /* Shortcuts merge by name: yours stay, theirs are added, and where both files
    define the same name theirs wins - that is the point of importing. */
 function mergeAliases(d){
-  const incoming = [...d.querySelectorAll('Aliases > Alias')]
-    .map(n => ({ name: (n.getAttribute('String') || '').trim(), value: n.getAttribute('Value') || '' }))
-    .filter(a => a.name);
+  const incoming = [...d.querySelectorAll('Aliases > Alias')].map(aliasFromNode).filter(a => a.name);
   const byName = new Map();
   aliases.forEach(a => { const k = a.name.trim(); if (k && !byName.has(k)) byName.set(k, a); });
   let added = 0, changed = 0;
@@ -1024,17 +1112,7 @@ function mergeAliases(d){
    exactly where it was. */
 function mergeElements(d){
   const key = e => (e.layoutId || '') + ' ' + e.id;
-  const incoming = [...d.querySelectorAll('Element')].map(n => {
-    const L = n.closest ? n.closest('Layout') : n.parentNode;
-    return {
-      id: n.getAttribute('ID') || '(unnamed)',
-      layoutId: (L && L.getAttribute) ? (L.getAttribute('ID') || '') : '',
-      x: parseFloat(n.getAttribute('X')) || 0,
-      y: parseFloat(n.getAttribute('Y')) || 0,
-      w: parseFloat(n.getAttribute('Width')) || 0,
-      h: parseFloat(n.getAttribute('Height')) || 0
-    };
-  });
+  const incoming = [...d.querySelectorAll('Element')].map(elementFromNode);
   const mine = new Map();
   elements.forEach(e => { if (!mine.has(key(e))) mine.set(key(e), e); });
   let moved = 0, added = 0;
@@ -1050,6 +1128,7 @@ function mergeElements(d){
     }
   });
   learnBarSizes(); enforceBarSizes();
+  clearOverlaps();
   return { moved, added };
 }
 
@@ -1078,36 +1157,45 @@ function runImport(){
   setStatus('Brought in from ' + from + ': ' + said.join('; ') + '. Undo puts it back.');
 }
 
+/* One reader for each kind of node, so opening a file and importing from one
+   cannot drift apart over what counts as a name or a coordinate. */
+const aliasFromNode = n => ({
+  name: (n.getAttribute('String') || '').trim(),
+  value: n.getAttribute('Value') || ''
+});
+const elementFromNode = n => {
+  const L = n.closest ? n.closest('Layout') : n.parentNode;
+  return {
+    id: n.getAttribute('ID') || '(unnamed)',
+    layoutId: (L && L.getAttribute) ? (L.getAttribute('ID') || '') : '',
+    x: parseFloat(n.getAttribute('X')) || 0,
+    y: parseFloat(n.getAttribute('Y')) || 0,
+    w: parseFloat(n.getAttribute('Width')) || 0,
+    h: parseFloat(n.getAttribute('Height')) || 0
+  };
+};
+
 function harvest(){
-  aliases = [...doc.querySelectorAll('Aliases > Alias')].map(n => ({
-    name: n.getAttribute('String') || '', value: n.getAttribute('Value') || ''
-  }));
-  elements = [...doc.querySelectorAll('Element')].map(n => {
-    const L = n.closest ? n.closest('Layout') : n.parentNode;
-    return {
-      id: n.getAttribute('ID') || '(unnamed)',
-      layoutId: (L && L.getAttribute) ? (L.getAttribute('ID') || '') : '',
-      x: parseFloat(n.getAttribute('X')) || 0,
-      y: parseFloat(n.getAttribute('Y')) || 0,
-      w: parseFloat(n.getAttribute('Width')) || 0,
-      h: parseFloat(n.getAttribute('Height')) || 0
-    };
-  });
-  /* remember how the file had each panel, so a single one can be put back */
-  learnBarSizes(); enforceBarSizes();
+  aliases = [...doc.querySelectorAll('Aliases > Alias')].map(aliasFromNode);
+  elements = [...doc.querySelectorAll('Element')].map(elementFromNode);
+  /* Remember how the FILE had each panel, before any normalising of our own,
+     so "put it back as the file had it" means the file. */
   elements.forEach(e => { e.orig = {id:e.id, x:e.x, y:e.y, w:e.w, h:e.h}; });
+  learnBarSizes(); enforceBarSizes();
   const optRoot = doc.querySelector('Options');
   options = optRoot ? [...optRoot.children].map(n => {
     const v = n.getAttribute('Value') || '';
     return { name: n.getAttribute('Name') || n.nodeName, value: v, orig: v };
   }) : [];
   optCat = 'all';
-  selAlias = -1; selEl = -1; if (typeof selSet !== 'undefined') selSet.clear();
+  selAlias = -1; selectClear();
 }
 
 function setStatus(msg, bad){
-  const s = $('#status'); s.textContent = msg;
-  s.style.color = bad ? 'var(--bad)' : 'var(--ink-faint)';
+  const s = $('#status');
+  /* a colour change alone is invisible to some readers: mark errors in text too */
+  s.textContent = (bad ? '\u26A0 ' : '') + msg;
+  s.classList.toggle('bad', !!bad);
 }
 
 /* ---------------- aliases ---------------- */
@@ -1123,15 +1211,27 @@ function renderAliases(){
     td1.appendChild(n);
 
     const td2 = el('td');
-    const v = el('div','vcell');
+    const v = el('button','vcell');
+    v.type = 'button';
     paintValue(v, a.value);
-    v.title = 'Click to edit in the Compose panel';
+    v.title = 'Edit this in the Compose panel';
+    v.setAttribute('aria-label', 'Edit the message for ' + (a.name || 'this shortcut'));
+    v.onclick = ev => { ev.stopPropagation(); selAlias = i; renderAliases(); renderPreview();
+                        const again = $('#aliasBody').children[i];
+                        if (again) again.querySelector('.vcell').focus(); };
     td2.appendChild(v);
 
     const td3 = el('td');
-    const x = el('button','rowbtn'); x.textContent = '✕'; x.title = 'Delete';
-    x.onclick = ev => { ev.stopPropagation(); aliases.splice(i,1); if(selAlias>=aliases.length) selAlias=-1;
-                        renderAliases(); renderPreview(); renderCount(); renderChecks(); };
+    const x = el('button','rowbtn'); x.type = 'button'; x.textContent = '✕';
+    x.title = 'Delete'; x.setAttribute('aria-label', 'Delete the shortcut ' + (a.name || 'with no name'));
+    x.onclick = ev => { ev.stopPropagation();
+      pushUndo();
+      aliases.splice(i,1);
+      /* deleting a row above the selected one shifts it, it does not change which is selected */
+      if (selAlias === i) selAlias = -1;
+      else if (selAlias > i) selAlias--;
+      if (selAlias >= aliases.length) selAlias = -1;
+      renderAliases(); renderPreview(); renderCount(); renderChecks(); };
     td3.appendChild(x);
 
     tr.append(td1, td2, td3); b.appendChild(tr);
@@ -1163,7 +1263,7 @@ function expand(str, depth){
 
 /* ---- split a stored value into {channel, body} ---- */
 function splitChannel(v){
-  const m = v.match(/^(;ch|\/say|\/p|\/g|\/em|\/gu|\/shout|\/advice)\s*/i);
+  const m = v.match(CHANNEL_RE);
   return m ? { chan: m[1].toLowerCase(), body: v.slice(m[0].length) }
            : { chan: '', body: v };
 }
@@ -1190,8 +1290,8 @@ function paintValue(node, value){
   push(shown.slice(last));
 }
 function chanLabel(c){
-  return { ';ch':'[Party]', '/p':'[Party]', '/g':'[Guild]', '/say':'[Say]',
-           '/em':'[Emote]', '/gu':'[Guild]', '/shout':'[Shout]', '/advice':'[Advice]' }[c] || '';
+  const hit = CHANNELS.find(x => x.prefix === c);
+  return hit ? hit.label : '';
 }
 
 /* ---- compose panel: rich text in, tags out ---- */
@@ -1208,7 +1308,9 @@ function buildPalette(){
     pal.appendChild(b);
   });
   const sel = $('#chanSel'); sel.textContent = '';
-  CHANNELS.forEach(([v, label]) => { const o = el('option'); o.value = v; o.textContent = label; sel.appendChild(o); });
+  CHANNELS.filter(c => c.pick).forEach(c => {
+    const o = el('option'); o.value = c.prefix; o.textContent = c.pick; sel.appendChild(o);
+  });
   sel.onchange = commitCompose;
 }
 
@@ -1220,7 +1322,7 @@ function renderPreview(){          // fills the Compose panel for the selected r
   box.contentEditable = 'true';
   $('#composeHint').textContent = 'Highlight some words, then click a colour.';
   const { chan, body } = splitChannel(a.value);
-  sel.value = CHANNELS.some(c => c[0] === chan) ? chan : '';
+  sel.value = CHANNELS.some(c => c.prefix === chan && c.pick) ? chan : '';
   box.innerHTML = tagsToHtml(body);
   raw.value = a.value;
 }
@@ -1350,7 +1452,6 @@ $('#rawBox').oninput = () => {
   const row = document.querySelectorAll('#aliasBody tr')[selAlias];
   if (row) paintValue(row.querySelector('.vcell'), a.value);
 };
-document.addEventListener('DOMContentLoaded', () => {});
 $('#compose').addEventListener('input', commitCompose);
 $('#compose').addEventListener('blur', commitCompose);
 
@@ -1421,12 +1522,14 @@ function friendly(id){
   if (EL_NAMES[id]) return EL_NAMES[id];
   const m = id.match(/^UndockedShortcut(\d+)_(Horizontal|Vertical)/);
   if (m) return 'Hotbar ' + (+m[1] + 1) + ' (' + m[2].toLowerCase() + ')';
+  const hm = id.match(/^UndockedHenchmen(\d+)_(Horizontal|Vertical)/);
+  if (hm) return 'Hireling bar ' + (+hm[1] + 1) + ' (undocked, ' + hm[2].toLowerCase() + ')';
   return id.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2');
 }
 /* Draw each panel as the widget it really is, so the canvas reads as a
    game screen rather than a pile of rectangles. */
 function elKind(id){
-  const m = id.match(/^UndockedShortcut\d+_(Horizontal|Vertical)/);
+  const m = id.match(/^Undocked(?:Shortcut|Henchmen)\d+_(Horizontal|Vertical)/);
   if (m) return m[1] === 'Vertical' ? 'vbar' : 'hbar';
   if (id === 'ShortcutsBar' || id === 'HenchmanBar') return 'hbar';
   if (id === 'Vitals' || id === 'Vitals_minimal') return 'vitals';
@@ -1445,9 +1548,49 @@ const HUD_IDS = new Set(['Vitals','Vitals_minimal','RadarField','ChatDisplay1','
   'ShortcutsBar','Quest_Field','GlobalObjectives','FocusField','FocusOrb','FocusOrb_Classic',
   'FellowshipDisplay','HenchmanBar','TumbleDisplay','Hud_NetStatus_Vessel','PendingChallengeButton',
   'AlchemistReactionDisplay','Dice_Field','HotQuestJournal_QuestEntry','HotStoryQuestJournal_QuestEntry']);
-const isHud = id => HUD_IDS.has(id) || /^UndockedShortcut/.test(id);
+const isHud = id => HUD_IDS.has(id) || /^Undocked(Shortcut|Henchmen)/.test(id);
 let showHud = true;
+
+/* Which <Layout ID> the game files each panel under. Read from layouts the
+   client itself wrote, and identical across every file seen. An Element
+   written under the wrong Layout is not picked up in game, so anything this
+   editor creates goes exactly where the game would have put it. */
+const LAYOUT_IDS = {
+  FellowshipDisplay:'0x2200000B', FocusField:'0x2200000B', PendingChallengeButton:'0x2200000B',
+  FocusOrb:'0x2200000B', TumbleDisplay:'0x2200000B', HenchmanBar:'0x2200000B', Vitals:'0x2200000B',
+  AlchemistReactionDisplay:'0x2200000B', FocusOrb_Classic:'0x2200000B', Vitals_minimal:'0x2200000B',
+  Hud_NetStatus_Vessel:'0x2200000B', ShortcutsBar:'0x2200000B',
+  ChatDisplay1:'0x2200008B', ChatDisplay2:'0x2200008B',
+  RadarField:'0x2200009E', Quest_Field:'0x22000040', GlobalObjectives:'0x2200084D',
+  HotQuestJournal_QuestEntry:'0x2200004A', HotStoryQuestJournal_QuestEntry:'0x220006ED',
+  Dice_Field:'0x220000A1',
+  CharacterSheetField:'0x22000019', Inventory_Field:'0x22000015', SocialField:'0x22000076',
+  Guild_Bank_Field:'0x2200008F', Bank_Field:'0x2200008F', Account_Bank_Field:'0x2200008F',
+  Character_Bank_Field:'0x2200008F', Reincarnation_Bank_Field:'0x2200008F',
+  Auction_MainFieldBlackMarket:'0x220005DE', Auction_MainField:'0x220005DE',
+  Mail_MainField:'0x220005CB', AdventureCompendium_Field:'0x220005DC',
+  ArenaScoring_SummaryPanel:'0x220005E3', ArenaQueue_AdminSummaryPanel:'0x22000600',
+  PetCharacterSheet_MainField:'0x22000739', EpicDesitiny_Menu:'0x22000858',
+  MonsterManual_Menu:'0x22000859', DailiesRewardField:'0x22000862',
+  reincarnation_mainField:'0x22000870', AmenityInventory_Menu:'0x22000872',
+  ImageRewardGallery_Menu:'0x22000876', AirshipShowroom_Menu:'0x2200087B',
+  HenchmanCustomizeAI_Menu:'0x2200087D', Augment_MainField:'0x22000880',
+  SentientSlot_MainField:'0x22000885', BaseOptionsField:'0x22000099'
+};
+function layoutIdFor(id){
+  if (LAYOUT_IDS[id]) return LAYOUT_IDS[id];
+  if (/^UndockedShortcut/.test(id)) return '0x22000069';
+  if (/^UndockedHenchmen/.test(id)) return '0x220006F3';
+  return null;
+}
 const visibleIdx = () => elements.map((e,i)=>i).filter(i => isHud(elements[i].id) === showHud);
+
+/* renderScreen rebuilds every panel node, which drops focus; keyboard actions
+   call this to put it back on the panel being worked on. */
+function focusPanel(i){
+  const n = $('#screen').querySelector('.el[data-i="' + i + '"]');
+  if (n) n.focus();
+}
 
 function renderScreen(){
   const s = $('#screen');
@@ -1476,7 +1619,21 @@ function renderScreen(){
     if (flagged) { const bd = el('span','ovlbadge'); bd.textContent = 'overlap'; d.appendChild(bd); }
     d.title = friendly(e.id) + '  (' + e.id + ')';
     d.dataset.i = i;
+    d.tabIndex = 0;
+    d.setAttribute('role', 'button');
+    d.setAttribute('aria-label', friendly(e.id));
+    d.setAttribute('aria-pressed', chosen ? 'true' : 'false');
     d.onpointerdown = ev => startDrag(ev, i, d);
+    d.onfocus = () => { if (!selSet.has(i)) { selectOnly(i); renderScreen(); focusPanel(i); } };
+    d.onkeydown = ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        if (ev.ctrlKey || ev.metaKey || ev.shiftKey) {
+          if (selSet.has(i) && selSet.size > 1) selSet.delete(i); else { selSet.add(i); selEl = i; }
+        } else selectOnly(i);
+        renderScreen(); focusPanel(i);
+      }
+    };
     if (i === selEl && selSet.size === 1 && !HOTBAR_RE.test(e.id)) ['nw','n','ne','e','se','s','sw','w'].forEach(dir => {
       const hnd = el('div','hd ' + dir);
       hnd.onpointerdown = ev => startResize(ev, i, dir);
@@ -1492,7 +1649,70 @@ function renderScreen(){
   $('#winCard').classList.toggle('hidden', showHud);
   $('#presetCard').classList.toggle('hidden', !showHud);
   $('#barsCard').classList.toggle('hidden', !showHud);
-  renderElList(); renderFields(); renderBars(); syncArrange();
+  renderElList(); renderFields(); renderBars(); syncArrange(); renderLayoutChecks();
+}
+
+/* ---- layout checks ----
+   The client never complains about a bad entry; it just does not use it.
+   These are the ways a file can go wrong that you cannot see on the canvas.
+   The game's own files carry -0.000195 for a panel flush against an edge,
+   so a small tolerance is deliberate. */
+function layoutIssues(){
+  const out = [];
+  const seen = new Map();
+  const barSeen = new Map();
+  elements.forEach((e, i) => {
+    if (e.w <= 0 || e.h <= 0) {
+      out.push({cls:'bad', idx:[i], text: friendly(e.id) + ' has no size, so the game has nothing to draw.'});
+    } else if (e.x < -0.002 || e.y < -0.002 || e.x + e.w > 1.002 || e.y + e.h > 1.002) {
+      const whole = e.x + e.w <= 0 || e.y + e.h <= 0 || e.x >= 1 || e.y >= 1;
+      out.push({cls: whole ? 'bad' : 'warn', idx:[i],
+        text: friendly(e.id) + (whole ? ' is completely off screen.' : ' runs off the edge of the screen.'),
+        fix:{label:'Pull on screen', run:() => { pushUndo();
+          e.x = clamp(e.x, 0, Math.max(0, 1 - e.w)); e.y = clamp(e.y, 0, Math.max(0, 1 - e.h)); }}});
+    }
+    const want = layoutIdFor(e.id);
+    if (want && e.layoutId && want !== e.layoutId) {
+      out.push({cls:'warn', idx:[i],
+        text: friendly(e.id) + ' is filed under Layout ' + e.layoutId + '; the game keeps it under ' + want + ' and will not find it here.',
+        fix:{label:'Refile', run:() => { pushUndo(); e.layoutId = want; }}});
+    }
+    const k = (e.layoutId || '') + ' ' + e.id;
+    if (seen.has(k)) out.push({cls:'bad', idx:[seen.get(k), i],
+      text: friendly(e.id) + ' appears twice in the same Layout. Only one entry can win.'});
+    else seen.set(k, i);
+    const m = e.id.match(HOTBAR_RE);
+    if (m) {
+      if (barSeen.has(m[1])) out.push({cls:'warn', idx:[barSeen.get(m[1]), i],
+        text: 'Hotbar ' + (+m[1].replace('UndockedShortcut','') + 1) + ' is saved both horizontal and vertical. The game only has one of it.'});
+      else barSeen.set(m[1], i);
+    }
+  });
+  return out;
+}
+function renderLayoutChecks(){
+  const box = $('#layoutIssues'); if (!box) return;
+  box.textContent = '';
+  const list = elements.length ? layoutIssues() : [];
+  const c = $('#lcCount');
+  c.textContent = !elements.length ? '' : list.length ? list.length + ' to look at' : 'all clear';
+  c.classList.toggle('live', list.length > 0);
+  if (!elements.length) { const d = el('div','issue ok'); d.textContent = 'No file loaded yet.'; box.appendChild(d); return; }
+  if (!list.length) { const d = el('div','issue ok'); d.textContent = 'Every panel is on screen, has a size, and is filed where the game looks for it.'; box.appendChild(d); return; }
+  list.forEach(it => {
+    const d = el('div','issue click ' + it.cls);
+    const t = el('span'); t.textContent = it.text; d.appendChild(t);
+    d.onclick = () => {
+      showHud = isHud(elements[it.idx[0]].id); syncGroupBtns();
+      clearOverlaps(); selSet = new Set(it.idx); selEl = it.idx[0]; renderScreen();
+    };
+    if (it.fix) {
+      const b = el('button','fix'); b.textContent = it.fix.label;
+      b.onclick = ev => { ev.stopPropagation(); it.fix.run(); renderScreen(); };
+      d.appendChild(b);
+    }
+    box.appendChild(d);
+  });
 }
 
 function renderElList(){
@@ -1540,6 +1760,9 @@ function enforceBarSizes(){
   elements.forEach(e => {
     const m = e.id.match(HOTBAR_RE); if (!m) return;
     const s = barSizeFor(m[2] === 'Vertical');
+    /* Real files carry 0.030555 and 0.030556 for the same bar; rewriting
+       those makes a saved file differ from the one just opened for nothing. */
+    if (Math.abs(e.w - s.w) < 1e-4 && Math.abs(e.h - s.h) < 1e-4) return;
     e.w = s.w; e.h = s.h;
   });
 }
@@ -1551,21 +1774,21 @@ function barIndexOf(n){
   });
 }
 function hotbarLayoutId(){
-  const existing = elements.find(e => HOTBAR_RE.test(e.id));
-  if (existing) return existing.layoutId;
-  const any = elements.find(e => e.layoutId);
-  return any ? any.layoutId : '0x22000069';
+  /* the game keeps every hotbar under one Layout; never borrow another panel's */
+  const existing = elements.find(e => HOTBAR_RE.test(e.id) && e.layoutId);
+  return existing ? existing.layoutId : layoutIdFor('UndockedShortcut0_Horizontal_MarkerList');
 }
 function toggleBar(n){
   pushUndo();
   const i = barIndexOf(n);
-  if (i >= 0) { elements.splice(i,1); selSet.clear(); selEl = -1; }
+  clearOverlaps();          /* indices shift under us either way */
+  if (i >= 0) { elements.splice(i,1); selectClear(); }
   else {
-    const act = activeBars();
+    const bars = activeBars();
     elements.push({ id: barId(n,false), layoutId: hotbarLayoutId(),
-      x: 0.345, y: clamp(0.840 - act.length*(BAR_H.h + 0.004), 0.05, 0.94),
+      x: 0.345, y: clamp(0.840 - bars.length*(BAR_H.h + 0.004), 0.05, 0.94),
       w: BAR_H.w, h: BAR_H.h });
-    selEl = elements.length - 1;
+    selectOnly(elements.length - 1);
   }
   renderScreen();
 }
@@ -1777,6 +2000,8 @@ function applyLayoutPreset(key){
       e.w = B.w; e.h = B.h; e.x = B.x; e.y = B.startY - k*B.step;
     }
   });
+  /* the preset carries bar sizes of its own, but the game decides those */
+  enforceBarSizes();
   showHud = true; syncGroupBtns(); renderScreen();
   setStatus(P.note);
 }
@@ -1821,17 +2046,36 @@ function renderFields(){
     $('#btnRotate').textContent = m[2] === 'Horizontal' ? 'Make vertical' : 'Make horizontal';
     $('#rotNote').textContent = 'currently ' + m[2].toLowerCase();
   }
+  $('#fixedNote').classList.toggle('hidden', !m);
   ['x','y','w','h'].forEach(k => {
     const f = $('#f' + k);
-    f.value = e ? e[k].toFixed(6) : '';
-    f.disabled = !e;
+    /* never overwrite the box being typed in: this runs on every renderScreen,
+       including the one the field's own handler triggers */
+    if (document.activeElement !== f) f.value = e ? e[k].toFixed(6) : '';
+    f.disabled = !e || (!!m && (k === 'w' || k === 'h'));
   });
+  renderPixels();
 }
+/* The file stores fractions, but the game draws pixels: show what this panel
+   comes to on the screen size chosen in Change resolution. */
+function renderPixels(){
+  const p = $('#pxNote'); if (!p) return;
+  const e = elements[selEl];
+  const rs = ($('#resFrom').value || '').split('x').map(Number);
+  if (!e || rs.length !== 2 || !rs[0]) { p.textContent = ''; return; }
+  const r = (v, s) => Math.round(v * s);
+  p.textContent = 'At ' + rs[0] + ' x ' + rs[1] + ': ' + r(e.w, rs[0]) + ' x ' + r(e.h, rs[1]) +
+    ' px, top-left at ' + r(e.x, rs[0]) + ', ' + r(e.y, rs[1]) +
+    ' — ' + r(1 - e.x - e.w, rs[0]) + ' px from the right, ' + r(1 - e.y - e.h, rs[1]) + ' px from the bottom.';
+}
+$('#resFrom').addEventListener('change', renderPixels);
 ['x','y','w','h'].forEach(k => {
   $('#f'+k).oninput = () => {
     const e = elements[selEl]; if (!e) return;
     const v = parseFloat($('#f'+k).value); if (isNaN(v)) return;
-    e[k] = v; renderScreen();
+    if ((k === 'w' || k === 'h') && HOTBAR_RE.test(e.id)) return;   // game owns bar size
+    e[k] = (k === 'w' || k === 'h') ? clamp(v, 0.001, 1) : clamp(v, 0, 1);
+    renderScreen();
   };
 });
 
@@ -1841,20 +2085,39 @@ const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 let undoStack = [], redoStack = [];
 /* Snapshots carry the whole panel list, not just geometry: adding or removing
    a hotbar, or importing a screen layout, changes the list's length, and an
-   index-by-index restore silently leaves those changes in place. */
-const snapshot = () => elements.map(e => ({id:e.id, layoutId:e.layoutId, x:e.x, y:e.y, w:e.w, h:e.h, orig:e.orig}));
-function pushUndo(){ undoStack.push(snapshot()); if (undoStack.length > 60) undoStack.shift();
-                     redoStack = []; syncUndo(); }
-function restore(list){
-  if (list.length !== elements.length) { selSet.clear(); selEl = -1; }
+   index-by-index restore silently leaves those changes in place. Aliases ride
+   along too, so deleting a shortcut can be undone. */
+const snapshot = () => ({
+  elements: elements.map(e => ({id:e.id, layoutId:e.layoutId, x:e.x, y:e.y, w:e.w, h:e.h, orig:e.orig})),
+  aliases:  aliases.map(a => ({name:a.name, value:a.value})),
+  selAlias
+});
+function pushUndo(){ commitUndo(snapshot()); }
+/* A press that never moves is not an edit. Gestures take their snapshot up
+   front but only hand it over here once the pointer has actually travelled,
+   which keeps inspection clicks out of the history. */
+function commitUndo(snap){
+  if (!snap) return;
+  undoStack.push(snap); if (undoStack.length > 60) undoStack.shift();
+  redoStack = []; syncUndo();
+}
+function restore(snap){
+  if (snap.elements.length !== elements.length) { selSet.clear(); selEl = -1; }
+  clearOverlaps();
   elements.length = 0;
-  list.forEach(s => elements.push({id:s.id, layoutId:s.layoutId, x:s.x, y:s.y, w:s.w, h:s.h, orig:s.orig}));
+  snap.elements.forEach(e => elements.push({id:e.id, layoutId:e.layoutId, x:e.x, y:e.y, w:e.w, h:e.h, orig:e.orig}));
+  aliases.length = 0;
+  snap.aliases.forEach(a => aliases.push({name:a.name, value:a.value}));
+  selAlias = snap.selAlias < aliases.length ? snap.selAlias : -1;
+}
+function renderAfterUndo(){
+  renderScreen(); renderAliases(); renderPreview(); renderCount(); renderChecks();
 }
 function syncUndo(){ $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
 $('#btnUndo').onclick = () => { if (!undoStack.length) return;
-  redoStack.push(snapshot()); restore(undoStack.pop()); syncUndo(); renderScreen(); };
+  redoStack.push(snapshot()); restore(undoStack.pop()); syncUndo(); renderAfterUndo(); };
 $('#btnRedo').onclick = () => { if (!redoStack.length) return;
-  undoStack.push(snapshot()); restore(redoStack.pop()); syncUndo(); renderScreen(); };
+  undoStack.push(snapshot()); restore(redoStack.pop()); syncUndo(); renderAfterUndo(); };
 
 /* ---- rulers + grid ---- */
 function gridStep(){ return parseFloat($('#gridSize').value); }
@@ -2035,12 +2298,13 @@ $('#aspect').onchange = () => { $('#screen').style.aspectRatio = $('#aspect').va
 
 /* ---- snapping ---- */
 const TOL = 0.006;                       // ~6px on a 1000px-wide stage
-function snapTargets(skipIdx, bypass){
+function snapTargets(skip, bypass){
   const xs = [], ys = [];
   if (bypass) return {xs, ys};
+  const skipping = skip instanceof Set ? skip : new Set([skip]);
   if ($('#snapEdge').checked) { xs.push(0, 0.5, 1); ys.push(0, 0.5, 1); }
   if ($('#snapEl').checked) {
-    visibleIdx().forEach(i => { if (i === skipIdx) return; const o = elements[i];
+    visibleIdx().forEach(i => { if (skipping.has(i)) return; const o = elements[i];
       xs.push(o.x, o.x + o.w/2, o.x + o.w); ys.push(o.y, o.y + o.h/2, o.y + o.h); });
   }
   return {xs, ys};
@@ -2066,7 +2330,7 @@ function clearOverlaps(){
   if (!overlapSet.size) return false;
   overlapSet.clear();
   const b = document.getElementById('btnOverlap');
-  if (b) { b.textContent = 'Find overlaps'; b.removeAttribute('aria-pressed'); }
+  if (b) { b.textContent = 'Find overlaps'; b.setAttribute('aria-pressed','false'); }
   return true;
 }
 function selectOnly(i){ clearOverlaps(); selSet = new Set(i >= 0 ? [i] : []); selEl = i; }
@@ -2080,6 +2344,7 @@ function syncArrange(){
   c.classList.toggle('live', n > 1);
   document.querySelectorAll('.btn.ar').forEach(b => b.disabled = n < 2);
   document.querySelectorAll('.btn.ar3').forEach(b => b.disabled = n < 3);
+  document.querySelectorAll('.btn.ar1').forEach(b => b.disabled = n < 1);
 }
 
 let act = null;
@@ -2091,10 +2356,9 @@ function startDrag(ev, i, node){
     renderScreen(); ev.preventDefault(); return;
   }
   if (!selSet.has(i)) selectOnly(i); else selEl = i;
-  pushUndo();
   const s = $('#screen').getBoundingClientRect(), e = elements[i];
   act = {mode:'move', i, sx:ev.clientX, sy:ev.clientY, ox:e.x, oy:e.y, ow:e.w, oh:e.h,
-         W:s.width, H:s.height,
+         W:s.width, H:s.height, pending:snapshot(), moved:false,
          group:[...selSet].map(k => ({k, x:elements[k].x, y:elements[k].y}))};
   try { node.setPointerCapture(ev.pointerId); } catch (err) {}
   ev.preventDefault();
@@ -2204,7 +2468,7 @@ $('#screen').addEventListener('contextmenu', ev => {
 
   openCtx(ev.clientX, ev.clientY, [
     {label:'Select every ' + (bar ? 'hotbar' : kindWord(kind)), run:() => {
-      selSet = new Set(idx.filter(k => elKind(elements[k].id) === kind));
+      selSet = new Set(idx.filter(k => bar ? HOTBAR_RE.test(elements[k].id) : elKind(elements[k].id) === kind));
       selEl = i; renderScreen();
     }},
     '-',
@@ -2322,20 +2586,39 @@ document.querySelectorAll('[data-size]').forEach(btn => btn.onclick = () => {
     if (what === 'w' || what === 'wh') e.w = ref.w;
     if (what === 'h' || what === 'wh') e.h = ref.h;
   });
-  renderScreen(); setStatus('Matched ' + list.length + ' panels to ' + friendly(ref.id) + '.');
+  renderScreen();
+  setStatus('Matched ' + (list.length - skipped) + ' panel' + (list.length - skipped === 1 ? '' : 's') +
+    ' to ' + friendly(ref.id) + '.' +
+    (skipped ? ' ' + skipped + ' hotbar' + (skipped === 1 ? ' was' : 's were') + ' left alone - the game sets their size.' : ''));
+});
+
+/* Mirror across the screen's centre line. Sizes stay put; only the distance
+   from the edge swaps sides, so a right-hand column becomes a left-hand one. */
+document.querySelectorAll('[data-mirror]').forEach(btn => btn.onclick = () => {
+  const list = selected(); if (!list.length) return;
+  pushUndo();
+  const horiz = btn.dataset.mirror === 'h';
+  list.forEach(e => { if (horiz) e.x = +(1 - e.x - e.w).toFixed(6); else e.y = +(1 - e.y - e.h).toFixed(6); });
+  renderScreen();
+  setStatus('Mirrored ' + list.length + ' panel' + (list.length===1?'':'s') + (horiz ? ' left to right.' : ' top to bottom.'));
 });
 function startResize(ev, i, dir){
-  selEl = i; pushUndo();
+  selEl = i;
   const s = $('#screen').getBoundingClientRect(), e = elements[i];
-  act = {mode:'size', dir, i, sx:ev.clientX, sy:ev.clientY, ox:e.x, oy:e.y, ow:e.w, oh:e.h, W:s.width, H:s.height};
+  act = {mode:'size', dir, i, sx:ev.clientX, sy:ev.clientY, ox:e.x, oy:e.y, ow:e.w, oh:e.h,
+         W:s.width, H:s.height, pending:snapshot(), moved:false};
   try { ev.target.setPointerCapture(ev.pointerId); } catch (err) {}
   ev.preventDefault(); ev.stopPropagation();
 }
 document.addEventListener('pointermove', ev => {
   if (!act) return;
   const e = elements[act.i];
+  if (!act.moved) { act.moved = true; commitUndo(act.pending); act.pending = null; }
   const dx = (ev.clientX - act.sx)/act.W, dy = (ev.clientY - act.sy)/act.H;
-  const {xs, ys} = snapTargets(act.i, ev.ctrlKey || ev.metaKey);
+  /* everything travelling with the pointer is excluded from the snap targets,
+     otherwise a group snaps to its own members and crawls in TOL-sized steps */
+  const carried = act.mode === 'move' ? new Set(act.group.map(g2 => g2.k)) : act.i;
+  const {xs, ys} = snapTargets(carried, ev.ctrlKey || ev.metaKey);
   const bypass = ev.ctrlKey || ev.metaKey;
   const grid = ($('#snapGrid').checked && !bypass) ? gridStep() : 0;
   const gsnap = v => grid ? Math.round(v/grid)*grid : v;
@@ -2384,33 +2667,63 @@ document.addEventListener('keydown', ev => {
   const e = elements[selEl]; if (!e) return;
   const tag = (ev.target.tagName || '').toLowerCase();
   if (tag === 'input' || tag === 'select' || tag === 'textarea' || ev.target.isContentEditable) return;
+  /* only take the arrows when focus is on a panel or in the panel list, so the
+     rest of the page can still be scrolled with the keyboard */
+  const screen = $('#screen'), list = $('#elList');
+  const inCanvas = (screen && screen.contains(ev.target)) || (list && list.contains(ev.target));
+  if (!inCanvas) return;
   const map = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]};
   const m = map[ev.key]; if (!m) return;
   ev.preventDefault(); pushUndo();
   const step = ev.shiftKey ? gridStep() : 0.002;
   const targets = selSet.size ? [...selSet].map(k2 => elements[k2]).filter(Boolean) : [e];
   targets.forEach(t2 => {
-    if (ev.altKey) { t2.w = Math.max(0.008, t2.w + m[0]*step); t2.h = Math.max(0.008, t2.h + m[1]*step); }
-    else { t2.x = clamp(t2.x + m[0]*step, -0.25, 1.25); t2.y = clamp(t2.y + m[1]*step, -0.25, 1.25); }
+    /* Alt resizes - except a hotbar, whose size the game decides */
+    if (ev.altKey && !HOTBAR_RE.test(t2.id)) {
+      t2.w = Math.max(0.008, t2.w + m[0]*step); t2.h = Math.max(0.008, t2.h + m[1]*step);
+    } else if (!ev.altKey) {
+      t2.x = clamp(t2.x + m[0]*step, -0.25, 1.25); t2.y = clamp(t2.y + m[1]*step, -0.25, 1.25);
+    }
   });
+  const wasPanel = $('#screen').contains(ev.target);
   renderScreen();
+  if (wasPanel) focusPanel(selEl);
 });
 
-/* ---- align to screen ---- */
+/* ---- align to screen ----
+   Runs over every selected panel, each measured against the screen on its own
+   (not the group's bounding box - that is what "Line up their edges" is for).
+   A stack of hotbars wants each bar centred across while the spacing between
+   them is left alone. */
 document.querySelectorAll('[data-snap]').forEach(b => b.onclick = () => {
-  const e = elements[selEl]; if (!e) return;
+  const list = selected();
+  const targets = list.length ? list : (elements[selEl] ? [elements[selEl]] : []);
+  if (!targets.length) return;
   pushUndo();
   const p = b.dataset.snap;
-  if (p === 'tl') { e.x = 0; e.y = 0; }
-  if (p === 'tr') { e.x = 1 - e.w; e.y = 0; }
-  if (p === 'bl') { e.x = 0; e.y = 1 - e.h; }
-  if (p === 'br') { e.x = 1 - e.w; e.y = 1 - e.h; }
-  if (p === 'c')  { e.x = (1 - e.w)/2; e.y = (1 - e.h)/2; }
-  if (p === 'hc') { e.x = (1 - e.w)/2; }
-  if (p === 'vc') { e.y = (1 - e.h)/2; }
-  if (p === 'l')  { e.x = 0; }   if (p === 'r') { e.x = 1 - e.w; }
-  if (p === 't')  { e.y = 0; }   if (p === 'b') { e.y = 1 - e.h; }
+  targets.forEach(e => {
+    if (p === 'tl') { e.x = 0; e.y = 0; }
+    if (p === 'tr') { e.x = 1 - e.w; e.y = 0; }
+    if (p === 'bl') { e.x = 0; e.y = 1 - e.h; }
+    if (p === 'br') { e.x = 1 - e.w; e.y = 1 - e.h; }
+    if (p === 'c')  { e.x = (1 - e.w)/2; e.y = (1 - e.h)/2; }
+    if (p === 'hc') { e.x = (1 - e.w)/2; }
+    if (p === 'vc') { e.y = (1 - e.h)/2; }
+    if (p === 'l')  { e.x = 0; }   if (p === 'r') { e.x = 1 - e.w; }
+    if (p === 't')  { e.y = 0; }   if (p === 'b') { e.y = 1 - e.h; }
+  });
   renderScreen();
+  if (targets.length > 1) {
+    const WHERE = { tl:'the top left corner', tr:'the top right corner',
+                    bl:'the bottom left corner', br:'the bottom right corner',
+                    c:'dead centre', hc:'the centre, side to side',
+                    vc:'the centre, top to bottom', l:'the left edge',
+                    r:'the right edge', t:'the top edge', b:'the bottom edge' };
+    const sameY = ['t','b','vc','c','tl','tr','bl','br'].includes(p);
+    setStatus('Moved ' + targets.length + ' panels to ' + WHERE[p] + ', each measured against the screen on its own.' +
+      (sameY ? ' They are stacked on top of each other now - undo if you wanted their spacing kept.'
+             : ' The spacing between them is unchanged.'));
+  }
 });
 
 /* ---------------- options ---------------- */
@@ -2428,11 +2741,60 @@ function hexToFloats(hex, keepAlpha){
 }
 const alphaOf = v => { const p = v.trim().split(/\s+/); return p.length > 3 ? p[3] : '1.000'; };
 
+/* ---- will this colour actually be readable in game? ----
+   Chat lines and floating combat text both land on a near-black backdrop, so
+   what decides legibility is luminance against that, not how a swatch looks on
+   this page. Standard WCAG ratio; 4.5:1 is the usual floor for body text. The
+   backdrop is a fixed number: the game's window does not follow this page's
+   light or dark theme. */
+const GAME_BACKDROP = '#0C1015';
+const LOW_CONTRAST = 4.5;
+function relLuminance(hex){
+  const chan = i => {
+    const c = parseInt(hex.substr(1 + i * 2, 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * chan(0) + 0.7152 * chan(1) + 0.0722 * chan(2);
+}
+function contrastOnGame(hex){
+  const a = relLuminance(hex), b = relLuminance(GAME_BACKDROP);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+/* Two settings in one family carrying the same colour means two different
+   events look identical in play - a kill and a hit, a heal and a reduced heal. */
+function colourTwins(target){
+  if (!isColourVal(target.value)) return [];
+  const mine = floatsToHex(target.value), cat = catOf(target.name);
+  return options.filter(o => o !== target && isColourVal(o.value) &&
+                             catOf(o.name) === cat &&
+                             floatsToHex(o.value) === mine)
+                .map(o => optLabel(o.name));
+}
+function colourNotes(o){
+  const notes = [];
+  const hex = floatsToHex(o.value);
+  const r = contrastOnGame(hex);
+  if (r < LOW_CONTRAST) {
+    notes.push('Hard to read in game: ' + r.toFixed(1) + ':1 against the chat backdrop, ' +
+               'below the 4.5:1 that stays legible in a fight.' +
+               (r < 2 ? ' At this level it is very nearly invisible.' : ''));
+  }
+  const twins = colourTwins(o);
+  if (twins.length) notes.push('The same colour as ' + twins.join(' and ') + ', so you cannot tell them apart.');
+  const a = alphaOf(o.value);
+  if (parseFloat(a) < 1) notes.push('Partly transparent in the file (alpha ' + a + '), which fades it further.');
+  return notes;
+}
+/* changing one colour can create or clear a clash on a different row */
+let colourPainters = [];
+function refreshColourFlags(){ colourPainters.forEach(f => f()); }
+
 /* known drop-down values */
 const OPT_ENUMS = {
   HotQuestPanelState: ['Opaque','Transparent','Hidden'],
   Map_Level: ['Game','World','Region'],
-  Map_Region: ['ForgottenRealms','Eberron']
+  /* the client writes Stormreach for Eberron, as seen in saved files */
+  Map_Region: ['Stormreach','ForgottenRealms']
 };
 
 /* categories, in the order they are shown */
@@ -2465,8 +2827,251 @@ function optLabel(name){
 let optCat = 'all';
 function optDefault(o){ return o.orig != null ? o.orig : o.value; }
 
+/* What each setting does, in the words the in-game Options panel uses where
+   it has them. Built from the option set the client writes today; anything
+   not listed is shown as unrecognised and passed through untouched. */
+const OPT_HELP = {
+  AcceptChallengeRequest:'Let other players send you PvP challenge requests.',
+  AcceptGuildRequest:'Let other players invite you to a guild.',
+  AcceptPartyRequest:'Let other players invite you to a party.',
+  AcceptTradeRequest:'Let other players open a trade window with you.',
+  AllowTemporaryMouselookSuspension:'Holding the mouse-look key briefly frees the cursor.',
+  Attack_ClickAndHold:'Hold the attack button to keep swinging instead of clicking each time.',
+  AutoHide_TargetUI:'Hide the target panel when nothing is targeted.',
+  AutoTargetBreakables:'Automatically target crates, barrels and other breakables.',
+  AutoTargetMonsters:'Automatically target the nearest monster.',
+  AutoTargetNonMonsters:'Automatically target NPCs, levers, doors and other usable things.',
+  AutoattackOnDoubleclick:'Double-clicking a target starts auto-attack.',
+  ChatReset:'Put the chat tabs back to the default set next time the game loads.',
+  DisableAdviceChatInPrivate:'Mute the Advice channel while inside a quest.',
+  DisableGeneralChatInPrivate:'Mute the General channel while inside a quest.',
+  DisableTradeChatInPrivate:'Mute the Trade channel while inside a quest.',
+  DisableChatFiltering:'Turn the profanity filter off.',
+  DungeonExitConfirmation:'Ask before you leave a quest.',
+  Examination_LongDescriptions:'Show the long form of item descriptions when examining.',
+  GlobalObjectivesOff:'Hide the objectives bar.',
+  HintsOff:'Hide the gameplay hint pop-ups.',
+  HintsReset:'Show every hint again as though new.',
+  HirelingStandGroundBanners:'Show a banner over a hireling told to stand its ground.',
+  HotQuestPanelState:'How the quest tracker is drawn: solid, see-through, or hidden.',
+  LFX_Enable:'Keyboard and mouse lighting effects (Alienware and Logitech).',
+  LockShortcutBars:'Stop hotbars being dragged out of place by accident.',
+  Map_Level:'Which map level opens first.',
+  Map_LockToPlayer:'Keep the map centred on you.',
+  Map_Region:'The region the map last showed.',
+  MouseOverFriendlyInDungeon:'Mouse-over targeting of friendly players while in a quest.',
+  MouseTargetingOn:'Click on things in the world to target them.',
+  PlayLocalizedDMTextSound:'Play the sound that goes with Dungeon Master narration.',
+  QuestEndRewardsBasedOnClass:'Lean end-of-quest reward lists towards your class.',
+  Show3D_Portrait:'Animated 3D portrait in the target panel.',
+  ShowBigVitals:'Use the larger health and spell point display.',
+  ShowComparisonTooltips:'Show what you are wearing beside an item tooltip.',
+  ShowDragonmarkOff:'Hide your dragonmark.',
+  ShowDroppedQuestItemsAlert:'Warn when you are about to leave quest items behind.',
+  ShowGuildMemberStatusMessage:'Announce guild members logging in and out.',
+  ShowMonsterOverheadAwarenessIcons:'Icons above monsters showing whether they have noticed you.',
+  ShowMonsterOverheadHealthBars:'Health bars above monsters.',
+  ShowOverheadCosmeticPetNames:'Names above cosmetic pets.',
+  ShowOverheadHealthBar:'Health bars above other players.',
+  ShowOverheadNames:'Names above characters.',
+  ShowPartyVitals:'Health and spell points for each member on the party list.',
+  ShowPetBarsInParty:'Pets and hirelings in the party list.',
+  ShowPlayerOverheadHealthBar:'A health bar above your own head.',
+  ShowShortcutNumbers:'Number each hotbar slot.',
+  ShowShortcutTimeouts:'Cooldown timers on hotbar slots.',
+  ShowTargetedBreakableNames:'Name above the breakable you have targeted.',
+  ShowTargetedMonsterNames:'Name above the monster you have targeted.',
+  ShowTargetedUsableNames:'Name above the lever, door or object you have targeted.',
+  ShowVitalsNumbers:'Exact health and spell point numbers on your bars.',
+  ShowVitalsNumbersInParty:'Exact numbers on party members\u2019 bars.',
+  ShowVitalsPercentages:'Health and spell points as percentages on your bars.',
+  ShowVitalsPercentagesInParty:'Percentages on party members\u2019 bars.',
+  StickySelection:'Keep your target when you click on empty ground.',
+  SurpressWorldEventsOnBillboard:'Hide world event notices from the billboard.',
+  UndockNewHenchmenBars:'New hireling bars appear as separate floating bars.',
+  VoiceEnabled:'Voice chat on.',
+  FloatyText_ShowDamageTypeIcons:'Damage type icons beside floating numbers.',
+  FloatyText_ShowEssenceRetainedMessage:'Say when sentient XP essence is kept.',
+  FloatyText_ShowGuildNames:'Guild name under player names.',
+  FloatyText_ShowOldDamageFormat:'The older, plainer damage number style.',
+  FloatyText_ShowPlayerDamage:'Floating numbers for damage you take.',
+  FloatyText_ShowPlayerEffects:'Floating text for effects that land on you.',
+  FloatyText_ShowProfessionNames:'Class shown under character names.',
+  FloatyText_ShowTitles:'Titles shown with names.',
+  CombatFeedbackText_AllMessagesOff:'Turn off every combat feedback message at once.'
+};
+function optHelp(name){
+  if (OPT_HELP[name]) return OPT_HELP[name];
+  let m;
+  if ((m = name.match(/^FloatyText_(.+)Color$/)))
+    return 'Floating text colour for ' + optLabel(m[1]).toLowerCase() + '.';
+  if ((m = name.match(/^TextColor_(.+)$/)))
+    return 'Chat text colour for the ' + optLabel(m[1]) + ' channel.';
+  if ((m = name.match(/^CombatFeedbackText_(.+)Off$/)))
+    return 'Hide ' + optLabel(m[1]).toLowerCase() + ' from the combat feedback.';
+  return null;
+}
+/* the full set the client writes today; used only to mark strangers */
+const KNOWN_OPT = new Set(Object.keys(OPT_HELP).concat(
+  ['AmplifiedDamage','Boss','CosmeticPet','Damage','Effect','EffectHarmful','Heal','HealReduced','Kill',
+   'MiniBoss','Miss','Monster','NPC','Party','PlayerAmplifiedDamage','Player','PlayerDamage','PlayerEffect',
+   'PlayerEffectHarmful','PlayerHeal','PlayerHealReduced','PlayerMiss','PlayerReducedDamage','PlayerSpellPoint',
+   'PlayerSpellPointHeal','RaidBoss','ReducedDamage','SpellPoint','SpellPointHeal','Usable'].map(s => 'FloatyText_' + s + 'Color'),
+  ['Advice','Auction','Broadcast','Effect','Glossary','Group','Guild','Hardcore','NPC','Say','Tell',
+   'UserChat1','UserChat2','UserChat3','UserChat4','WorldEvent'].map(s => 'TextColor_' + s),
+  ['CasterLevelMessages','DefensiveRollFeedback','Dice','Effects','EvasionFeedback','HealingMessages',
+   'HenchmanMessages','MissMessages','RemovalNotice','TargetingYou','YourActions','ZeroDamageMessages'].map(s => 'CombatFeedbackText_' + s + 'Off')
+));
+
+/* ---- colour profiles ----
+   The default is copied from files the client wrote, so applying it is a
+   true reset. The others are alternatives people ask for: brighter for a
+   busy screen, a palette that does not lean on red against green, and a
+   quieter set for long sessions. Only options the file already has are
+   touched, and the fourth (alpha) value is always kept. */
+const COLOUR_PROFILES = {
+  ddo: { name:'DDO default', colours:{
+    TextColor_Advice:'1.000 0.965 0.373', TextColor_Auction:'1.000 0.675 0.122', TextColor_Broadcast:'0.769 0.000 0.071',
+    TextColor_Effect:'0.404 0.522 0.482', TextColor_Glossary:'0.851 0.275 0.722', TextColor_Group:'0.020 0.710 0.200',
+    TextColor_Guild:'0.000 0.831 1.000', TextColor_Hardcore:'0.965 0.059 0.024', TextColor_NPC:'0.624 0.875 0.024',
+    TextColor_Say:'0.067 0.722 0.902', TextColor_Tell:'1.000 0.718 0.000', TextColor_UserChat1:'0.933 0.424 0.051',
+    TextColor_UserChat2:'0.871 0.969 0.024', TextColor_UserChat3:'0.075 0.663 0.365', TextColor_UserChat4:'0.475 0.173 0.522',
+    TextColor_WorldEvent:'0.071 0.651 0.322',
+    FloatyText_AmplifiedDamageColor:'0.624 0.224 0.624', FloatyText_BossColor:'0.973 0.031 0.031',
+    FloatyText_CosmeticPetColor:'0.773 1.000 0.773', FloatyText_DamageColor:'0.976 0.431 0.004',
+    FloatyText_EffectColor:'0.482 0.482 0.482', FloatyText_EffectHarmfulColor:'1.000 1.000 0.000',
+    FloatyText_HealColor:'0.000 1.000 0.000', FloatyText_HealReducedColor:'0.000 0.482 0.000',
+    FloatyText_KillColor:'0.976 0.431 0.004', FloatyText_MiniBossColor:'0.973 0.333 0.000',
+    FloatyText_MissColor:'0.537 0.522 0.435', FloatyText_MonsterColor:'0.973 0.733 0.000',
+    FloatyText_NPCColor:'0.220 0.710 0.702', FloatyText_PartyColor:'0.173 0.620 0.263',
+    FloatyText_PlayerAmplifiedDamageColor:'1.000 0.482 0.482', FloatyText_PlayerColor:'0.851 0.882 0.102',
+    FloatyText_PlayerDamageColor:'1.000 0.000 0.000', FloatyText_PlayerEffectColor:'0.078 0.631 0.827',
+    FloatyText_PlayerEffectHarmfulColor:'0.929 0.180 0.180', FloatyText_PlayerHealColor:'0.000 1.000 0.000',
+    FloatyText_PlayerHealReducedColor:'0.000 0.482 0.000', FloatyText_PlayerMissColor:'0.482 0.482 0.482',
+    FloatyText_PlayerReducedDamageColor:'0.482 0.000 0.000', FloatyText_PlayerSpellPointColor:'0.000 0.000 0.600',
+    FloatyText_PlayerSpellPointHealColor:'0.082 0.082 1.000', FloatyText_RaidBossColor:'0.773 0.322 1.000',
+    FloatyText_ReducedDamageColor:'1.000 1.000 0.000', FloatyText_SpellPointColor:'0.000 0.000 0.600',
+    FloatyText_SpellPointHealColor:'0.082 0.082 1.000', FloatyText_UsableColor:'1.000 1.000 0.431' } },
+  bright: { name:'High contrast', colours:{
+    TextColor_Advice:'#FFFF66', TextColor_Auction:'#FFB347', TextColor_Broadcast:'#FF4D4D', TextColor_Effect:'#9CB8AE',
+    TextColor_Glossary:'#FF7BEA', TextColor_Group:'#3CFF5A', TextColor_Guild:'#00E5FF', TextColor_Hardcore:'#FF3B2E',
+    TextColor_NPC:'#C5FF3D', TextColor_Say:'#4FD6FF', TextColor_Tell:'#FFC400', TextColor_UserChat1:'#FF8C1A',
+    TextColor_UserChat2:'#F0FF3D', TextColor_UserChat3:'#33E08A', TextColor_UserChat4:'#C77DFF', TextColor_WorldEvent:'#2EE07A',
+    FloatyText_AmplifiedDamageColor:'#E04BE0', FloatyText_BossColor:'#FF1A1A', FloatyText_CosmeticPetColor:'#D0FFD0',
+    FloatyText_DamageColor:'#FF8A00', FloatyText_EffectColor:'#A8A8A8', FloatyText_EffectHarmfulColor:'#FFFF00',
+    FloatyText_HealColor:'#33FF33', FloatyText_HealReducedColor:'#1FB31F', FloatyText_KillColor:'#FF8A00',
+    FloatyText_MiniBossColor:'#FF6A00', FloatyText_MissColor:'#BFBFBF', FloatyText_MonsterColor:'#FFC61A',
+    FloatyText_NPCColor:'#45D9D0', FloatyText_PartyColor:'#4DE07A', FloatyText_PlayerAmplifiedDamageColor:'#FF7A7A',
+    FloatyText_PlayerColor:'#F0F52A', FloatyText_PlayerDamageColor:'#FF2A2A', FloatyText_PlayerEffectColor:'#33B5FF',
+    FloatyText_PlayerEffectHarmfulColor:'#FF4040', FloatyText_PlayerHealColor:'#33FF33', FloatyText_PlayerHealReducedColor:'#1FB31F',
+    FloatyText_PlayerMissColor:'#BFBFBF', FloatyText_PlayerReducedDamageColor:'#B30000', FloatyText_PlayerSpellPointColor:'#4D6BFF',
+    FloatyText_PlayerSpellPointHealColor:'#5C8CFF', FloatyText_RaidBossColor:'#D080FF', FloatyText_ReducedDamageColor:'#FFFF33',
+    FloatyText_SpellPointColor:'#4D6BFF', FloatyText_SpellPointHealColor:'#5C8CFF', FloatyText_UsableColor:'#FFFF80' } },
+  cvd: { name:'Colour-blind friendly (no red vs green)', colours:{
+    TextColor_Advice:'#F0E442', TextColor_Auction:'#E69F00', TextColor_Broadcast:'#D55E00', TextColor_Effect:'#999999',
+    TextColor_Glossary:'#CC79A7', TextColor_Group:'#F0E442', TextColor_Guild:'#009E73', TextColor_Hardcore:'#D55E00',
+    TextColor_NPC:'#56B4E9', TextColor_Say:'#56B4E9', TextColor_Tell:'#E69F00', TextColor_UserChat1:'#E69F00',
+    TextColor_UserChat2:'#F0E442', TextColor_UserChat3:'#009E73', TextColor_UserChat4:'#CC79A7', TextColor_WorldEvent:'#0072B2',
+    FloatyText_AmplifiedDamageColor:'#CC79A7', FloatyText_BossColor:'#D55E00', FloatyText_CosmeticPetColor:'#DDDDDD',
+    FloatyText_DamageColor:'#E69F00', FloatyText_EffectColor:'#999999', FloatyText_EffectHarmfulColor:'#F0E442',
+    FloatyText_HealColor:'#56B4E9', FloatyText_HealReducedColor:'#0072B2', FloatyText_KillColor:'#E69F00',
+    FloatyText_MiniBossColor:'#D55E00', FloatyText_MissColor:'#999999', FloatyText_MonsterColor:'#F0E442',
+    FloatyText_NPCColor:'#009E73', FloatyText_PartyColor:'#56B4E9', FloatyText_PlayerAmplifiedDamageColor:'#CC79A7',
+    FloatyText_PlayerColor:'#FFFFFF', FloatyText_PlayerDamageColor:'#D55E00', FloatyText_PlayerEffectColor:'#56B4E9',
+    FloatyText_PlayerEffectHarmfulColor:'#D55E00', FloatyText_PlayerHealColor:'#56B4E9', FloatyText_PlayerHealReducedColor:'#0072B2',
+    FloatyText_PlayerMissColor:'#999999', FloatyText_PlayerReducedDamageColor:'#882255', FloatyText_PlayerSpellPointColor:'#0072B2',
+    FloatyText_PlayerSpellPointHealColor:'#56B4E9', FloatyText_RaidBossColor:'#CC79A7', FloatyText_ReducedDamageColor:'#F0E442',
+    FloatyText_SpellPointColor:'#0072B2', FloatyText_SpellPointHealColor:'#56B4E9', FloatyText_UsableColor:'#F0E442' } },
+  soft: { name:'Soft (easy on the eyes)', colours:{
+    TextColor_Advice:'#E6DFA0', TextColor_Auction:'#E0B884', TextColor_Broadcast:'#D08080', TextColor_Effect:'#8FA39B',
+    TextColor_Glossary:'#CF9BC4', TextColor_Group:'#8FD19E', TextColor_Guild:'#8FCFE0', TextColor_Hardcore:'#D48A7A',
+    TextColor_NPC:'#BFD48F', TextColor_Say:'#93C4DB', TextColor_Tell:'#E6C98A', TextColor_UserChat1:'#E0A984',
+    TextColor_UserChat2:'#D9E08F', TextColor_UserChat3:'#8FC9B0', TextColor_UserChat4:'#B39BC9', TextColor_WorldEvent:'#8FC4A6',
+    FloatyText_AmplifiedDamageColor:'#B98BB9', FloatyText_BossColor:'#D97B7B', FloatyText_CosmeticPetColor:'#D6E8D6',
+    FloatyText_DamageColor:'#E0A574', FloatyText_EffectColor:'#9E9E9E', FloatyText_EffectHarmfulColor:'#E0DC8F',
+    FloatyText_HealColor:'#9BDB9B', FloatyText_HealReducedColor:'#6FA86F', FloatyText_KillColor:'#E0A574',
+    FloatyText_MiniBossColor:'#DB9670', FloatyText_MissColor:'#A9A59A', FloatyText_MonsterColor:'#E0C98A',
+    FloatyText_NPCColor:'#8FC9C4', FloatyText_PartyColor:'#8FC49B', FloatyText_PlayerAmplifiedDamageColor:'#E0A0A0',
+    FloatyText_PlayerColor:'#DBE08F', FloatyText_PlayerDamageColor:'#DB8A8A', FloatyText_PlayerEffectColor:'#8FBFD6',
+    FloatyText_PlayerEffectHarmfulColor:'#D98F8F', FloatyText_PlayerHealColor:'#9BDB9B', FloatyText_PlayerHealReducedColor:'#6FA86F',
+    FloatyText_PlayerMissColor:'#9E9E9E', FloatyText_PlayerReducedDamageColor:'#A86F6F', FloatyText_PlayerSpellPointColor:'#8090C9',
+    FloatyText_PlayerSpellPointHealColor:'#9BA9DB', FloatyText_RaidBossColor:'#C4A0DB', FloatyText_ReducedDamageColor:'#E0DC8F',
+    FloatyText_SpellPointColor:'#8090C9', FloatyText_SpellPointHealColor:'#9BA9DB', FloatyText_UsableColor:'#E6E0A8' } }
+};
+const PROFILE_KEY = 'ddo-colour-profiles';
+function userProfiles(){
+  try { const v = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); return (v && typeof v === 'object') ? v : {}; }
+  catch { return {}; }
+}
+function saveUserProfiles(p){ try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch {} }
+function allProfiles(){
+  const out = {};
+  Object.entries(COLOUR_PROFILES).forEach(([k,v]) => { out['b:' + k] = v; });
+  Object.entries(userProfiles()).forEach(([k,v]) => { out['u:' + k] = {name:k, colours:v, user:true}; });
+  return out;
+}
+function renderProfiles(){
+  const sel = $('#profileSel'); if (!sel) return;
+  const cur = sel.value;
+  sel.textContent = '';
+  const all = allProfiles();
+  const grp = (label, pred) => {
+    const items = Object.entries(all).filter(([k]) => pred(k));
+    if (!items.length) return;
+    const og = el('optgroup'); og.label = label;
+    items.forEach(([k,p]) => { const o = el('option'); o.value = k; o.textContent = p.name; og.appendChild(o); });
+    sel.appendChild(og);
+  };
+  grp('Built in', k => k.startsWith('b:'));
+  grp('Saved on this computer', k => k.startsWith('u:'));
+  if (all[cur]) sel.value = cur;
+  $('#btnProfileDel').disabled = !sel.value.startsWith('u:');
+}
+function applyProfile(key){
+  const p = allProfiles()[key]; if (!p) return;
+  let changed = 0, skipped = 0;
+  Object.entries(p.colours).forEach(([name, col]) => {
+    const o = options.find(x => x.name === name);
+    if (!o || !isColourVal(o.value)) { skipped++; return; }
+    /* a profile colour is either the game's own "r g b" floats or a hex */
+    const rgb = /^[\d.\s]+$/.test(col) ? col.trim().split(/\s+/).slice(0,3).map(n => (+n).toFixed(3)).join(' ')
+                                      : hexToFloats(col, alphaOf(o.value)).split(' ').slice(0,3).join(' ');
+    const next = rgb + ' ' + alphaOf(o.value);
+    if (next !== o.value) { o.value = next; changed++; }
+  });
+  renderOptions($('#optSearch').value);
+  if (!changed && skipped) setStatus('This file has none of the colour settings that profile sets. Open a layout saved from the game to use it.', true);
+  else setStatus('Applied \u201c' + p.name + '\u201d: ' + changed + ' colour' + (changed===1?'':'s') + ' changed' +
+    (skipped ? ', ' + skipped + ' not in this file and left alone' : '') + '. Revert all puts them back.');
+}
+$('#profileSel').onchange = renderProfiles;
+$('#btnProfileApply').onclick = () => {
+  const k = $('#profileSel').value;
+  if (!k) { setStatus('Pick a profile first.', true); return; }
+  applyProfile(k);
+};
+$('#btnProfileSave').onclick = () => {
+  const cols = {};
+  options.forEach(o => { if (/^(TextColor_|FloatyText_.*Color$)/.test(o.name) && isColourVal(o.value))
+    cols[o.name] = o.value.trim().split(/\s+/).slice(0,3).join(' '); });
+  if (!Object.keys(cols).length) { setStatus('There are no chat or combat text colours in this file to save.', true); return; }
+  const name = (prompt('Name for this colour profile:') || '').trim();
+  if (!name) return;
+  const u = userProfiles(); u[name] = cols; saveUserProfiles(u);
+  renderProfiles(); $('#profileSel').value = 'u:' + name; renderProfiles();
+  setStatus('Saved \u201c' + name + '\u201d with ' + Object.keys(cols).length + ' colours. It stays in this browser, not in the layout file.');
+};
+$('#btnProfileDel').onclick = () => {
+  const k = $('#profileSel').value; if (!k.startsWith('u:')) return;
+  const name = k.slice(2);
+  if (!confirm('Delete the saved profile \u201c' + name + '\u201d?')) return;
+  const u = userProfiles(); delete u[name]; saveUserProfiles(u);
+  renderProfiles(); setStatus('Deleted \u201c' + name + '\u201d.');
+};
+
 function renderOptions(filter){
   const l = $('#optList'); l.textContent = '';
+  colourPainters = [];
   const q = (filter||'').toLowerCase();
   const changedOnly = $('#optChangedOnly').checked;
 
@@ -2474,8 +3079,15 @@ function renderOptions(filter){
     if (changedOnly && o.value === optDefault(o)) return false;
     if (optCat !== 'all' && catOf(o.name) !== optCat) return false;
     if (!q) return true;
-    return o.name.toLowerCase().includes(q) || optLabel(o.name).toLowerCase().includes(q);
+    return o.name.toLowerCase().includes(q) || optLabel(o.name).toLowerCase().includes(q) ||
+           (optHelp(o.name) || '').toLowerCase().includes(q);
   });
+
+  /* Options come out of the file alphabetically, which interleaves the
+     categories; without sorting, a sticky heading was emitted every few rows. */
+  const catRank = new Map(OPT_CATS.map((c, i) => [c[0], i]));
+  shown = shown.slice().sort((a, b) =>
+    (catRank.get(catOf(a.name)) ?? 99) - (catRank.get(catOf(b.name)) ?? 99));
 
   renderCats();
   $('#btnOptReset').disabled = !options.some(o => o.value !== optDefault(o));
@@ -2499,18 +3111,52 @@ function renderOptions(filter){
 
     const k = el('span','k');
     const b = el('b'); b.textContent = optLabel(o.name);
+    if (!KNOWN_OPT.has(o.name)) { const u = el('span','unk'); u.textContent = 'not recognised'; 
+      u.title = 'Not one of the settings the client is known to write. It is kept exactly as saved.'; b.appendChild(u); }
+    const help = optHelp(o.name);
     const i = el('i'); i.textContent = o.name;
-    k.append(b, i); row.appendChild(k);
+    k.appendChild(b);
+    if (help) { const s = el('small'); s.textContent = help; k.appendChild(s); }
+    k.appendChild(i); row.appendChild(k);
 
     const ctl = el('div','ctl');
     if (isColourVal(o.value)) {
-      const hex = el('span','hex'); hex.textContent = floatsToHex(o.value);
+      /* colour sets get passed around as hex codes, so typing one has to work */
+      const hexIn = el('input','hexin');
+      hexIn.type = 'text'; hexIn.value = floatsToHex(o.value).toUpperCase();
+      hexIn.spellcheck = false; hexIn.maxLength = 7;
+      hexIn.setAttribute('aria-label', optLabel(o.name) + ' colour code');
       const cp = el('input'); cp.type = 'color'; cp.value = floatsToHex(o.value);
       cp.setAttribute('aria-label', optLabel(o.name));
-      cp.oninput = () => { o.value = hexToFloats(cp.value, alphaOf(o.value));
-        hex.textContent = cp.value.toUpperCase(); row.classList.toggle('dirty', o.value !== optDefault(o));
-        renderColourDemo(); $('#btnOptReset').disabled = false; };
-      ctl.append(hex, cp);
+      const flag = el('span','cflag');
+      const paint = () => {
+        const notes = colourNotes(o);
+        flag.textContent = notes.length ? '!' : '';
+        flag.title = notes.join(' ');
+        flag.classList.toggle('on', !!notes.length);
+        if (notes.length) flag.setAttribute('role','img'); else flag.removeAttribute('role');
+        flag.setAttribute('aria-label', notes.join(' '));
+        row.classList.toggle('dirty', o.value !== optDefault(o));
+      };
+      colourPainters.push(paint);
+      const commit = hex => {
+        o.value = hexToFloats(hex, alphaOf(o.value));
+        cp.value = hex; hexIn.value = hex.toUpperCase();
+        renderColourDemo(); refreshColourFlags();
+        $('#btnOptReset').disabled = false;
+      };
+      cp.oninput = () => commit(cp.value);
+      hexIn.onchange = () => {
+        let t = hexIn.value.trim().replace(/^#/, '');
+        if (/^[0-9a-f]{3}$/i.test(t)) t = t.split('').map(c => c + c).join('');
+        if (/^[0-9a-f]{6}$/i.test(t)) commit('#' + t.toLowerCase());
+        else {
+          hexIn.value = floatsToHex(o.value).toUpperCase();
+          setStatus('That is not a colour code. Use six hex digits, like #FF8800.', true);
+        }
+      };
+      ctl.append(hexIn, cp, flag);
+      paint();
     } else if (/^(True|False)$/i.test(o.value)) {
       const sw = el('label','sw');
       const c2 = el('input'); c2.type = 'checkbox'; c2.checked = /true/i.test(o.value);
@@ -2536,7 +3182,8 @@ function renderOptions(filter){
       ctl.appendChild(t);
     }
 
-    const rv = el('button','revert'); rv.textContent = '⟲';
+    const rv = el('button','revert'); rv.type = 'button'; rv.textContent = '⟲';
+    rv.setAttribute('aria-label', 'Put ' + optLabel(o.name) + ' back to how the file had it');
     rv.title = 'Put this back to how the file had it';
     rv.onclick = () => { o.value = optDefault(o); renderOptions($('#optSearch').value); };
     ctl.appendChild(rv);
@@ -2585,6 +3232,22 @@ function renderColourDemo(){
     d.appendChild(line);
   });
   if (!any) { const s = el('span','meta'); s.textContent = 'No colour settings in this file.'; d.appendChild(s); }
+  /* a standing tally, so problems are visible without hunting row by row */
+  const box = $('#colourWarn'); if (!box) return;
+  box.textContent = '';
+  const cols = options.filter(o => isColourVal(o.value));
+  if (!cols.length) return;
+  const dim = cols.filter(o => contrastOnGame(floatsToHex(o.value)) < LOW_CONTRAST);
+  const clash = cols.filter(o => colourTwins(o).length);
+  const add = (cls, txt) => { const i = el('div', 'issue ' + cls); i.textContent = txt; box.appendChild(i); };
+  if (dim.length) {
+    add('warn', dim.length + (dim.length === 1 ? ' colour is' : ' colours are') +
+        ' too dark to read easily in game: ' + dim.map(o => optLabel(o.name)).join(', ') + '.');
+  }
+  if (clash.length) {
+    add('warn', clash.length + ' colour settings repeat a colour used elsewhere, so those events look alike in play.');
+  }
+  if (!dim.length && !clash.length) add('ok', 'All ' + cols.length + ' colours read clearly and none are duplicated.');
 }
 
 $('#optSearch').oninput = e => renderOptions(e.target.value);
@@ -2614,7 +3277,7 @@ function buildXML(){
   const ver = (doc.querySelector('Version') || {}).getAttribute
              ? doc.querySelector('Version').getAttribute('Value') : '1.0';
   const out = [];
-  out.push('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
+  out.push(XMLNS_DECL.trimEnd());
   out.push('<UI>');
   out.push('');
   out.push('  <Version Value="' + xmlAttr(ver || '1.0') + '"/>');
@@ -2636,6 +3299,9 @@ function buildXML(){
   const byLayout = new Map();
   [...doc.querySelectorAll('Layouts > Layout')].forEach(L => {
     const id = L.getAttribute('ID') || '';
+    /* a file carrying the same Layout ID twice would otherwise have its
+       elements written out twice */
+    if (byLayout.has(id)) return;
     order.push(id); byLayout.set(id, []);
   });
   elements.forEach(e => {
@@ -2687,41 +3353,22 @@ if (inViewer) {
      your UI\layouts folder under whatever name you want. Falls back to an
      ordinary download if the browser has no file picker. */
   $('#btnSave').onclick = async () => {
-    const xml = buildXML();
-    if (loadedText && !backedUp) {
-      backedUp = true;   // only nag once
-      setStatus('Tip: Back up original keeps a copy of the file as you opened it, in case you want to go back.');
-    }
-    if (window.showSaveFilePicker) {
-      try {
-        const opts = {
-          suggestedName: suggestedSaveName(),
-          types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
-        };
-        if (loadedHandle) opts.startIn = loadedHandle;   /* same folder it came from */
-        const handle = await window.showSaveFilePicker(opts);
-        const w = await handle.createWritable();
-        await w.write(xml);
-        await w.close();
-        const nm = (handle.name || 'ddo.layout').replace(/\.layout$/i, '');
-        setStatus('Saved ' + handle.name + '. In game type /alias clear then /ui layout load ' + nm + '.');
-        return;
-      } catch (err) {
-        if (err && err.name === 'AbortError') { setStatus('Save cancelled.'); return; }
-        /* anything else: fall through to a plain download */
-      }
-    }
+    const wantsTip = loadedText && !backedUp;
+    let written;
     try {
-      const blob = new Blob([xml], {type:'application/xml'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = suggestedSaveName();
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-      setStatus('Saved ' + suggestedSaveName() + ' to your downloads. Move it into your UI\\layouts folder, then in game type /alias clear followed by /ui layout load ddo.');
-    } catch (err2) {
-      setStatus('This browser blocked the download. Use Copy .layout text instead.', true);
+      written = await writeLayoutFile(buildXML(), suggestedSaveName());
+    } catch (err) {
+      setStatus('This browser would not write the file. Use Copy .layout text instead.', true); return;
     }
+    if (!written) { setStatus('Save cancelled.'); return; }
+    const nm = written.name.replace(/\.layout$/i, '');
+    /* the tip used to be printed before the picker opened, so the save message
+       overwrote it and nobody read it */
+    if (wantsTip) backedUp = true;
+    setStatus(written.viaPicker
+      ? 'Saved ' + written.name + '. In game type /alias clear then /ui layout load ' + nm + '.'
+        + (wantsTip ? ' Back up original keeps a copy of the file as you opened it.' : '')
+      : 'Saved ' + written.name + ' to your downloads. Move it into your UI\\layouts folder, then in game type /alias clear followed by /ui layout load ' + nm + '.');
   };
 }
 
@@ -2760,6 +3407,36 @@ function suggestedSaveName(){
   return base + '.layout';
 }
 
+/* One writer for both Save and Back up: the picker, starting in the folder the
+   file came from, and the download fallback. Returns what was written, or null
+   if the user cancelled. */
+async function writeLayoutFile(text, suggestedName){
+  if (window.showSaveFilePicker) {
+    try {
+      const opts = {
+        suggestedName,
+        types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
+      };
+      if (loadedHandle) opts.startIn = loadedHandle;
+      const handle = await window.showSaveFilePicker(opts);
+      const w = await handle.createWritable();
+      await w.write(text);
+      await w.close();
+      return { name: handle.name || suggestedName, viaPicker: true };
+    } catch (err) {
+      if (err && err.name === 'AbortError') return null;
+      /* no picker, or it refused: fall through to an ordinary download */
+    }
+  }
+  const blob = new Blob([text], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = suggestedName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return { name: suggestedName, viaPicker: false };
+}
+
 /* ---- keep a pristine copy of whatever was opened ----
    Every editor in this space warns you to back the file up first, so make
    it one click. This writes the file exactly as it was read, not as it is
@@ -2767,40 +3444,17 @@ function suggestedSaveName(){
 $('#btnBackup').onclick = async () => {
   if (!loadedText) { setStatus('Open a .layout file first - there is nothing to back up yet.', true); return; }
   const stamp = new Date().toISOString().slice(0,10);
-  const base = loadedName.replace(/\.layout$/i, '');
-  const name = base + '-backup-' + stamp + '.layout';
-  if (window.showSaveFilePicker) {
-    try {
-      const bopts = {
-        suggestedName: name,
-        types: [{ description: 'DDO layout', accept: { 'application/xml': ['.layout'] } }]
-      };
-      if (loadedHandle) bopts.startIn = loadedHandle;
-      const h = await window.showSaveFilePicker(bopts);
-      const w = await h.createWritable();
-      await w.write(loadedText);
-      await w.close();
-      backedUp = true;
-      $('#btnBackup').textContent = 'Backed up';
-      setStatus('Backed up to ' + h.name + '. That is the file as you opened it, none of your changes.');
-      return;
-    } catch (err) {
-      if (err && err.name === 'AbortError') { setStatus('Backup cancelled.'); return; }
-    }
-  }
+  const name = loadedName.replace(/\.layout$/i, '') + '-backup-' + stamp + '.layout';
+  let written;
   try {
-    const blob = new Blob([loadedText], {type:'application/xml'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-    backedUp = true;
-    $('#btnBackup').textContent = 'Backed up';
-    setStatus('Backed up as ' + name + '.');
-  } catch (err2) {
-    setStatus('Could not write the backup here.', true);
+    written = await writeLayoutFile(loadedText, name);
+  } catch (err) {
+    setStatus('Could not write the backup here.', true); return;
   }
+  if (!written) { setStatus('Backup cancelled.'); return; }
+  backedUp = true;
+  $('#btnBackup').textContent = 'Backed up';
+  setStatus('Backed up to ' + written.name + '. That is the file as you opened it, none of your changes.');
 };
 
 /* ---- move a layout between screen sizes ----
@@ -2891,11 +3545,29 @@ function applyPreset(k){
   setStatus('Loaded the ' + (k === 'general' ? 'general' : 'raid speech') + ' set — ' + set.length + ' aliases. Existing ones were replaced.');
 }
 
-/* ---------------- tabs ---------------- */
-document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
-  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', String(x === t)));
-  ['aliases','interface','options','help'].forEach(n =>
-    $('#pane-' + n).classList.toggle('hidden', n !== t.dataset.tab));
+/* ---------------- tabs ----------------
+   role="tablist" promises that Left/Right move between tabs and only the
+   selected one is in the tab order. */
+const TAB_NAMES = ['aliases','interface','options','help'];
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(x => {
+    const on = x === t;
+    x.setAttribute('aria-selected', String(on));
+    x.tabIndex = on ? 0 : -1;
+  });
+  TAB_NAMES.forEach(n => $('#pane-' + n).classList.toggle('hidden', n !== t.dataset.tab));
+}
+document.querySelectorAll('.tab').forEach(t => { t.onclick = () => showTab(t); });
+$('.tabs').addEventListener('keydown', ev => {
+  const step = {ArrowRight:1, ArrowLeft:-1, Home:'first', End:'last'}[ev.key];
+  if (step === undefined) return;
+  const tabs = [...document.querySelectorAll('.tab')];
+  const here = tabs.indexOf(document.activeElement);
+  if (here < 0) return;
+  ev.preventDefault();
+  const to = step === 'first' ? 0 : step === 'last' ? tabs.length - 1
+           : (here + step + tabs.length) % tabs.length;
+  showTab(tabs[to]); tabs[to].focus();
 });
 
 /* ---------------- boot ---------------- */
@@ -2925,6 +3597,7 @@ $('#starterX').onclick = () => {
 
 buildPalette();
 fillResolutions();
+renderProfiles();
 syncGroupBtns();
 drawRulers();
 drawGrid();
@@ -2936,3 +3609,5 @@ if (!loadSample()) {
   setStatus('Showing the built-in general alias set. Open a .layout file to edit your own.');
 }
 </script>
+</body>
+</html>
